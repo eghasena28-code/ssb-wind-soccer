@@ -160,7 +160,7 @@
         <!-- KOP RAPORT -->
         <div class="raport-header">
             <div class="raport-header-content">
-                <img src="assets/logossb.png" onerror="this.src='https://via.placeholder.com/85?text=SSB'" alt="Logo SSB Wind Soccer">
+                <img src="logossb.png" onerror="this.src='https://via.placeholder.com/85?text=SSB'" alt="Logo SSB Wind Soccer">
                 <div class="raport-header-text">
                     <h1>SSB WIND SOCCER</h1>
                     <p>LAPORAN EVALUASI SISWA • RAPORT RESMI</p>
@@ -171,7 +171,7 @@
             </div>
         </div>
         <div class="player-grid">
-            <div class="photo-box"><img id="dispFoto" src="assets/logossb.png"></div>
+            <div class="photo-box"><img id="dispFoto" src="logossb.png"></div>
             <div class="info-list">
                 <div class="info-card"><div class="label">NAMA PEMAIN</div><div class="value" id="dispNama">-</div></div>
                 <div class="info-card"><div class="label">NISW</div><div class="value" id="dispNISW">-</div></div>
@@ -326,7 +326,7 @@
         document.getElementById("dispNama").innerText = siswa.nama;
         document.getElementById("dispNISW").innerText = siswa.nisw;
         document.getElementById("dispKU").innerText = siswa.kategori || "-";
-        document.getElementById("dispFoto").src = siswa.foto || "assets/logossb.png";
+        document.getElementById("dispFoto").src = siswa.foto || "logossb.png";
         document.getElementById("tipeText").innerText = (siswa.tipe || "Reguler").toUpperCase();
 
         // ==================== PENEMPATAN PELATIH KEPALA (SUDAH DIPERBAIKI) ====================
