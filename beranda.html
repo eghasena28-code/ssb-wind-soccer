@@ -24,7 +24,6 @@
     .btn-secondary { background: linear-gradient(45deg, #00b09b, #96c93d); }
     .btn-secondary:hover { transform: scale(1.08); background: linear-gradient(45deg, #38ef7d, #11998e); }
     footer { background: rgba(0,0,0,0.75); color: #f1f1f1; text-align: center; padding: 10px; font-size: 13px; position: relative; width: 100%; bottom: 0; z-index: 1; }
-    footer a { color: #ffcc00; text-decoration: none; font-weight: bold; }
     @media (max-width: 768px) { .menu-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 480px) { .menu-grid { grid-template-columns: 1fr; } .extra-buttons { flex-direction: column; } }
   </style>
@@ -32,12 +31,12 @@
 <body>
 
   <div class="bg-slideshow">
-    <img src="pemain.png" class="active" alt="Background 1">
-    <img src="coach.png" alt="Background 2">
+    <img src="pemain.png" class="active" onerror="this.src='https://via.placeholder.com/800x600?text=Wind+Soccer'">
+    <img src="coach.png" onerror="this.src='https://via.placeholder.com/800x600?text=SSB+Wind+Soccer'">
   </div>
 
   <div class="container">
-    <img src="logossb.png" alt="Logo SSB" class="logo">
+    <img src="logossb.png" alt="Logo SSB" class="logo" onerror="this.src='https://via.placeholder.com/100'">
     <h1 id="sapaan">Selamat Datang</h1>
     <p class="tagline" id="niswInfo">Memuat informasi...</p>
 
@@ -49,15 +48,12 @@
       <a href="saran_masukan.html" class="menu-item">📩 Saran & Masukan</a>
       <a href="informasi.html" class="menu-item">ℹ️ Informasi & Peraturan</a>
       <a href="profil_pelatih.html" class="menu-item">👨‍🏫 Profil Pelatih</a>
-      
-      <!-- Tombol Raport yang sudah diperbaiki -->
       <button onclick="bukaRaport()" class="menu-item">📄 Raport</button>
-      
       <a href="program.html" class="menu-item">📘 Program</a>
     </div>
 
     <div class="extra-buttons">
-      <button class="btn-secondary" onclick="window.location.href='index.html'">⬅ Kembali ke Pendaftaran</button>
+      <button class="btn-secondary" onclick="window.location.href='index.html'">⬅ Kembali ke Awal</button>
       <button class="btn-special" onclick="logout()">🚪 Logout</button>
     </div>
   </div>
@@ -66,57 +62,82 @@
     <p>© 2026 SSB Wind Soccer | 📞 0812 9333 8781</p>
   </footer>
 
-  <script src="db-sync.js"></script>
-  <script>
-    // Slideshow Logic
-    const slides = document.querySelectorAll(".bg-slideshow img");
-    let current = 0;
-    if(slides.length > 0) {
-        setInterval(() => {
-          slides[current].classList.remove("active");
-          current = (current + 1) % slides.length;
-          slides[current].classList.add("active");
-        }, 5000);
-    }
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
 
-    // CEK LOGIN
-    const userSession = DBManager.getLoginUser();
+<script>
+// 1. KONFIGURASI FIREBASE
+const firebaseConfig = {
+    apiKey: "AIzaSyC-DVKZfDHpfFl6kE_uupT5GFinwNaWhpw",
+    authDomain: "ssb-wind-soccer-110.firebaseapp.com",
+    databaseURL: "https://ssb-wind-soccer-110-default-rtdb.asia-southeast1.firebasedatabase.app/",
+    projectId: "ssb-wind-soccer-110",
+    storageBucket: "ssb-wind-soccer-110.firebasestorage.app",
+    messagingSenderId: "128234924459",
+    appId: "1:128234924459:web:37d97f167996d7d67ecaee"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// 2. BACKGROUND SLIDESHOW
+const slides = document.querySelectorAll(".bg-slideshow img");
+let current = 0;
+if(slides.length > 0) {
+    setInterval(() => {
+        slides[current].classList.remove("active");
+        current = (current + 1) % slides.length;
+        slides[current].classList.add("active");
+    }, 5000);
+}
+
+// 3. LOGIKA CEK LOGIN & SYNC DATA
+const userStr = sessionStorage.getItem("userSSB");
+if (!userStr) {
+    alert("Silakan login terlebih dahulu!");
+    window.location.href = "index.html";
+} else {
+    const localUser = JSON.parse(userStr);
     
-    if (!userSession) {
-        alert("Silakan login terlebih dahulu!");
-        window.location.href = "index.html";
+    // Hubungkan ke Firebase untuk sinkronisasi data terbaru
+    db.ref('pendaftar/' + localUser.nisw).on('value', (snapshot) => {
+        const cloudData = snapshot.val();
+        if (cloudData) {
+            // Update tampilan secara real-time
+            document.getElementById("sapaan").innerText = "Halo, " + cloudData.nama + "!";
+            document.getElementById("niswInfo").innerText = "NISW: " + cloudData.nisw + " | Jalur: " + (cloudData.tipe || "Reguler");
+            // Update data di session agar file lain (profil/raport) dapat data terbaru
+            sessionStorage.setItem("userSSB", JSON.stringify(cloudData));
+        }
+    });
+}
+
+function bukaProfilSiswa() {
+    const userStr = sessionStorage.getItem("userSSB");
+    if (!userStr) return;
+    const user = JSON.parse(userStr);
+    
+    // Tetap mengikuti logika Coach: B masuk ke siswabeasiswa, lainnya datasiswa
+    if (String(user.nisw).toUpperCase().includes('B')) {
+        window.location.href = "siswabeasiswa.html";
     } else {
-        document.getElementById("sapaan").innerText = "Halo, " + userSession.nama + "!";
-        document.getElementById("niswInfo").innerText = "NISW: " + userSession.nisw + " | Jalur: " + (userSession.tipe || "Reguler");
+        window.location.href = "datasiswa.html";
     }
+}
 
-    function bukaProfilSiswa() {
-        const user = DBManager.getLoginUser();
-        if (!user) return;
-        if (String(user.nisw).toUpperCase().includes('B')) {
-            window.location.href = "siswabeasiswa.html";
-        } else {
-            window.location.href = "datasiswa.html";
-        }
-    }
+function bukaRaport() {
+    const userStr = sessionStorage.getItem("userSSB");
+    if (!userStr) return;
+    const user = JSON.parse(userStr);
+    window.location.href = `raport.html?nisw=${encodeURIComponent(user.nisw)}`;
+}
 
-    // FUNGSI BARU: Buka Raport dengan NISW otomatis
-    function bukaRaport() {
-        const user = DBManager.getLoginUser();
-        if (!user || !user.nisw) {
-            alert("Data NISW tidak ditemukan! Silakan login ulang.");
-            return;
-        }
-        // Kirim NISW ke halaman raport
-        window.location.href = `raport.html?nisw=${encodeURIComponent(user.nisw)}`;
-    }
-
-    function logout() {
-      if (confirm("Yakin ingin logout?")) {
-        DBManager.clearLoginUser();
+function logout() {
+    if (confirm("Yakin ingin logout?")) {
+        sessionStorage.removeItem("userSSB");
         window.location.href = "index.html"; 
-      }
     }
-  </script>
+}
+</script>
 </body>
 </html>
