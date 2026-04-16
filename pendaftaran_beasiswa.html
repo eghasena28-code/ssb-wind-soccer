@@ -76,33 +76,26 @@
   </form>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+
 <script>
-// DBManager disamakan dengan reguler agar sinkron
-const DBManager = {
-    initData: function() {
-        ["dataPendaftar", "dataSiswa", "dataBeasiswa"].forEach(k => {
-            if (!localStorage.getItem(k)) localStorage.setItem(k, JSON.stringify([]));
-        });
-    },
-    getSiswaAktif: function() {
-        return [...JSON.parse(localStorage.getItem("dataSiswa")||"[]"), ...JSON.parse(localStorage.getItem("dataBeasiswa")||"[]")];
-    },
-    addPendaftar: function(data) {
-        let list = JSON.parse(localStorage.getItem("dataPendaftar") || "[]");
-        const total = this.getSiswaAktif().length + list.length + 1;
-        // B untuk Beasiswa, R untuk Reguler
-        data.nisw = (data.tipe === "Beasiswa" ? "B" : "R") + new Date().getFullYear() + total.toString().padStart(3, '0');
-        data.status = "Menunggu Verifikasi";
-        data.tglDaftar = new Date().toLocaleDateString('id-ID');
-        list.push(data);
-        localStorage.setItem("dataPendaftar", JSON.stringify(list));
-        return data.nisw;
-    }
+// 1. KONFIGURASI FIREBASE COACH SYAMSUL
+const firebaseConfig = {
+    apiKey: "AIzaSyC-DVKZfDHpfFl6kE_uupT5GFinwNaWhpw",
+    authDomain: "ssb-wind-soccer-110.firebaseapp.com",
+    databaseURL: "https://ssb-wind-soccer-110-default-rtdb.asia-southeast1.firebasedatabase.app/",
+    projectId: "ssb-wind-soccer-110",
+    storageBucket: "ssb-wind-soccer-110.firebasestorage.app",
+    messagingSenderId: "128234924459",
+    appId: "1:128234924459:web:37d97f167996d7d67ecaee"
 };
 
-DBManager.initData();
+// 2. INISIALISASI
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-// FUNGSI KOMPRESI GAMBAR (Penting agar memori tidak penuh)
+// 3. FUNGSI KOMPRESI GAMBAR (TETAP SAMA)
 async function compressImage(file) {
     return new Promise((resolve) => {
         const reader = new FileReader();
@@ -124,6 +117,7 @@ async function compressImage(file) {
     });
 }
 
+// 4. FUNGSI HITUNG OTOMATIS (TETAP SAMA)
 function hitungOtomatis() {
     const tgl = document.getElementById("tglLahir").value;
     if (!tgl) return;
@@ -139,18 +133,22 @@ function hitungOtomatis() {
     document.getElementById("kategori").value = kat;
 }
 
+// 5. PROSES SIMPAN KE FIREBASE
 document.getElementById("formPendaftaran").onsubmit = async function(e) {
     e.preventDefault();
     const btn = document.getElementById("btnSubmit");
     btn.disabled = true;
-    btn.textContent = "Mengompres & Mengirim...";
+    btn.textContent = "Mengirim Pengajuan Beasiswa...";
 
     const file = document.getElementById("foto").files[0];
     let fotoData = "default.png";
-    
     if (file) fotoData = await compressImage(file);
 
+    // Membuat NISW Khusus Beasiswa (B)
+    const niswBaru = "B" + new Date().getFullYear() + Date.now().toString().slice(-4);
+
     const dataBaru = {
+        nisw: niswBaru,
         nama: document.getElementById("nama").value.trim(),
         foto: fotoData,
         tglLahir: document.getElementById("tglLahir").value,
@@ -161,18 +159,22 @@ document.getElementById("formPendaftaran").onsubmit = async function(e) {
         noHp: document.getElementById("noHp").value.trim(),
         alamat: document.getElementById("alamat").value.trim(),
         alasan: document.getElementById("alasan").value.trim(),
-        tipe: "Beasiswa"
+        tipe: "Beasiswa",
+        status: "Menunggu Verifikasi",
+        tglDaftar: new Date().toLocaleString('id-ID')
     };
 
-    try {
-        const nisw = DBManager.addPendaftar(dataBaru);
-        alert(`✅ PENGAJUAN BEASISWA BERHASIL!\nNISW: ${nisw}`);
+    // KIRIM KE FIREBASE
+    db.ref('pendaftar/' + niswBaru).set(dataBaru)
+    .then(() => {
+        alert("✅ PENGAJUAN BEASISWA BERHASIL!\nData Anda sedang diproses oleh Coach Syamsul.\nNISW: " + niswBaru);
         window.location.href = "index.html";
-    } catch (err) {
-        alert("❌ Memori Penuh! Silakan hubungi Admin.");
+    })
+    .catch((err) => {
+        alert("❌ Gagal Mengirim: " + err.message);
         btn.disabled = false;
         btn.textContent = "KIRIM PENGAJUAN BEASISWA";
-    }
+    });
 };
 </script>
 </body>
