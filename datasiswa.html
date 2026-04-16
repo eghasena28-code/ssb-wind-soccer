@@ -27,7 +27,7 @@
 <body>
     <div class="profile-card">
         <div class="photo-section">
-            <img id="imgSiswa" src="assets/default.png" class="img-siswa" alt="Foto Siswa">
+            <img id="imgSiswa" src="default.png" class="img-siswa" alt="Foto Siswa">
             <div class="nama-siswa" id="namaSiswa">NAMA SISWA</div>
             <div class="nisw-text" id="niswSiswa">NISW: -</div>
         </div>
@@ -82,7 +82,7 @@
             alert("Siswa tidak ditemukan! Silakan login ulang.");
             window.location.href = "index.html";
         } else {
-            document.getElementById("imgSiswa").src = s.foto || "assets/default.png";
+            document.getElementById("imgSiswa").src = s.foto || "default.png";
             document.getElementById("namaSiswa").innerText = (s.nama || "").toUpperCase();
             document.getElementById("niswSiswa").innerText = "NISW: " + (s.nisw || "-");
 
