@@ -1,182 +1,959 @@
 <!DOCTYPE html>
+
 <html lang="id">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - SSB Wind Soccer</title>
+
+    <title>Admin Panel Terintegrasi - SSB Wind Soccer</title>
+
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
+
         :root { --primary: #003399; --secondary: #ffb400; --dark: #1a1a1a; --success: #28a745; --danger: #dc3545; --info: #17a2b8; }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background: #f4f7f6; display: flex; }
-        
-        /* Sidebar - KEMBALI KE ASLI */
-        .sidebar { width: 260px; background: var(--primary); height: 100vh; color: white; position: fixed; padding: 20px; display: flex; flex-direction: column; z-index: 1000; }
+
+        body { font-family: 'Poppins', sans-serif; margin: 0; background: #f4f7f6; display: flex; }
+
+        .sidebar { width: 260px; background: var(--primary); height: 100vh; color: white; position: fixed; padding: 20px; box-sizing: border-box; z-index: 1000; overflow-y: auto; display: flex; flex-direction: column; }
+
+        .sidebar-content { flex: 1; overflow-y: auto; }
+
         .sidebar h2 { font-size: 18px; border-bottom: 2px solid var(--secondary); padding-bottom: 10px; margin-bottom: 30px; text-align: center; }
+
         .nav-link { display: block; color: white; text-decoration: none; padding: 12px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: 0.3s; font-size: 14px; position: relative; }
+
         .nav-link:hover, .nav-link.active { background: var(--secondary); color: var(--primary); font-weight: bold; }
+
         .badge-notif { background: var(--danger); color: white; padding: 2px 8px; border-radius: 20px; font-size: 10px; position: absolute; right: 10px; top: 12px; }
-        
-        /* Main Content */
-        .main-content { margin-left: 260px; padding: 40px; width: calc(100% - 260px); min-height: 100vh; }
+
+        .logout-section { margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2); }
+
+        .btn-logout { width: 100%; background: var(--danger); color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+        .btn-logout:hover { background: #c82333; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+
+        .main-content { margin-left: 260px; padding: 40px; width: calc(100% - 260px); min-height: 100vh; box-sizing: border-box; }
+
         .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 30px; }
-        h3 { color: var(--primary); border-left: 5px solid var(--secondary); padding-left: 15px; margin-bottom: 20px; }
-        
-        /* Table Style */
-        table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
-        th { background: #f8f9fa; padding: 12px; text-align: left; border-bottom: 2px solid #ddd; color: var(--primary); }
-        td { padding: 12px; border-bottom: 1px solid #eee; }
-        .img-preview { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd; }
-        
-        .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 12px; }
-        .btn-success { background: var(--success); color: white; }
+
+        .header-stats { background: var(--primary); color: white; padding: 20px; border-radius: 12px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
+
+        h3 { color: var(--primary); margin-top: 0; border-left: 5px solid var(--secondary); padding-left: 15px; margin-bottom: 20px; }
+
+        h4 { color: var(--primary); margin-bottom: 15px; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+
+        th { background: #f8f9fa; padding: 12px; text-align: left; border-bottom: 2px solid #ddd; color: var(--primary); font-weight: bold; }
+
+        td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
+
+        .badge { padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+
+        .reg { background: #eef2ff; color: var(--primary); }
+
+        .out { background: #fff5f5; color: var(--danger); }
+
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: #555; }
+
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 10px; font-size: 13px; }
+
+        textarea { resize: vertical; min-height: 60px; }
+
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px; }
+
+        .btn-add { background: var(--success); color: white; width: 100%; justify-content: center; }
+
         .btn-danger { background: var(--danger); color: white; }
+
         .btn-info { background: var(--info); color: white; }
-        input, select, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; }
-        
+
+        .btn-print { background: #6f42c1; color: white; }
+
+        .btn-sm { padding: 5px 10px; font-size: 11px; margin-right: 5px; }
+
+        .btn:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+
         .section { display: none; }
-        .section.active { display: block; }
+
+        .section.active { display: block; animation: fadeIn 0.3s ease-in; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .grid-input { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+        .finance-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
+
+        .stat-box { padding: 15px; border-radius: 12px; color: white; text-align: center; }
+
+        .stat-box span { font-size: 12px; opacity: 0.9; }
+
+        .stat-box h3 { color: white !important; border: none; padding: 0; margin: 8px 0 0 0; font-size: 24px; }
+
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow-y: auto; }
+
+        .modal-content { background: white; margin: 5% auto; padding: 25px; border-radius: 15px; width: 95%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+
+        .modal-header { border-bottom: 2px solid var(--primary); padding-bottom: 15px; margin-bottom: 20px; font-weight: bold; color: var(--primary); font-size: 18px; }
+
+        .avg-bar-container { background: #eee; border-radius: 10px; height: 30px; margin-top: 10px; overflow: hidden; position: relative; }
+
+        .avg-bar-fill { background: var(--success); height: 100%; width: 0%; transition: 0.5s; }
+
+        .avg-text { position: absolute; width: 100%; text-align: center; top: 0; font-weight: bold; font-size: 14px; line-height: 30px; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+
+        .img-preview { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd; }
+
+        .filter-section { background: #f9f9f9; padding: 15px; border-radius: 10px; margin-bottom: 15px; display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+
+        .filter-section > div { flex: 1; min-width: 180px; }
+
+        .filter-section label { margin-bottom: 5px; }
+
+        .filter-section input, .filter-section select { margin-bottom: 0; }
+
+        .kwitansi-container {
+
+            background: white;
+
+            padding: 50px 40px;
+
+            border: 3px solid var(--primary);
+
+            border-radius: 8px;
+
+            font-family: 'Arial', sans-serif;
+
+            max-width: 800px;
+
+            margin: 0 auto;
+
+            position: relative;
+
+        }
+
+        .kwitansi-header {
+
+            text-align: center;
+
+            border-bottom: 3px solid var(--primary);
+
+            padding-bottom: 20px;
+
+            margin-bottom: 30px;
+
+        }
+
+        .kwitansi-logo { width: 70px; height: 70px; margin: 0 auto 12px; }
+
+        .kwitansi-title { font-size: 26px; font-weight: bold; color: var(--primary); margin-bottom: 5px; letter-spacing: 1px; }
+
+        .kwitansi-subtitle { font-size: 13px; color: #333; margin-bottom: 3px; font-weight: bold; }
+
+        .kwitansi-subtitle-small { font-size: 11px; color: #666; margin-bottom: 15px; }
+
+        .kwitansi-number { font-size: 13px; color: var(--primary); font-weight: bold; letter-spacing: 1px; }
+
+        .kwitansi-body { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 35px; padding: 15px 0; }
+
+        .kwitansi-section { font-size: 13px; }
+
+        .kwitansi-label { font-weight: bold; color: var(--primary); margin-bottom: 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .kwitansi-value { font-size: 13px; line-height: 1.8; }
+
+        .kwitansi-details { background: #f9f9f9; padding: 22px; border-radius: 6px; margin-bottom: 25px; border: 1px solid #e0e0e0; }
+
+        .kwitansi-details-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed #ccc; font-size: 13px; }
+
+        .kwitansi-details-row.total { border: none; border-top: 2px solid var(--primary); padding: 15px 0 0 0; font-weight: bold; font-size: 15px; color: var(--primary); justify-content: space-between; margin-top: 10px; }
+
+        .kwitansi-terbilang { margin: 25px 0; padding: 18px; background: #fffbea; border-radius: 6px; border-left: 4px solid var(--secondary); font-size: 13px; }
+
+        .kwitansi-terbilang-label { font-weight: bold; color: var(--primary); font-size: 12px; text-transform: uppercase; margin-bottom: 8px; }
+
+        .kwitansi-footer { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-top: 80px; font-size: 12px; }
+
+        .kwitansi-sign { display: flex; flex-direction: column; align-items: center; text-align: center; }
+
+        .kwitansi-sign-label { font-size: 12px; color: #333; font-weight: 600; margin-bottom: 45px; letter-spacing: 0.5px; }
+
+        .kwitansi-sign-garis { width: 100%; border-top: 2px solid #333; margin-bottom: 2px; }
+
+        .kwitansi-sign-nama { font-weight: bold; color: #333; font-size: 14px; letter-spacing: 0.5px; min-height: 20px; word-wrap: break-word; margin-bottom: 0px; }
+
+        .kwitansi-sign-jabatan { font-size: 12px; color: #333; font-weight: 600; line-height: 1.5; margin-top: 2px; }
+
+        .kwitansi-stamp { text-align: center; color: var(--secondary); font-size: 32px; font-weight: bold; margin: 25px 0; transform: rotate(-20deg); opacity: 0.6; letter-spacing: 2px; position: absolute; top: 45%; right: 30px; }
+
+        .kwitansi-footer-text { text-align: center; margin-top: 35px; padding-top: 15px; border-top: 1px dashed #ccc; font-size: 10px; color: #888; }
+
+        .btn-group { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+
+        .btn-group button { flex: 1; min-width: 120px; }
+
+        @media print {
+
+            body { margin: 0; padding: 0; background: white; }
+
+            .modal { background: white; }
+
+            .modal-content { width: 100%; margin: 0; box-shadow: none; padding: 0; }
+
+            .kwitansi-container { border: 1px solid #ccc; margin: 0; }
+
+            .btn-group { display: none; }
+
+            @page { margin: 0; }
+
+        }
+
+        @media (max-width: 1024px) {
+
+            .grid-input { grid-template-columns: 1fr; }
+
+            .finance-grid { grid-template-columns: repeat(2, 1fr); }
+
+        }
+
+        @media (max-width: 768px) {
+
+            .sidebar { width: 200px; padding: 15px; }
+
+            .main-content { margin-left: 200px; padding: 20px; width: calc(100% - 200px); }
+
+            .grid-input { grid-template-columns: 1fr; }
+
+            .finance-grid { grid-template-columns: 1fr; }
+
+            table { font-size: 12px; }
+
+            .filter-section { flex-direction: column; }
+
+            .filter-section > div { width: 100%; }
+
+            .kwitansi-body { grid-template-columns: 1fr; gap: 15px; }
+
+            .kwitansi-footer { gap: 40px; }
+
+        }
+
+        .antropometri-box {
+
+            background: #f8f9fa;
+
+            padding: 18px;
+
+            border-radius: 10px;
+
+            margin: 20px 0;
+
+            border-left: 5px solid #ffb400;
+
+        }
+
+        .antropometri-grid {
+
+            display: grid;
+
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+
+            gap: 15px;
+
+        }
+
     </style>
+
 </head>
+
 <body>
 
+    <!-- SEMUA HTML DI ATAS TETAP PERSIS SAMA -->
+
     <div class="sidebar">
-        <h2>ADMIN WIND SOCCER</h2>
-        <div class="nav-link active" onclick="showSection('db_siswa')"><i class="fas fa-users"></i> <span>Database Siswa</span></div>
-        <div class="nav-link" onclick="showSection('verifikasi')">
-            <i class="fas fa-check-circle"></i> <span>Verifikasi</span>
-            <span id="badgeCount" class="badge-notif" style="display:none;">0</span>
+
+        <div class="sidebar-content">
+
+            <div style="text-align: center; margin-bottom: 15px;"><img src="logossb.png" style="width: 60px;" onerror="this.style.display='none'"></div>
+
+            <h2>ADMIN WIND SOCCER</h2>
+
+            <div class="nav-link active" onclick="showSection('db_siswa')">👥 Database Siswa</div>
+
+            <div class="nav-link" onclick="showSection('verifikasi')">✅ Verifikasi Pendaftar <span id="badgeCount" class="badge-notif" style="display:none;">0</span></div>
+
+            <div class="nav-link" onclick="showSection('absensi')">📝 Rekap Absensi</div>
+
+            <div class="nav-link" onclick="showSection('keuangan')">💰 Keuangan & Kas</div>
+
+            <div class="nav-link" onclick="showSection('raport')">📊 Input Nilai Raport</div>
+
+            <div class="nav-link" onclick="showSection('saran')">📩 Saran & Masukan <span id="badgeSaran" class="badge-notif" style="display:none;">0</span></div>
+
+            <div class="nav-link" onclick="showSection('jadwal')">📅 Kelola Jadwal</div>
+
         </div>
-        <div class="nav-link" onclick="showSection('raport')"><i class="fas fa-chart-bar"></i> <span>Input Raport</span></div>
-        <div class="nav-link" onclick="logoutAdmin()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></div>
+
+        <div class="logout-section">
+
+            <button class="btn-logout" onclick="logoutAdmin()">
+
+                <i class="fas fa-sign-out-alt"></i> LOGOUT
+
+            </button>
+
+        </div>
+
     </div>
 
     <div class="main-content">
+
         <div id="db_siswa" class="section active">
+
             <div class="card">
-                <h3>👥 Database Siswa Aktif</h3>
+
+                <h3>📊 Database Siswa Aktif</h3>
+
+                <div style="background: #28a745; color: white; padding: 18px 20px; border-radius: 12px; margin-bottom: 20px;">
+
+                    <div style="display: flex; justify-content: space-around; align-items: center; gap: 20px;">
+
+                        <div style="text-align: center; flex: 1;">
+
+                            <div style="font-size: 13px; opacity: 0.85; margin-bottom: 4px;">REGULER</div>
+
+                            <div id="totalReguler" style="font-size: 28px; font-weight: bold; line-height: 1;">0</div>
+
+                        </div>
+
+                        <div style="text-align: center; flex: 1;">
+
+                            <div style="font-size: 13px; opacity: 0.85; margin-bottom: 4px;">BEASISWA</div>
+
+                            <div id="totalBeasiswa" style="font-size: 28px; font-weight: bold; line-height: 1;">0</div>
+
+                        </div>
+
+                        <div style="text-align: center; flex: 1; border-left: 2px solid rgba(255,255,255,0.4); padding-left: 20px;">
+
+                            <div style="font-size: 13px; opacity: 0.85; margin-bottom: 4px;">TOTAL KESELURUHAN</div>
+
+                            <div id="totalSiswaAktif" style="font-size: 32px; font-weight: bold; line-height: 1;">0</div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="filter-section">
+
+                    <div>
+
+                        <label>Filter Kategori</label>
+
+                        <select id="filterClass" onchange="renderAll()">
+
+                            <option value="">-- Semua Class --</option>
+
+                            <option value="KU-8 Class of 2017/2018">KU-8</option>
+
+                            <option value="KU-10 Class of 2015/2016">KU-10</option>
+
+                            <option value="KU-14 Class of 2013/2014">KU-14</option>
+
+                            <option value="KU-16 Class of 2011/2012">KU-16</option>
+
+                            <option value="KU-17 Class of 2009/2010">KU-17</option>
+
+                            <option value="Other/Lain">Other/Lain</option>
+
+                        </select>
+
+                    </div>
+
+                    <div>
+
+                        <button class="btn btn-info" onclick="renderAll()">
+
+                            <i class="fas fa-sync-alt"></i> Refresh
+
+                        </button>
+
+                    </div>
+
+                </div>
+
                 <table>
-                    <thead>
-                        <tr>
-                            <th>Foto</th>
-                            <th>NISW</th>
-                            <th>Nama</th>
-                            <th>Kategori</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="listSiswa"></tbody>
+
+                    <thead><tr><th>Foto</th><th>NISW</th><th>Nama</th><th>KU</th><th>Tipe</th><th>Posisi</th><th>Tgl Lahir</th><th>No HP</th><th>Nama Ortu</th><th>Alamat</th><th>Tagihan</th><th>Aksi</th></tr></thead>
+
+                    <tbody id="listSiswaAktif"></tbody>
+
                 </table>
+
             </div>
+
         </div>
 
         <div id="verifikasi" class="section">
-            <div class="card">
-                <h3>✅ Verifikasi Pendaftar Baru</h3>
-                <p>Data pendaftar akan otomatis masuk ke sini.</p>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Nama</th>
-                            <th>NISW</th>
-                            <th>Tipe</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="listVerifikasi"></tbody>
-                </table>
+
+            <div class="header-stats">
+
+                <div>Antrean Pendaftar: <h2 id="totalAntrean" style="color:white; margin:0">0</h2></div>
+
+                <div style="text-align:right">Info Verifikasi:<br><b>Cek Tipe & Status Pembayaran</b></div>
+
             </div>
+
+            <div class="card">
+
+                <h3>✅ Verifikasi Pendaftaran Baru</h3>
+
+                <div class="filter-section">
+
+                    <div style="flex: 1;">
+
+                        <button class="btn btn-info" onclick="renderAll()">
+
+                            <i class="fas fa-sync-alt"></i> Refresh
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <table>
+
+                    <thead><tr><th>Foto</th><th>Nama / KU</th><th>Tipe Daftar</th><th>Status Pembayaran</th><th>Aksi</th></tr></thead>
+
+                    <tbody id="listAntrean"></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <div id="absensi" class="section">
+
+            <div class="card">
+
+                <h3>📝 Rekap Kehadiran Latihan</h3>
+
+                <div class="filter-section">
+
+                    <div style="flex: 1;">
+
+                        <label>Filter Tanggal:</label>
+
+                        <input type="date" id="searchTglAbsen" onchange="renderAll()">
+
+                    </div>
+
+                    <div>
+
+                        <button class="btn btn-info" onclick="renderAll()">
+
+                            <i class="fas fa-sync-alt"></i> Refresh
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <table>
+
+                    <thead><tr><th>Tanggal</th><th>NISW</th><th>Nama</th><th>Status</th><th>Keterangan</th><th>Kehadiran %</th><th>Aksi</th></tr></thead>
+
+                    <tbody id="listAbsensi"></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <div id="keuangan" class="section">
+
+            <div class="finance-grid">
+
+                <div class="stat-box" style="background: var(--primary);"><span>Total Masuk</span><h3 id="totalMasuk">Rp 0</h3></div>
+
+                <div class="stat-box" style="background: var(--danger);"><span>Total Keluar</span><h3 id="totalKeluar">Rp 0</h3></div>
+
+                <div class="stat-box" style="background: var(--success);"><span>Saldo Kas</span><h3 id="saldoAkhir">Rp 0</h3></div>
+
+            </div>
+
+            <div class="grid-input">
+
+                <div class="card">
+
+                    <h4>💰 Catat Pemasukan</h4>
+
+                    <label>NISW (Kosongkan jika bukan siswa):</label>
+
+                    <input type="text" id="niswBayar" placeholder="Contoh: R2026001" oninput="cekSiswaOtomatis()">
+
+                    <label>Diterima Dari:</label>
+
+                    <input type="text" id="pengirimMasuk" placeholder="Nama Pembayar / Sumber Dana">
+
+                    <label>Nominal Rp:</label>
+
+                    <input type="number" id="nomBayar" placeholder="Nominal Rp">
+
+                    <label>Kategori:</label>
+
+                    <select id="jenisPemasukan">
+
+                        <option value="SPP">Pembayaran SPP</option>
+
+                        <option value="Daftar">Uang Pendaftaran</option>
+
+                        <option value="Sponsor">Sponsor</option>
+
+                        <option value="Kompetisi">Biaya Kompetisi</option>
+
+                        <option value="Lainnya">Lain-lain</option>
+
+                    </select>
+
+                    <label>Keterangan Tambahan:</label>
+
+                    <textarea id="ketMasuk" placeholder="Contoh: Pembayaran SPP Januari" rows="2"></textarea>
+
+                    <button class="btn btn-add" onclick="transaksiMasuk()">
+
+                        <i class="fas fa-save"></i> Simpan Pemasukan
+
+                    </button>
+
+                </div>
+
+                <div class="card">
+
+                    <h4>💸 Catat Pengeluaran</h4>
+
+                    <input type="text" id="ketKeluar" placeholder="Keperluan">
+
+                    <input type="number" id="nomKeluar" placeholder="Nominal Rp">
+
+                    <textarea id="catatanKeluar" placeholder="Detail" rows="2"></textarea>
+
+                    <button class="btn btn-danger" style="width:100%; justify-content: center;" onclick="transaksi('Keluar')">
+
+                        <i class="fas fa-save"></i> Simpan
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div class="card">
+
+                <h3> Riwayat Keuangan</h3>
+
+                <div class="filter-section">
+
+                    <div style="flex: 1;">
+
+                        <button class="btn btn-info" onclick="renderAll()">
+
+                            <i class="fas fa-sync-alt"></i> Refresh
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <table>
+
+                    <thead><tr><th>Tanggal</th><th>Jenis</th><th>Keterangan</th><th>Nominal</th><th>Aksi</th></tr></thead>
+
+                    <tbody id="listKeuangan"></tbody>
+
+                </table>
+
+            </div>
+
         </div>
 
         <div id="raport" class="section">
+
             <div class="card">
-                <h3>📊 Input Nilai Raport</h3>
-                <div style="display: flex; gap: 10px;">
-                    <input type="text" id="cariNisw" placeholder="Masukkan NISW...">
-                    <button class="btn btn-info" onclick="cariSiswa()">Cari</button>
+
+                <h3>📊 Input Evaluasi Pemain</h3>
+
+                <label>NISW Siswa:</label>
+
+                <input type="text" id="niswNilai" placeholder="Contoh: R202601">
+
+                <div class="antropometri-box">
+
+                    <h4 style="margin-bottom:12px; color:var(--primary);">DATA ANTROPOMETRI SISWA</h4>
+
+                    <div class="antropometri-grid">
+
+                        <div>
+
+                            <label>TB (Tinggi Badan) cm</label>
+
+                            <input type="number" id="tb" placeholder="Contoh: 165" oninput="hitungBMI()">
+
+                        </div>
+
+                        <div>
+
+                            <label>BB (Berat Badan) kg</label>
+
+                            <input type="number" id="bb" placeholder="Contoh: 55" oninput="hitungBMI()">
+
+                        </div>
+
+                        <div>
+
+                            <label>Lingkar Perut cm</label>
+
+                            <input type="number" id="lingkarPerut" placeholder="Contoh: 68">
+
+                        </div>
+
+                        <div>
+
+                            <label>MES Index (BMI)</label>
+
+                            <input type="text" id="bmi" readonly style="background:#e9f0ff; font-weight:bold; text-align:center;">
+
+                        </div>
+
+                    </div>
+
                 </div>
-                <div id="formRaport" style="display:none; margin-top:20px;">
-                    <h4 id="namaTerpilih"></h4>
-                    <input type="number" id="n_passing" placeholder="Passing">
-                    <input type="number" id="n_shooting" placeholder="Shooting">
-                    <textarea id="catatan" placeholder="Catatan..."></textarea>
-                    <button class="btn btn-success" onclick="simpanNilai()">Simpan</button>
+
+                <h4 style="color: var(--primary); border-bottom: 1px solid #eee; padding-bottom: 10px;">I. TEKNIK (TECHNICAL SKILLS)</h4>
+
+                <div class="grid-input">
+
+                    <div><label>Passing:</label><input type="number" id="n_passing" class="input-nilai" placeholder="0-100" oninput="hitungRataOtomatis()"></div>
+
+                    <div><label>Shooting:</label><input type="number" id="n_shooting" class="input-nilai" placeholder="0-100" oninput="hitungRataOtomatis()"></div>
+
+                    <div><label>Dribbling:</label><input type="number" id="n_dribbling" class="input-nilai" placeholder="0-100" oninput="hitungRataOtomatis()"></div>
+
+                    <div><label>Control:</label><input type="number" id="n_control" class="input-nilai" placeholder="0-100" oninput="hitungRataOtomatis()"></div>
+
                 </div>
+
+                <h4 style="color: var(--primary); border-bottom: 1px solid #eee; padding-bottom: 10px; margin-top: 20px;">II. TAKTIK & FISIK</h4>
+
+                <div class="grid-input">
+
+                    <div><label>Positioning:</label><input type="number" id="n_positioning" class="input-nilai" placeholder="0-100" oninput="hitungRataOtomatis()"></div>
+
+                    <div><label>Kecepatan & Agilitas:</label><input type="number" id="n_speed" class="input-nilai" placeholder="0-100" oninput="hitungRataOtomatis()"></div>
+
+                </div>
+
+                <div style="margin-top:20px; padding:15px; background:#f8f9fa; border-radius:10px;">
+
+                    <label>Rata-Rata:</label>
+
+                    <div class="avg-bar-container">
+
+                        <div id="avgFill" class="avg-bar-fill"></div>
+
+                        <div id="avgText" class="avg-text">0</div>
+
+                    </div>
+
+                </div>
+
+                <div style="margin-top: 15px;"><label>Catatan Evaluasi:</label><textarea id="catatanPelatih" rows="3" placeholder="Saran perkembangan..."></textarea></div>
+
+                <button class="btn btn-add" onclick="simpanNilai()"><i class="fas fa-save"></i> SIMPAN EVALUASI</button>
+
             </div>
+
         </div>
+
+        <div id="saran" class="section">
+
+            <div class="card">
+
+                <h3>📩 Saran & Masukan Siswa</h3>
+
+                <div class="filter-section">
+
+                    <div>
+
+                        <label>Filter Kategori:</label>
+
+                        <select id="filterKategoriSaran" onchange="renderSaran()">
+
+                            <option value="">-- Semua --</option>
+
+                            <option value="Fasilitas">Fasilitas</option>
+
+                            <option value="Pelatih">Pelatih</option>
+
+                            <option value="Jadwal">Jadwal</option>
+
+                            <option value="Administrasi">Administrasi</option>
+
+                            <option value="Lainnya">Lainnya</option>
+
+                        </select>
+
+                    </div>
+
+                    <div>
+
+                        <button class="btn btn-info" onclick="renderSaran()">
+
+                            <i class="fas fa-sync-alt"></i> Refresh
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <table>
+
+                    <thead><tr><th>Tanggal</th><th>Nama Siswa</th><th>NISW</th><th>Kategori</th><th>Pesan</th><th>Status</th><th>Aksi</th></tr></thead>
+
+                    <tbody id="listSaran"></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <div id="jadwal" class="section">
+
+            <div class="grid-input">
+
+                <div class="card">
+
+                    <h4>⏰ Kelola Jadwal Latihan</h4>
+
+                    <label>Hari:</label>
+
+                    <input type="text" id="hariLatihan" placeholder="Contoh: SELASA">
+
+                    <label>Tempat:</label>
+
+                    <input type="text" id="tempatLatihan" placeholder="Stadion/Lapangan">
+
+                    <label>Waktu:</label>
+
+                    <input type="text" id="waktuLatihan" placeholder="Contoh: 15.00 WIB">
+
+                    <button class="btn btn-add" onclick="addJadwalLatihan()">
+
+                        <i class="fas fa-plus"></i> Tambah Jadwal Latihan
+
+                    </button>
+
+                    <div style="margin-top: 20px;">
+
+                        <h4>Jadwal Saat Ini:</h4>
+
+                        <table>
+
+                            <thead><tr><th>Hari</th><th>Tempat</th><th>Waktu</th><th>Aksi</th></tr></thead>
+
+                            <tbody id="listJadwalLatihan"></tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+                <div class="card">
+
+                    <h4>🏆 Kelola Jadwal Turnamen</h4>
+
+                    <label>Nama Event:</label>
+
+                    <input type="text" id="namaEvent" placeholder="Nama Turnamen">
+
+                    <label>Tanggal:</label>
+
+                    <input type="date" id="tglEvent">
+
+                    <label>Lokasi:</label>
+
+                    <input type="text" id="lokasiEvent" placeholder="Lokasi Turnamen">
+
+                    <label>Waktu (optional):</label>
+
+                    <input type="text" id="waktuEvent" placeholder="Contoh: 08.00 WIB">
+
+                    <button class="btn btn-add" onclick="addJadwalTurnamen()">
+
+                        <i class="fas fa-plus"></i> Tambah Turnamen
+
+                    </button>
+
+                    <div style="margin-top: 20px;">
+
+                        <h4>Jadwal Turnamen:</h4>
+
+                        <table>
+
+                            <thead><tr><th>Nama Event</th><th>Tanggal</th><th>Lokasi</th><th>Waktu</th><th>Aksi</th></tr></thead>
+
+                            <tbody id="listJadwalTurnamen"></tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <div id="editModal" class="modal">
+
+        <div class="modal-content">
+
+            <div class="modal-header" id="modalTitle">Edit Data</div>
+
+            <div id="modalBody"></div>
+
+            <div style="margin-top: 20px; display: flex; gap: 10px;">
+
+                <button class="btn btn-info" style="flex:1; justify-content: center;" onclick="saveEdit()"><i class="fas fa-save"></i> Simpan</button>
+
+                <button class="btn btn-danger" style="flex:1; justify-content: center;" onclick="closeModal()"><i class="fas fa-times"></i> Batal</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div id="kwitansiModal" class="modal">
+
+        <div class="modal-content" style="width: 95%; max-width: 900px;">
+
+            <div class="btn-group">
+
+                <button class="btn btn-print" onclick="downloadKwitansiPDF()">
+
+                    <i class="fas fa-file-pdf"></i> Download PDF
+
+                </button>
+
+                <button class="btn btn-print" onclick="printKwitansi()">
+
+                    <i class="fas fa-print"></i> Print
+
+                </button>
+
+                <button class="btn btn-danger" onclick="closeKwitansi()">
+
+                    <i class="fas fa-times"></i> Tutup
+
+                </button>
+
+            </div>
+
+            <div id="kwitansiContent"></div>
+
+        </div>
+
+    </div>
+
+    <script src="db-sync.js"></script>
 
     <script>
-        // CONFIG FIREBASE - Pastikan sama dengan pendaftaran.html
-        const firebaseConfig = {
-            apiKey: "AIzaSyC-DVKZfDHpfFl6kE_uupT5GFinwNaWhpw",
-            authDomain: "ssb-wind-soccer-110.firebaseapp.com",
-            databaseURL: "https://ssb-wind-soccer-110-default-rtdb.asia-southeast1.firebasedatabase.app/",
-            projectId: "ssb-wind-soccer-110",
-            storageBucket: "ssb-wind-soccer-110.firebasestorage.app",
-            messagingSenderId: "128234924459",
-            appId: "1:128234924459:web:37d97f167996d7d67ecaee"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+
+        let currentEditType = "";
+
+        let currentEditIndex = null;
+
+        let currentEditJadwalTipe = null;
+
+        let currentKwitansiData = null;
+
+        let currentTagihanNISW = null;
 
         function showSection(id) {
+
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+
             document.getElementById(id).classList.add('active');
-            event.currentTarget.classList.add('active');
+
+            const navLink = event.target.closest('.nav-link');
+
+            if (navLink) navLink.classList.add('active');
+
+            renderAll();
+
         }
 
-        // LOGIKA UTAMA: SINKRONISASI NODE 'pendaftar'
-        db.ref('pendaftar').on('value', (snapshot) => {
-            const data = snapshot.val();
-            const listSiswa = document.getElementById('listSiswa');
-            const listVerif = document.getElementById('listVerifikasi');
-            const badge = document.getElementById('badgeCount');
-            
-            listSiswa.innerHTML = "";
-            listVerif.innerHTML = "";
-            let vCount = 0;
+        function renderAll() {
 
-            for (let id in data) {
-                const s = data[id];
-                // Syarat tampil di Siswa Aktif
-                if (s.status === "Aktif") {
-                    listSiswa.innerHTML += `<tr>
-                        <td><img src="${s.foto || 'user.png'}" class="img-preview"></td>
-                        <td>${s.nisw}</td><td>${s.nama}</td><td>${s.kategori || 'U-12'}</td>
-                        <td><button class="btn btn-danger" onclick="hapus('${id}')">Hapus</button></td>
-                    </tr>`;
-                } 
-                // Syarat tampil di Verifikasi
-                else {
-                    vCount++;
-                    listVerif.innerHTML += `<tr>
-                        <td>${s.nama}</td><td>${s.nisw}</td><td>${s.tipe}</td>
-                        <td>
-                            <button class="btn btn-success" onclick="terima('${id}')">Terima</button>
-                            <button class="btn btn-danger" onclick="hapus('${id}')">Tolak</button>
-                        </td>
-                    </tr>`;
-                }
-            }
-            badge.innerText = vCount;
-            badge.style.display = vCount > 0 ? "block" : "none";
-        });
+            renderDatabaseSiswa(DBManager.getSiswaAktif());
 
-        function terima(id) {
-            db.ref('pendaftar/' + id).update({ status: "Aktif" });
+            renderVerifikasi(DBManager.getPendaftar());
+
+            renderAbsensi(DBManager.getAbsensi());
+
+            renderKeuangan(DBManager.getKeuangan());
+
+            renderSaran();
+
+            renderJadwalLatihan();
+
+            renderJadwalTurnamen();
+
         }
 
-        function hapus(id) {
-            if(confirm("Hapus data?")) db.ref('pendaftar/' + id).remove();
-        }
+        function renderDatabaseSiswa(dataSiswa) {
 
-        function logoutAdmin() { window.location.href = "index.html"; }
-    </script>
-</body>
-</html>
+            const regulerCount = dataSiswa.filter(s => s.tipe === "Reguler").length;
+
+            const beasiswaCount = dataSiswa.filter(s => s.tipe === "Beasiswa").length;
+
+            const totalCount = dataSiswa.length;
+
+            document.getElementById("totalReguler").innerText = regulerCount;
+
+            document.getElementById("totalBeasiswa").innerText = beasiswaCount;
+
+            document.getElementById("totalSiswaAktif").innerText = totalCount;
+
+            const list = document.getElementById("listSiswaAktif");
+
+            const filter = document.getElementById("filterClass").value;
+
+            const filtered = dataSiswa.filter(s => !filter || s.kategori === filter);
+
+            list.innerHTML = filtered.length ? filtered.map(s => `<tr><td><img src="${s.foto || 'user.png'}" class="img-preview" onerror="this.src='assets/user.png'"></td><td><strong>${s.nisw}</strong></td><td>${s.nama}</td><td><small>${s.kategori}</small></td><td><span class="badge reg">${s.tipe}</span></td><td>${s.posisi || '-'}</td><td>${s.tglLahir || s.tanggalLahir || s.ttl || '-'}</td><td>${s.noHp || '-'}</td><td>${s.namaOrtu || '-'}</td><td><small>${s.alamat || '-'}</small></td><td><button class="btn btn-warning btn-sm" onclick="inputTagihanSiswa('${s.nisw}')"><i class="fas fa-money-bill"></i></button></td><td><button class="btn btn-info btn-sm" onclick="openEditSiswa('${s.nisw}')"><i class="fas fa-edit"></i> Edit</button><button class="btn btn-danger btn-sm" onclick="hapusSiswa('${s.nisw}')"><i cla
