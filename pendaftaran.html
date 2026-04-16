@@ -63,32 +63,26 @@
   </form>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+
 <script>
-// DBManager tetap inline
-const DBManager = {
-    initData: function() {
-        ["dataPendaftar", "dataSiswa", "dataBeasiswa"].forEach(k => {
-            if (!localStorage.getItem(k)) localStorage.setItem(k, JSON.stringify([]));
-        });
-    },
-    getSiswaAktif: function() {
-        return [...JSON.parse(localStorage.getItem("dataSiswa")||"[]"), ...JSON.parse(localStorage.getItem("dataBeasiswa")||"[]")];
-    },
-    addPendaftar: function(data) {
-        let list = JSON.parse(localStorage.getItem("dataPendaftar") || "[]");
-        const total = this.getSiswaAktif().length + list.length + 1;
-        data.nisw = (data.tipe === "Beasiswa" ? "B" : "R") + new Date().getFullYear() + total.toString().padStart(3, '0');
-        data.status = "Menunggu Verifikasi";
-        data.tglDaftar = new Date().toLocaleDateString('id-ID');
-        list.push(data);
-        localStorage.setItem("dataPendaftar", JSON.stringify(list));
-        return data.nisw;
-    }
+// 1. KONFIGURASI FIREBASE COACH SYAMSUL
+const firebaseConfig = {
+    apiKey: "AIzaSyC-DVKZfDHpfFl6kE_uupT5GFinwNaWhpw",
+    authDomain: "ssb-wind-soccer-110.firebaseapp.com",
+    databaseURL: "https://ssb-wind-soccer-110-default-rtdb.asia-southeast1.firebasedatabase.app/",
+    projectId: "ssb-wind-soccer-110",
+    storageBucket: "ssb-wind-soccer-110.firebasestorage.app",
+    messagingSenderId: "128234924459",
+    appId: "1:128234924459:web:37d97f167996d7d67ecaee"
 };
 
-DBManager.initData();
+// 2. INISIALISASI FIREBASE
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-// FUNGSI KOMPRESI GAMBAR (Solusi Quota Full)
+// 3. FUNGSI KOMPRESI GAMBAR (TETAP SAMA)
 async function compressImage(file) {
     return new Promise((resolve) => {
         const reader = new FileReader();
@@ -98,18 +92,19 @@ async function compressImage(file) {
             img.src = event.target.result;
             img.onload = () => {
                 const canvas = document.createElement("canvas");
-                const MAX_WIDTH = 400; // Kecilkan ke 400px saja
+                const MAX_WIDTH = 400; 
                 const scaleSize = MAX_WIDTH / img.width;
                 canvas.width = MAX_WIDTH;
                 canvas.height = img.height * scaleSize;
                 const ctx = canvas.getContext("2d");
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                resolve(canvas.toDataURL("image/jpeg", 0.7)); // Kompres kualitas ke 70%
+                resolve(canvas.toDataURL("image/jpeg", 0.7)); 
             };
         };
     });
 }
 
+// 4. FUNGSI HITUNG OTOMATIS (TETAP SAMA)
 function hitungOtomatis() {
     const tgl = document.getElementById("tglLahir").value;
     if (!tgl) return;
@@ -124,18 +119,22 @@ function hitungOtomatis() {
     document.getElementById("kategori").value = kat;
 }
 
+// 5. PROSES SUBMIT KE FIREBASE (MENGGANTIKAN DBMANAGER LAMA)
 document.getElementById("formPendaftaran").onsubmit = async function(e) {
     e.preventDefault();
     const btn = document.getElementById("btnSubmit");
     btn.disabled = true;
-    btn.textContent = "Mengompres & Mengirim...";
+    btn.textContent = "Mengirim ke Database Pusat...";
 
     const file = document.getElementById("foto").files[0];
     let fotoData = "default.png";
-    
     if (file) fotoData = await compressImage(file);
 
+    // Membuat ID Unik (NISW) Otomatis
+    const niswBaru = "R" + new Date().getFullYear() + Date.now().toString().slice(-4);
+
     const dataBaru = {
+        nisw: niswBaru,
         nama: document.getElementById("nama").value.trim(),
         foto: fotoData,
         tglLahir: document.getElementById("tglLahir").value,
@@ -145,18 +144,22 @@ document.getElementById("formPendaftaran").onsubmit = async function(e) {
         namaOrtu: document.getElementById("namaOrtu").value.trim(),
         noHp: document.getElementById("noHp").value.trim(),
         alamat: document.getElementById("alamat").value.trim(),
-        tipe: "Reguler"
+        tipe: "Reguler",
+        status: "Menunggu Verifikasi",
+        tglDaftar: new Date().toLocaleString('id-ID')
     };
 
-    try {
-        const nisw = DBManager.addPendaftar(dataBaru);
-        alert(`✅ BERHASIL!\nNISW: ${nisw}`);
+    // KIRIM KE FIREBASE
+    db.ref('pendaftar/' + niswBaru).set(dataBaru)
+    .then(() => {
+        alert("✅ BERHASIL!\nData tersimpan di pusat.\nNISW: " + niswBaru);
         window.location.href = "index.html";
-    } catch (err) {
-        alert("❌ Memori Penuh! Silakan hapus data pendaftar yang lama di Admin.");
+    })
+    .catch((err) => {
+        alert("❌ Gagal: " + err.message);
         btn.disabled = false;
         btn.textContent = "KIRIM PENDAFTARAN";
-    }
+    });
 };
 </script>
 </body>
