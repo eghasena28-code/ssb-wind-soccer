@@ -25,7 +25,7 @@
 
 <div class="card">
   <div class="header">
-    <img src="assets/logossb.png" class="logo" onerror="this.src='https://via.placeholder.com/80'">
+    <img src="logossb.png" class="logo" onerror="this.src='https://via.placeholder.com/80'">
     <h2>PENDAFTARAN BEASISWA</h2>
   </div>
 
@@ -146,7 +146,7 @@ document.getElementById("formPendaftaran").onsubmit = async function(e) {
     btn.textContent = "Mengompres & Mengirim...";
 
     const file = document.getElementById("foto").files[0];
-    let fotoData = "assets/default.png";
+    let fotoData = "default.png";
     
     if (file) fotoData = await compressImage(file);
 
