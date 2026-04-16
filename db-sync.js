@@ -205,5 +205,3 @@ const DBManager = {
     }
 };
 
-window.DBManager = DBManager;
-console.log("✅ DBManager Realtime Database FIXED & STABIL - SSB Wind Soccer");
