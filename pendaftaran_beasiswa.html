@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pendaftaran Beasiswa - SSB Wind Soccer</title>
+  <style>
+    /* Menggunakan skema warna Hijau untuk Beasiswa */
+    body { font-family: 'Segoe UI', sans-serif; background: #003399; margin: 0; display: flex; justify-content: center; padding: 20px; }
+    .card { background: white; width: 100%; max-width: 520px; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border-top: 8px solid #28a745; }
+    .header { text-align: center; margin-bottom: 25px; }
+    .logo { width: 85px; }
+    h2 { color: #003399; margin: 10px 0; text-transform: uppercase; font-size: 22px; }
+    section { background: #f9f9f9; border: 1px solid #eee; padding: 18px; border-radius: 12px; margin-bottom: 18px; }
+    label { display: block; font-size: 13.5px; font-weight: bold; margin-bottom: 6px; color: #003399; }
+    input, select, textarea { width: 100%; padding: 11px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14.5px; margin-bottom: 10px; }
+    
+    /* Tombol dengan warna beasiswa */
+    .btn-submit { width: 100%; padding: 15px; background: #28a745; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; }
+    .btn-submit:hover { background: #218838; }
+    .btn-submit:disabled { background: #999; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="header">
+    <img src="assets/logossb.png" class="logo" onerror="this.src='https://via.placeholder.com/80'">
+    <h2>PENDAFTARAN BEASISWA</h2>
+  </div>
+
+  <form id="formPendaftaran">
+    <section>
+      <label>Nama Lengkap Siswa</label>
+      <input type="text" id="nama" required placeholder="Nama Lengkap">
+      
+      <label>Tanggal Lahir</label>
+      <input type="date" id="tglLahir" required oninput="hitungOtomatis()">
+      
+      <label>Usia (Otomatis)</label>
+      <input type="text" id="usia" readonly style="background: #eee;">
+      
+      <label>Kategori Umur (Otomatis)</label>
+      <input type="text" id="kategori" readonly style="background: #eee;">
+    </section>
+
+    <section>
+      <label>Posisi Favorit</label>
+      <select id="posisi" required>
+        <option value="">-- Pilih Posisi --</option>
+        <option value="Kiper">Kiper (GK)</option>
+        <option value="Bek">Bek (DF)</option>
+        <option value="Gelandang">Gelandang (MF)</option>
+        <option value="Penyerang">Penyerang (FW)</option>
+      </select>
+      
+      <label>Nama Orang Tua / Wali</label>
+      <input type="text" id="namaOrtu" required placeholder="Nama Ibu/Ayah">
+      
+      <label>No. WhatsApp</label>
+      <input type="tel" id="noHp" required placeholder="0812xxxxxxxx">
+      
+      <label>Alamat Lengkap</label>
+      <textarea id="alamat" rows="2" required placeholder="Alamat lengkap..."></textarea>
+    </section>
+
+    <section>
+      <label>Alasan / Jalur Beasiswa</label>
+      <input type="text" id="alasan" required placeholder="Contoh: Juara 1 O2SN / Yatim">
+
+      <label>Upload Foto Siswa</label>
+      <input type="file" id="foto" accept="image/*" required>
+    </section>
+
+    <button type="submit" class="btn-submit" id="btnSubmit">KIRIM PENGAJUAN BEASISWA</button>
+  </form>
+</div>
+
+<script>
+// DBManager disamakan dengan reguler agar sinkron
+const DBManager = {
+    initData: function() {
+        ["dataPendaftar", "dataSiswa", "dataBeasiswa"].forEach(k => {
+            if (!localStorage.getItem(k)) localStorage.setItem(k, JSON.stringify([]));
+        });
+    },
+    getSiswaAktif: function() {
+        return [...JSON.parse(localStorage.getItem("dataSiswa")||"[]"), ...JSON.parse(localStorage.getItem("dataBeasiswa")||"[]")];
+    },
+    addPendaftar: function(data) {
+        let list = JSON.parse(localStorage.getItem("dataPendaftar") || "[]");
+        const total = this.getSiswaAktif().length + list.length + 1;
+        // B untuk Beasiswa, R untuk Reguler
+        data.nisw = (data.tipe === "Beasiswa" ? "B" : "R") + new Date().getFullYear() + total.toString().padStart(3, '0');
+        data.status = "Menunggu Verifikasi";
+        data.tglDaftar = new Date().toLocaleDateString('id-ID');
+        list.push(data);
+        localStorage.setItem("dataPendaftar", JSON.stringify(list));
+        return data.nisw;
+    }
+};
+
+DBManager.initData();
+
+// FUNGSI KOMPRESI GAMBAR (Penting agar memori tidak penuh)
+async function compressImage(file) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement("canvas");
+                const MAX_WIDTH = 400; 
+                const scaleSize = MAX_WIDTH / img.width;
+                canvas.width = MAX_WIDTH;
+                canvas.height = img.height * scaleSize;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                resolve(canvas.toDataURL("image/jpeg", 0.7)); 
+            };
+        };
+    });
+}
+
+function hitungOtomatis() {
+    const tgl = document.getElementById("tglLahir").value;
+    if (!tgl) return;
+    const thn = new Date(tgl).getFullYear();
+    document.getElementById("usia").value = (new Date().getFullYear() - thn) + " Tahun";
+    
+    let kat = "";
+    if (thn >= 2017) kat = "KU-8 Class of 2017/2018";
+    else if (thn >= 2015) kat = "KU-10 Class of 2015/2016";
+    else if (thn >= 2013) kat = "KU-14 Class of 2013/2014";
+    else if (thn >= 2011) kat = "KU-16 Class of 2011/2012";
+    else kat = "KU-17 / Other";
+    document.getElementById("kategori").value = kat;
+}
+
+document.getElementById("formPendaftaran").onsubmit = async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById("btnSubmit");
+    btn.disabled = true;
+    btn.textContent = "Mengompres & Mengirim...";
+
+    const file = document.getElementById("foto").files[0];
+    let fotoData = "assets/default.png";
+    
+    if (file) fotoData = await compressImage(file);
+
+    const dataBaru = {
+        nama: document.getElementById("nama").value.trim(),
+        foto: fotoData,
+        tglLahir: document.getElementById("tglLahir").value,
+        usia: document.getElementById("usia").value,
+        kategori: document.getElementById("kategori").value,
+        posisi: document.getElementById("posisi").value,
+        namaOrtu: document.getElementById("namaOrtu").value.trim(),
+        noHp: document.getElementById("noHp").value.trim(),
+        alamat: document.getElementById("alamat").value.trim(),
+        alasan: document.getElementById("alasan").value.trim(),
+        tipe: "Beasiswa"
+    };
+
+    try {
+        const nisw = DBManager.addPendaftar(dataBaru);
+        alert(`✅ PENGAJUAN BEASISWA BERHASIL!\nNISW: ${nisw}`);
+        window.location.href = "index.html";
+    } catch (err) {
+        alert("❌ Memori Penuh! Silakan hubungi Admin.");
+        btn.disabled = false;
+        btn.textContent = "KIRIM PENGAJUAN BEASISWA";
+    }
+};
+</script>
+</body>
+</html>

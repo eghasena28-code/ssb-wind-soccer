@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Absensi Latihan - SSB Wind Soccer</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #003399;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .absensi-card {
+      background: white;
+      width: 100%;
+      max-width: 450px;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      color: #333;
+      animation: slideUp 0.5s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .header { 
+      text-align: center; 
+      margin-bottom: 20px; 
+    }
+
+    .logo { 
+      width: 70px; 
+      margin-bottom: 10px;
+    }
+
+    h2 { 
+      color: #003399; 
+      margin: 10px 0; 
+      font-size: 20px;
+    }
+
+    .user-info {
+      background: #f0f4ff;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      border-left: 5px solid #ffb400;
+    }
+
+    .user-info strong { 
+      color: #003399; 
+      display: block; 
+      margin-bottom: 5px;
+    }
+
+    label { 
+      display: block; 
+      font-weight: bold; 
+      margin-bottom: 8px; 
+      color: #003399;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #003399;
+      box-shadow: 0 0 5px rgba(0, 51, 153, 0.3);
+    }
+
+    .status-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      margin-top: 10px;
+    }
+
+    .status-btn {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      background: white;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s;
+      font-size: 14px;
+    }
+
+    .status-btn:hover {
+      border-color: #003399;
+      background: #f0f4ff;
+      transform: translateY(-2px);
+    }
+
+    .status-btn.active-hadir { 
+      border-color: #28a745; 
+      background: #e8f5e9; 
+      color: #28a745; 
+      font-weight: 800;
+    }
+
+    .status-btn.active-izin { 
+      border-color: #ff9800; 
+      background: #fff3e0; 
+      color: #ff9800; 
+      font-weight: 800;
+    }
+
+    #kolomIzin { 
+      display: none;
+      animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; max-height: 0; }
+      to { opacity: 1; max-height: 200px; }
+    }
+
+    .btn-kirim {
+      width: 100%;
+      padding: 15px;
+      background: #003399;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+    }
+
+    .btn-kirim:hover { 
+      background: #002266;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 51, 153, 0.3);
+    }
+
+    .btn-kirim:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-kirim:active {
+      transform: translateY(0);
+    }
+
+    footer { 
+      text-align: center; 
+      margin-top: 20px; 
+      font-size: 12px; 
+      color: #666; 
+    }
+
+    .alert {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      display: none;
+      animation: slideDown 0.3s ease-out;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .alert.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      display: block;
+    }
+
+    .alert.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+      display: block;
+    }
+
+    .alert.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+      display: block;
+    }
+
+    .alert.warning {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeaa7;
+      display: block;
+    }
+
+    .link-back {
+      display: block;
+      text-align: center;
+      margin-top: 15px;
+      color: #003399;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .link-back:hover { 
+      text-decoration: underline;
+      color: #002266;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      border-top: 2px solid transparent;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="absensi-card">
+    <div class="header">
+      <img src="assets/logossb.png" alt="Logo" class="logo">
+      <h2>Presensi Latihan</h2>
+    </div>
+
+    <div id="alertBox" class="alert"></div>
+
+    <div class="user-info">
+      <strong>Siswa:</strong> <span id="namaSiswa">Memuat...</span><br>
+      <strong>NISW:</strong> <span id="niswSiswa">Memuat...</span><br>
+      <strong>KU:</strong> <span id="kuSiswa">Memuat...</span>
+    </div>
+
+    <form id="formAbsensi">
+      <label>📅 Pilih Tanggal Latihan</label>
+      <input type="date" id="tglLatihan" required>
+
+      <label>📋 Status Kehadiran</label>
+      <div class="status-group">
+        <button type="button" id="btnHadir" class="status-btn" onclick="pilihStatus('Hadir')">✓ HADIR</button>
+        <button type="button" id="btnIzin" class="status-btn" onclick="pilihStatus('Izin')">⏳ IZIN</button>
+      </div>
+
+      <input type="hidden" id="statusPilihan" value="">
+
+      <div id="kolomIzin">
+        <label>📝 Alasan Izin</label>
+        <textarea id="alasanIzin" placeholder="Contoh: Sakit, Acara Keluarga, Ujian, dll" rows="3"></textarea>
+      </div>
+
+      <button type="submit" class="btn-kirim" id="btnSubmit">💾 SIMPAN ABSENSI</button>
+    </form>
+
+    <a href="beranda.html" class="link-back">← Kembali ke Beranda</a>
+
+    <footer>
+      © 2026 SSB WIND SOCCER
+    </footer>
+  </div>
+
+  <script src="db-sync.js"></script>
+  <script>
+    let statusSekarang = "";
+    let siswaLoginAktif = null;
+
+    console.log("🎯 Absensi page loaded");
+
+    // ===== FUNGSI ALERT =====
+    function showAlert(message, type = 'info') {
+      const alertBox = document.getElementById('alertBox');
+      alertBox.textContent = message;
+      alertBox.className = 'alert ' + type;
+      
+      if (type !== 'error' && type !== 'warning') {
+        setTimeout(() => {
+          alertBox.className = 'alert';
+        }, 5000);
+      }
+    }
+
+    // ===== CEK LOGIN & LOAD DATA SISWA =====
+    function loadDataSiswa() {
+      console.log("📂 Loading data siswa...");
+      
+      siswaLoginAktif = DBManager.getLoginUser();
+      console.log("👤 Login user:", siswaLoginAktif);
+      
+      if (!siswaLoginAktif) {
+        showAlert('❌ Sesi berakhir! Silakan login kembali.', 'error');
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 2000);
+        return false;
+      }
+
+      if (!siswaLoginAktif.nisw) {
+        showAlert('❌ Data NISW tidak valid!', 'error');
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 2000);
+        return false;
+      }
+
+      // Tampilkan data siswa
+      document.getElementById("namaSiswa").innerText = siswaLoginAktif.nama || 'Tidak Dikenal';
+      document.getElementById("niswSiswa").innerText = siswaLoginAktif.nisw || '-';
+      document.getElementById("kuSiswa").innerText = siswaLoginAktif.kategori || '-';
+      
+      console.log("✅ Data siswa berhasil dimuat");
+      return true;
+    }
+
+    // ===== SET TANGGAL DEFAULT =====
+    function setTanggalDefault() {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      const tglDefault = `${year}-${month}-${day}`;
+      
+      document.getElementById('tglLatihan').value = tglDefault;
+      console.log("📅 Tanggal default set to:", tglDefault);
+    }
+
+    // ===== PILIH STATUS =====
+    function pilihStatus(status) {
+      console.log("🔄 Status dipilih:", status);
+      
+      statusSekarang = status;
+      document.getElementById("statusPilihan").value = status;
+      
+      const btnHadir = document.getElementById("btnHadir");
+      const btnIzin = document.getElementById("btnIzin");
+      const kolomIzin = document.getElementById("kolomIzin");
+
+      // Reset semua tombol
+      btnHadir.classList.remove("active-hadir");
+      btnIzin.classList.remove("active-izin");
+
+      if (status === 'Hadir') {
+        btnHadir.classList.add("active-hadir");
+        kolomIzin.style.display = "none";
+        document.getElementById("alasanIzin").value = '';
+        document.getElementById("alasanIzin").required = false;
+        showAlert('✅ Status "Hadir" dipilih', 'success');
+      } else if (status === 'Izin') {
+        btnIzin.classList.add("active-izin");
+        kolomIzin.style.display = "block";
+        document.getElementById("alasanIzin").required = true;
+        document.getElementById("alasanIzin").focus();
+        showAlert('✅ Status "Izin" dipilih - Isikan alasan', 'info');
+      }
+    }
+
+    // ===== SUBMIT FORM ABSENSI =====
+    document.getElementById("formAbsensi").onsubmit = function(e) {
+      e.preventDefault();
+      
+      console.log("🚀 Form submitted");
+      
+      const btnSubmit = document.getElementById("btnSubmit");
+      const tgl = document.getElementById("tglLatihan").value;
+      const status = document.getElementById("statusPilihan").value;
+      const alasan = document.getElementById("alasanIzin").value.trim();
+
+      console.log("📊 Form data:", { tgl, status, alasan, siswa: siswaLoginAktif?.nisw });
+
+      // Validasi
+      if (!siswaLoginAktif) {
+        showAlert('❌ Data siswa tidak ditemukan. Silakan login kembali.', 'error');
+        return false;
+      }
+
+      if (!status) {
+        showAlert('❌ Silakan pilih status Hadir atau Izin!', 'error');
+        return false;
+      }
+
+      if (status === 'Izin' && !alasan) {
+        showAlert('❌ Alasan izin tidak boleh kosong!', 'error');
+        document.getElementById("alasanIzin").focus();
+        return false;
+      }
+
+      // Cek duplikasi
+      console.log("🔍 Cek duplikasi absensi...");
+      if (DBManager.cekDuplicateAbsensi(siswaLoginAktif.nisw, tgl)) {
+        showAlert('⚠️ Anda sudah mengisi absensi untuk tanggal ' + tgl + '!', 'warning');
+        return false;
+      }
+
+      // Disable button saat proses
+      btnSubmit.disabled = true;
+      btnSubmit.innerHTML = '<span class="loading-spinner"></span> Memproses...';
+
+      try {
+        // Buat object absensi
+        const absenBaru = {
+          id: Date.now(),
+          nisw: siswaLoginAktif.nisw,
+          nama: siswaLoginAktif.nama,
+          kategori: siswaLoginAktif.kategori || '-',
+          tanggal: tgl,
+          status: status,
+          alasan: status === 'Izin' ? alasan : '-',
+          waktuInput: new Date().toLocaleString('id-ID'),
+          tipeJalur: siswaLoginAktif.tipe || 'Reguler'
+        };
+
+        console.log("💾 Menyimpan absensi:", absenBaru);
+
+        // Simpan ke database
+        const berhasil = DBManager.addAbsensi(absenBaru);
+
+        if (berhasil) {
+          console.log("✅ Absensi berhasil disimpan!");
+          showAlert('✅ Absensi berhasil disimpan!', 'success');
+          
+          // Reset form
+          setTimeout(() => {
+            document.getElementById("formAbsensi").reset();
+            document.getElementById("statusPilihan").value = '';
+            statusSekarang = '';
+            setTanggalDefault();
+            
+            // Remove active buttons
+            document.getElementById("btnHadir").classList.remove("active-hadir");
+            document.getElementById("btnIzin").classList.remove("active-izin");
+            document.getElementById("kolomIzin").style.display = "none";
+
+            // Redirect setelah 2 detik
+            setTimeout(() => {
+              window.location.href = "beranda.html";
+            }, 1000);
+          }, 500);
+        } else {
+          console.log("❌ Gagal menyimpan absensi");
+          showAlert('❌ Gagal menyimpan absensi. Coba lagi.', 'error');
+          btnSubmit.disabled = false;
+          btnSubmit.innerHTML = '💾 SIMPAN ABSENSI';
+        }
+      } catch (error) {
+        console.error('❌ Error:', error);
+        showAlert('❌ Terjadi kesalahan: ' + error.message, 'error');
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = '💾 SIMPAN ABSENSI';
+      }
+    };
+
+    // ===== INIT SAAT HALAMAN LOAD =====
+    window.addEventListener('load', function() {
+      console.log("🌐 Window load event triggered");
+      
+      if (loadDataSiswa()) {
+        setTanggalDefault();
+        showAlert('ℹ️ Pilih status kehadiran Anda', 'info');
+      }
+    });
+
+    // ===== PREVENT ACCIDENTAL NAVIGATION =====
+    window.addEventListener('beforeunload', function(e) {
+      const formHasData = document.getElementById("statusPilihan").value !== '';
+      if (formHasData) {
+        e.preventDefault();
+        e.returnValue = 'Data akan hilang jika Anda keluar.';
+      }
+    });
+  </script>
+</body>
+</html>

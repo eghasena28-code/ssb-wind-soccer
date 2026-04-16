@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kegiatan & Prestasi - SSB Wind Soccer</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #003399; color: white; min-height: 100vh; padding-bottom: 60px; }
+    
+    /* Background Lapangan */
+    body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: url("assets/lapangan.jpeg") no-repeat center center/cover; z-index: -2; opacity: 0.15; }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 15px; text-align: center; }
+    
+    .header { margin-bottom: 25px; }
+    .logo { width: 70px; margin-bottom: 10px; }
+    h1 { font-size: 24px; border-bottom: 4px solid #ffb400; display: inline-block; padding-bottom: 8px; text-transform: uppercase; }
+
+    .section-title { background: #ffb400; color: #003399; padding: 10px; border-radius: 8px; margin: 30px 0 20px; font-weight: bold; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* --- SEKSI ALUMNI (PASTI 3 KOLOM) --- */
+    .grid-alumni { 
+      display: grid; 
+      grid-template-columns: repeat(3, 1fr); /* Mengunci 3 kolom agar tidak ada yang kosong */
+      gap: 15px; 
+      margin-bottom: 30px; 
+    }
+    .alumni-card { background: white; color: #333; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.4); border-top: 4px solid #ff416c; }
+    
+    /* Frame Foto Alumni */
+    .alumni-frame { 
+      width: 100%; 
+      height: 250px; 
+      background: #f0f0f0; /* Warna dasar jika foto contain menyisakan ruang */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* KHUSUS SENJA: Full Badan (Contain) */
+    .img-full-badan { 
+      width: 100%; 
+      height: 100%; 
+      object-fit: contain; /* Memastikan seluruh badan masuk frame */
+    }
+
+    /* KHUSUS SIGIT & HAIKAL: Fokus Kepala (Cover + Position) */
+    .img-fokus-kepala { 
+      width: 100%; 
+      height: 100%; 
+      object-fit: cover; 
+      object-position: center 5%; /* Menurunkan foto agar kepala terlihat jelas */
+    }
+
+    .alumni-info { padding: 12px; }
+    .alumni-info h3 { margin: 0; font-size: 14px; color: #003399; }
+    .alumni-info p { margin: 4px 0 0; font-size: 11px; font-weight: bold; color: #ff416c; text-transform: uppercase; }
+
+    /* --- PRESTASI RESMI --- */
+    .grid-resmi { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .resmi-card { background: white; color: #333; border-radius: 15px; overflow: hidden; text-align: left; box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+    .resmi-img { width: 100%; height: 200px; object-fit: cover; }
+    
+    .slider-u17 { display: flex; overflow-x: auto; gap: 2px; background: #222; height: 200px; scroll-snap-type: x mandatory; }
+    .slider-u17 img { flex: 0 0 100%; object-fit: contain; scroll-snap-align: start; }
+
+    .resmi-info { padding: 15px; }
+    .resmi-info h3 { margin: 0; font-size: 15px; color: #003399; line-height: 1.4; }
+
+    /* --- GALERI 4 FOTO --- */
+    .grid-galeri { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .galeri-item { border-radius: 10px; overflow: hidden; height: 120px; background: #eee; border: 2px solid rgba(255,255,255,0.2); }
+    .galeri-item img { width: 100%; height: 100%; object-fit: cover; }
+
+    .btn-back { display: inline-block; margin-top: 40px; background: #ffb400; color: #003399; padding: 14px 40px; border-radius: 30px; text-decoration: none; font-weight: bold; transition: 0.3s; }
+    .btn-back:hover { background: white; transform: translateY(-3px); }
+
+    /* Responsif HP */
+    @media (max-width: 600px) { 
+      .grid-alumni { gap: 8px; }
+      .alumni-frame { height: 160px; }
+      .alumni-info h3 { font-size: 11px; }
+      .grid-galeri { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <img src="assets/logossb.png" alt="Logo" class="logo">
+      <br>
+      <h1>Prestasi & Kegiatan</h1>
+    </div>
+
+    <div class="section-title">✨ Alumni di Klub Profesional</div>
+    <div class="grid-alumni">
+      
+      <div class="alumni-card">
+        <div class="alumni-frame">
+          <img src="assets/senja.png" class="img-full-badan" onerror="this.src='https://via.placeholder.com/150x200?text=Senja'">
+        </div>
+        <div class="alumni-info">
+          <h3>Senja Espania</h3>
+          <p>EPA U-18</p>
+        </div>
+      </div>
+
+      <div class="alumni-card">
+        <div class="alumni-frame">
+          <img src="assets/sigit.png" class="img-fokus-kepala" onerror="this.src='https://via.placeholder.com/150x200?text=Sigit'">
+        </div>
+        <div class="alumni-info">
+          <h3>Sigit Permana</h3>
+          <p>EPA U-20</p>
+        </div>
+      </div>
+
+      <div class="alumni-card">
+        <div class="alumni-frame">
+          <img src="assets/haikal.png" class="img-fokus-kepala" onerror="this.src='https://via.placeholder.com/150x200?text=Haikal'">
+        </div>
+        <div class="alumni-info">
+          <h3>Haikal</h3>
+          <p>EPA U-20</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="section-title">🏆 Kompetisi Resmi</div>
+    <div class="grid-resmi">
+      <div class="resmi-card">
+        <img src="assets/u12.jpg" class="resmi-img" onerror="this.src='https://via.placeholder.com/300x200?text=U12+DKI'">
+        <div class="resmi-info"><h3>Juara 3 Liga Sentra Regional DKI</h3></div>
+      </div>
+      <div class="resmi-card">
+        <div class="slider-u17">
+          <img src="assets/u17.jpg">
+          <img src="assets/u17b.jpg">
+          <img src="assets/u17c.jpg">
+        </div>
+        <div class="resmi-info"><h3>Juara 3 Tangerang League U-17</h3></div>
+      </div>
+    </div>
+
+    <div class="section-title">🥇 Galeri Juara</div>
+    <div class="grid-galeri">
+      <div class="galeri-item"><img src="assets/u8b.jpg" onerror="this.src='https://via.placeholder.com/100?text=U8'"></div>
+      <div class="galeri-item"><img src="assets/u10.jpg" onerror="this.src='https://via.placeholder.com/100?text=U10'"></div>
+      <div class="galeri-item"><img src="assets/u15.jpg" onerror="this.src='https://via.placeholder.com/100?text=U15'"></div>
+      <div class="galeri-item"><img src="assets/umum.jpg" onerror="this.src='https://via.placeholder.com/100?text=Umum'"></div>
+    </div>
+
+    <a href="beranda.html" class="btn-back">⬅ Kembali ke Beranda</a>
+  </div>
+
+</body>
+</html>

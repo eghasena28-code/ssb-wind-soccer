@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Siswa Beasiswa - SSB Wind Soccer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --primary: #003399; --accent: #ffb400; --beasiswa: #28a745; --dark: #0f1419; }
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #0a2412 0%, #1a3d2a 50%, #0a2412 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .container { width: 100%; max-width: 420px; position: relative; }
+        .profile-card { background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3); position: relative; }
+        .beasiswa-ribbon { position: absolute; top: 20px; right: -40px; width: 130px; padding: 10px 0; background: linear-gradient(135deg, #ffb400 0%, #ff8c00 100%); color: #003399; text-align: center; transform: rotate(45deg); font-weight: 800; font-size: 11px; z-index: 100; text-transform: uppercase; }
+        .profile-header { background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%); padding: 30px 30px 70px; text-align: center; }
+        .header-title { color: white; font-size: 14px; font-weight: 700; text-transform: uppercase; }
+        .photo-container { display: flex; justify-content: center; margin-top: -55px; position: relative; z-index: 20; margin-bottom: 20px; }
+        .photo-frame { width: 140px; height: 140px; border-radius: 18px; border: 6px solid white; overflow: hidden; background: #f8fafb; }
+        .photo-frame img { width: 100%; height: 100%; object-fit: cover; }
+        .info-section { padding: 25px 30px; text-align: center; }
+        .student-name { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 800; color: #28a745; text-transform: uppercase; }
+        .badge-status { display: inline-block; padding: 8px 20px; border-radius: 50px; background: #28a745; color: white; font-size: 11px; font-weight: 700; margin: 15px 0; }
+        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .data-card { background: #f8fafb; padding: 14px; border-radius: 12px; border-left: 4px solid #28a745; text-align: left; }
+        .data-label { font-size: 9px; font-weight: 700; color: #7a8fa3; text-transform: uppercase; }
+        .data-value { font-size: 13px; font-weight: 700; color: #28a745; }
+        .btn-action { width: 100%; padding: 13px; background: #28a745; color: white; border: none; border-radius: 11px; cursor: pointer; font-weight: 700; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="profile-card">
+            <div class="beasiswa-ribbon">⭐ BEASISWA</div>
+            <div class="profile-header">
+                <div class="header-title">SSB Wind Soccer</div>
+            </div>
+            <div class="photo-container">
+                <div class="photo-frame">
+                    <img id="imgSiswa" src="assets/default.png">
+                </div>
+            </div>
+            <div class="info-section">
+                <div class="student-name" id="namaSiswa">NAMA SISWA</div>
+                <div class="student-meta" style="color:#777">NISW: <strong id="niswSiswa">-</strong></div>
+                <div class="badge-status">Penerima Beasiswa</div>
+                <div class="data-grid">
+                    <div class="data-card">
+                        <div class="data-label">📅 Tgl Lahir</div>
+                        <div class="data-value" id="dTglLahir">-</div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-label">📊 KU</div>
+                        <div class="data-value" id="dKat">-</div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-label">⚽ Posisi</div>
+                        <div class="data-value" id="dPos">-</div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-label">👨‍👩‍👦 Ortu</div>
+                        <div class="data-value" id="dOrtu">-</div>
+                    </div>
+                    <div class="data-card" style="grid-column: span 2;">
+                        <div class="data-label">📍 Alamat</div>
+                        <div class="data-value" id="dAlm">-</div>
+                    </div>
+                </div>
+                <button class="btn-action" onclick="window.location.href='beranda.html'">← Kembali</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="db-sync.js"></script>
+    <script>
+        const s = DBManager.getLoginUser();
+        if (!s) {
+            alert("Siswa tidak ditemukan!");
+            window.location.href = "index.html";
+        } else {
+            document.getElementById("imgSiswa").src = s.foto || "assets/default.png";
+            document.getElementById("namaSiswa").innerText = (s.nama || "").toUpperCase();
+            document.getElementById("niswSiswa").innerText = s.nisw || "-";
+            
+            // JARING PENGAMAN: Mencari tglLahir di berbagai kemungkinan nama variabel
+            const tglRaw = s.tglLahir || s.tanggalLahir || s.tanggal_lahir || s.ttl || "-";
+            document.getElementById("dTglLahir").innerText = tglRaw;
+            
+            document.getElementById("dKat").innerText = s.kategori || "-";
+            document.getElementById("dPos").innerText = s.posisi || "-";
+            document.getElementById("dOrtu").innerText = s.namaOrtu || "-";
+            document.getElementById("dAlm").innerText = s.alamat || "-";
+        }
+    </script>
+</body>
+</html>

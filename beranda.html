@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beranda - SSB Wind Soccer</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #003399; color: white; min-height: 100vh; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+    body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: url("assets/lapangan.jpeg") no-repeat center center/cover; z-index: -3; opacity: 0.25; }
+    .bg-slideshow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; overflow: hidden; }
+    .bg-slideshow img { position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.5s ease-in-out; }
+    .bg-slideshow img.active { opacity: 1; }
+    .container { text-align: center; padding: 30px 15px; max-width: 800px; margin: 0 auto; flex-grow: 1; display: flex; flex-direction: column; align-items: center; position: relative; z-index: 1; padding-bottom: 50px; }
+    .logo { width: 100px; margin-bottom: 15px; }
+    h1 { margin: 15px 0 8px; font-size: 26px; font-weight: bold; }
+    .tagline { font-style: italic; margin-bottom: 20px; font-size: 14px; }
+    .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 10px; justify-items: center; max-width: 720px; margin: 0 auto; width: 100%; }
+    .menu-item { display: flex; align-items: center; justify-content: center; background: #ffb400; color: black; font-weight: bold; font-size: 16px; text-decoration: none; padding: 18px 14px; border-radius: 14px; width: 100%; min-height: 70px; box-shadow: 0 6px 14px rgba(0,0,0,0.3); transition: all 0.25s ease-in-out; text-align: center; border: none; cursor: pointer; }
+    .menu-item:hover { background: #ffaa00; transform: translateY(-6px); box-shadow: 0 10px 20px rgba(0,0,0,0.4); color: #fff; }
+    .extra-buttons { margin-top: 30px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+    .btn-special, .btn-secondary { color: white; border: none; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 6px 14px rgba(0,0,0,0.4); transition: all 0.3s ease-in-out; }
+    .btn-special { background: linear-gradient(45deg, #ff4b2b, #ff416c); }
+    .btn-special:hover { transform: scale(1.08); background: linear-gradient(45deg, #ff6a00, #ee0979); }
+    .btn-secondary { background: linear-gradient(45deg, #00b09b, #96c93d); }
+    .btn-secondary:hover { transform: scale(1.08); background: linear-gradient(45deg, #38ef7d, #11998e); }
+    footer { background: rgba(0,0,0,0.75); color: #f1f1f1; text-align: center; padding: 10px; font-size: 13px; position: relative; width: 100%; bottom: 0; z-index: 1; }
+    footer a { color: #ffcc00; text-decoration: none; font-weight: bold; }
+    @media (max-width: 768px) { .menu-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 480px) { .menu-grid { grid-template-columns: 1fr; } .extra-buttons { flex-direction: column; } }
+  </style>
+</head>
+<body>
+
+  <div class="bg-slideshow">
+    <img src="assets/pemain.png" class="active" alt="Background 1">
+    <img src="assets/coach.png" alt="Background 2">
+  </div>
+
+  <div class="container">
+    <img src="assets/logossb.png" alt="Logo SSB" class="logo">
+    <h1 id="sapaan">Selamat Datang</h1>
+    <p class="tagline" id="niswInfo">Memuat informasi...</p>
+
+    <div class="menu-grid">
+      <a href="absensi.html" class="menu-item">📋 Absensi</a>
+      <button onclick="bukaProfilSiswa()" class="menu-item">👨‍🎓 Data Profil</button>
+      <a href="jadwal.html" class="menu-item">⚽ Jadwal Latihan & Turnamen</a>
+      <a href="kegiatanprestasi.html" class="menu-item">🏆 Kegiatan & Prestasi</a>
+      <a href="saran_masukan.html" class="menu-item">📩 Saran & Masukan</a>
+      <a href="informasi.html" class="menu-item">ℹ️ Informasi & Peraturan</a>
+      <a href="profil_pelatih.html" class="menu-item">👨‍🏫 Profil Pelatih</a>
+      
+      <!-- Tombol Raport yang sudah diperbaiki -->
+      <button onclick="bukaRaport()" class="menu-item">📄 Raport</button>
+      
+      <a href="program.html" class="menu-item">📘 Program</a>
+    </div>
+
+    <div class="extra-buttons">
+      <button class="btn-secondary" onclick="window.location.href='index.html'">⬅ Kembali ke Pendaftaran</button>
+      <button class="btn-special" onclick="logout()">🚪 Logout</button>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2026 SSB Wind Soccer | 📞 0812 9333 8781</p>
+  </footer>
+
+  <script src="db-sync.js"></script>
+  <script>
+    // Slideshow Logic
+    const slides = document.querySelectorAll(".bg-slideshow img");
+    let current = 0;
+    if(slides.length > 0) {
+        setInterval(() => {
+          slides[current].classList.remove("active");
+          current = (current + 1) % slides.length;
+          slides[current].classList.add("active");
+        }, 5000);
+    }
+
+    // CEK LOGIN
+    const userSession = DBManager.getLoginUser();
+    
+    if (!userSession) {
+        alert("Silakan login terlebih dahulu!");
+        window.location.href = "index.html";
+    } else {
+        document.getElementById("sapaan").innerText = "Halo, " + userSession.nama + "!";
+        document.getElementById("niswInfo").innerText = "NISW: " + userSession.nisw + " | Jalur: " + (userSession.tipe || "Reguler");
+    }
+
+    function bukaProfilSiswa() {
+        const user = DBManager.getLoginUser();
+        if (!user) return;
+        if (String(user.nisw).toUpperCase().includes('B')) {
+            window.location.href = "siswabeasiswa.html";
+        } else {
+            window.location.href = "datasiswa.html";
+        }
+    }
+
+    // FUNGSI BARU: Buka Raport dengan NISW otomatis
+    function bukaRaport() {
+        const user = DBManager.getLoginUser();
+        if (!user || !user.nisw) {
+            alert("Data NISW tidak ditemukan! Silakan login ulang.");
+            return;
+        }
+        // Kirim NISW ke halaman raport
+        window.location.href = `raport.html?nisw=${encodeURIComponent(user.nisw)}`;
+    }
+
+    function logout() {
+      if (confirm("Yakin ingin logout?")) {
+        DBManager.clearLoginUser();
+        window.location.href = "index.html"; 
+      }
+    }
+  </script>
+</body>
+</html>

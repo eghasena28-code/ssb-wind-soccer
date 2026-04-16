@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Verifikasi - SSB Wind Soccer</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f4; padding: 20px; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
+        .btn-ok { background: #27ae60; color: white; border: none; padding: 8px 12px; cursor: pointer; border-radius: 5px; }
+        .badge-bea { color: #27ae60; font-weight: bold; }
+        .badge-reg { color: #003399; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Antrean Pendaftaran (<span id="count">0</span>)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Nama</th>
+                <th>Jalur</th>
+                <th>Kategori</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody id="list"></tbody>
+    </table>
+</div>
+
+<script>
+    function render() {
+        const data = JSON.parse(localStorage.getItem("dataPendaftar")) || [];
+        const tbody = document.getElementById("list");
+        tbody.innerHTML = "";
+        data.forEach((s, i) => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${s.nama}</td>
+                    <td class="${s.tipe === 'Beasiswa' ? 'badge-bea' : 'badge-reg'}">${s.tipe}</td>
+                    <td>${s.kategori}</td>
+                    <td><button class="btn-ok" onclick="setujui(${i})">Setujui</button></td>
+                </tr>`;
+        });
+        document.getElementById("count").innerText = data.length;
+    }
+
+    function setujui(i) {
+        let pendaftar = JSON.parse(localStorage.getItem("dataPendaftar")) || [];
+        let dbReg = JSON.parse(localStorage.getItem("dataSiswa")) || [];
+        let dbBea = JSON.parse(localStorage.getItem("dataBeasiswa")) || [];
+        
+        let s = pendaftar[i];
+        let thn = new Date().getFullYear();
+        let urut = (dbReg.length + dbBea.length + 1).toString().padStart(3, '0');
+        
+        // Buat NISW
+        s.nisw = (s.tipe === "Beasiswa" ? "B" : "") + thn + urut;
+        s.status = "Aktif";
+
+        // Simpan ke database yang tepat
+        if(s.tipe === "Beasiswa") {
+            dbBea.push(s);
+            localStorage.setItem("dataBeasiswa", JSON.stringify(dbBea));
+        } else {
+            dbReg.push(s);
+            localStorage.setItem("dataSiswa", JSON.stringify(dbReg));
+        }
+
+        pendaftar.splice(i, 1);
+        localStorage.setItem("dataPendaftar", JSON.stringify(pendaftar));
+        alert("Siswa Disetujui! NISW: " + s.nisw);
+        render();
+    }
+    window.onload = render;
+</script>
+</body>
+</html>

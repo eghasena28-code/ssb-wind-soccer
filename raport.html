@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raport Resmi - SSB Wind Soccer</title>
+ 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+ 
+    <style>
+        :root {
+            --primary: #003399;
+            --secondary: #ffb400;
+            --light: #f4f7f6;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--light);
+            margin: 0;
+            padding: 0;
+        }
+     
+        .top-nav {
+            background: var(--primary);
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            transition: 0.3s;
+        }
+        .btn-back { background: #666; }
+        .btn-pdf { background: #28a745; }
+        /* KOP RAPORT PREMIUM */
+        .raport-header {
+            background: linear-gradient(90deg, #003399 0%, #001f66 100%);
+            color: white;
+            padding: 45px 40px 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .raport-header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Ccircle cx=%22100%22 cy=%22100%22 r=%2230%22 fill=%22none%22 stroke=%22%23ffb400%22 stroke-width=%228%22 opacity=%220.15%22/%3E%3C/svg%27') repeat;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .raport-header-content {
+            display: flex; align-items: center; gap: 20px; position: relative; z-index: 2;
+        }
+        .raport-header img { width: 85px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); }
+        .raport-header-text h1 {
+            margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -1px;
+            text-shadow: 0 3px 6px rgba(0,0,0,0.3);
+        }
+        .raport-header-text p {
+            margin: 4px 0 0; font-size: 13px; font-weight: 600; opacity: 0.95; letter-spacing: 1px;
+        }
+        .badge-container {
+            background: rgba(255,255,255,0.95); color: var(--primary);
+            padding: 12px 28px; border-radius: 50px; font-weight: 800; font-size: 16px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+            display: flex; align-items: center; gap: 8px; position: relative; z-index: 2;
+        }
+        .badge-container::before { content: '⚽'; font-size: 22px; }
+        .raport-container {
+            width: 210mm; min-height: 297mm; margin: 20px auto;
+            background: white; box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+     
+        .player-grid {
+            display: grid; grid-template-columns: 170px 1fr; gap: 30px; padding: 40px 40px 20px;
+        }
+        .photo-box {
+            width: 170px; height: 210px; background: #eee;
+            border: 4px solid var(--primary); border-radius: 8px; overflow: hidden;
+        }
+        .photo-box img { width: 100%; height: 100%; object-fit: cover; }
+     
+        .info-list {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+        }
+        .info-card {
+            background: #f8f9fa; padding: 10px; border-left: 5px solid var(--secondary);
+            border-radius: 5px;
+        }
+        .label { font-size: 10px; color: #666; font-weight: bold; }
+        .value { font-size: 14px; font-weight: 700; color: var(--primary); }
+        /* DATA ANTROPOMETRI */
+        .fisik-section {
+            padding: 0 40px 30px;
+        }
+        .fisik-title {
+            font-size: 14px; font-weight: 800; color: var(--primary);
+            margin-bottom: 12px; border-bottom: 2px solid var(--secondary); padding-bottom: 6px;
+        }
+        .fisik-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px;
+        }
+        .fisik-card {
+            background: #f8f9fa; padding: 12px; border-radius: 8px;
+            border-left: 5px solid #ffb400; text-align: center;
+        }
+        .fisik-label { font-size: 11px; color: #666; font-weight: 600; }
+        .fisik-value { font-size: 18px; font-weight: 800; color: var(--primary); margin: 4px 0; }
+        .fisik-unit { font-size: 12px; color: #888; }
+        .assessment-area { padding: 0 40px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid #ddd; }
+        th { background: var(--primary); color: white; padding: 12px; font-size: 12px; border: 1px solid #ddd; text-transform: uppercase; }
+        td { padding: 10px; border: 1px solid #ddd; text-align: center; font-size: 13px; }
+        .cat-head {
+            background: #f2f2f2 !important; font-weight: 800 !important;
+            text-align: left !important; padding-left: 15px !important; color: var(--primary);
+        }
+     
+        .footer {
+            padding: 50px 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 50px; margin-top: auto;
+        }
+        .sig-box { text-align: center; }
+        .sig-name {
+            font-weight: 800; border-bottom: 2px solid black; display: inline-block;
+            width: 80%; margin-top: 60px; text-transform: uppercase; color: var(--primary); min-height: 25px;
+        }
+        .error-box {
+            background: #fee; color: #c00; padding: 30px; text-align: center;
+            font-size: 18px; border-radius: 10px; margin: 40px;
+        }
+    </style>
+</head>
+<body>
+<div class="no-print top-nav">
+    <button class="btn btn-back" onclick="window.history.back()">⬅ KEMBALI</button>
+    <button class="btn btn-pdf" id="btnDownload" onclick="downloadPDF()">📥 DOWNLOAD PDF</button>
+</div>
+<div class="raport-container" id="raportContent">
+    <div id="errorMessage" class="error-box" style="display:none;">
+        <strong>❌ Raport tidak ditemukan</strong><br><br>
+        Halaman ini hanya bisa diakses melalui link raport pribadi.<br>
+        Silakan minta link yang benar dari pelatih.
+    </div>
+    <div id="mainContent">
+        <!-- KOP RAPORT -->
+        <div class="raport-header">
+            <div class="raport-header-content">
+                <img src="assets/logossb.png" onerror="this.src='https://via.placeholder.com/85?text=SSB'" alt="Logo SSB Wind Soccer">
+                <div class="raport-header-text">
+                    <h1>SSB WIND SOCCER</h1>
+                    <p>LAPORAN EVALUASI SISWA • RAPORT RESMI</p>
+                </div>
+            </div>
+            <div id="badgeTipe" class="badge-container">
+                <span id="tipeText">-</span>
+            </div>
+        </div>
+        <div class="player-grid">
+            <div class="photo-box"><img id="dispFoto" src="assets/logossb.png"></div>
+            <div class="info-list">
+                <div class="info-card"><div class="label">NAMA PEMAIN</div><div class="value" id="dispNama">-</div></div>
+                <div class="info-card"><div class="label">NISW</div><div class="value" id="dispNISW">-</div></div>
+                <div class="info-card"><div class="label">KELOMPOK USIA</div><div class="value" id="dispKU">-</div></div>
+                <div class="info-card"><div class="label">TAHUN AJARAN</div><div class="value">2026/2027</div></div>
+            </div>
+        </div>
+        <!-- DATA ANTROPOMETRI -->
+        <div class="fisik-section">
+            <div class="fisik-title">DATA ANTROPOMETRI SISWA</div>
+            <div class="fisik-grid">
+                <div class="fisik-card">
+                    <div class="fisik-label">TB (Tinggi Badan)</div>
+                    <div class="fisik-value" id="dispTB">-</div>
+                    <div class="fisik-unit">cm</div>
+                </div>
+                <div class="fisik-card">
+                    <div class="fisik-label">BERAT BADAN (BB)</div>
+                    <div class="fisik-value" id="dispBB">-</div>
+                    <div class="fisik-unit">kg</div>
+                </div>
+                <div class="fisik-card">
+                    <div class="fisik-label">LINGKAR PERUT</div>
+                    <div class="fisik-value" id="dispLingkarPerut">-</div>
+                    <div class="fisik-unit">cm</div>
+                </div>
+                <div class="fisik-card">
+                    <div class="fisik-label">MES INDEX (BMI)</div>
+                    <div class="fisik-value" id="dispBMI">-</div>
+                    <div class="fisik-unit">kg/m²</div>
+                </div>
+            </div>
+        </div>
+        <div class="assessment-area">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="40%">ASPEK EVALUASI</th>
+                        <th width="15%">NILAI</th>
+                        <th width="15%">GRADE</th>
+                        <th width="30%">KETERANGAN</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="4" class="cat-head">I. TEKNIK (TECHNICAL SKILLS)</td></tr>
+                    <tr><td style="text-align:left">Passing (Umpan)</td><td id="n_passing">-</td><td id="g_passing">-</td><td id="k_passing">-</td></tr>
+                    <tr><td style="text-align:left">Shooting (Tendangan)</td><td id="n_shooting">-</td><td id="g_shooting">-</td><td id="k_shooting">-</td></tr>
+                    <tr><td style="text-align:left">Dribbling (Giring Bola)</td><td id="n_dribbling">-</td><td id="g_dribbling">-</td><td id="k_dribbling">-</td></tr>
+                    <tr><td style="text-align:left">Control (Sentuhan Bola)</td><td id="n_control">-</td><td id="g_control">-</td><td id="k_control">-</td></tr>
+                 
+                    <tr><td colspan="4" class="cat-head">II. TAKTIK & FISIK</td></tr>
+                    <tr><td style="text-align:left">Positioning (Penempatan)</td><td id="n_positioning">-</td><td id="g_positioning">-</td><td id="k_positioning">-</td></tr>
+                    <tr><td style="text-align:left">Kecepatan & Agilitas</td><td id="n_speed">-</td><td id="g_speed">-</td><td id="k_speed">-</td></tr>
+                </tbody>
+            </table>
+         
+            <div style="margin-top:20px; font-size:12px; padding:15px; background:#f8f9fa; border:1px dashed #ccc; border-radius:5px;">
+                <strong>Catatan Evaluasi:</strong>
+                <p id="dispCatatan" style="margin:5px 0; color:#666;">Belum ada evaluasi dari pelatih.</p>
+            </div>
+        </div>
+        <div class="footer">
+            <div class="sig-box">
+                <div style="font-size:12px; font-weight:600;">Direktur Teknik</div>
+                <div class="sig-name">EGHA SENA</div>
+                <div style="font-size:10px;">Technical Director</div>
+            </div>
+            <div class="sig-box">
+                <div style="font-size:12px; font-weight:600;">Pelatih Kepala</div>
+                <div id="sigNamaPelatih" class="sig-name">-</div>
+                <div id="sigLisensiPelatih" style="font-size:10px;">-</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="db-sync.js"></script>
+<script>
+    // ==================== DATA PELATIH (DIAMBIL LANGSUNG DARI HALAMAN PROFIL PELATIH) ====================
+    const dataPelatih = {
+        "8":  { nama: "Coach Andik Samsudin", lisensi: "Head Coach KU-8" },
+        "10": { nama: "Coach Fahri H.",      lisensi: "Head Coach KU-10" },
+        "12": { nama: "Coach Anggit Budianto", lisensi: "Head Coach KU-12" },
+        "14": { nama: "Coach Rizky Ibo",     lisensi: "Head Coach KU-14" },
+        "DEFAULT": { nama: "Coach Egha Sena", lisensi: "Direktur Teknik" }
+    };
+
+    function hitungGrade(n) {
+        n = parseInt(n);
+        if (!n || isNaN(n)) return { g: '-', k: '-' };
+        if (n >= 85) return { g: 'A', k: 'Istimewa' };
+        if (n >= 75) return { g: 'B', k: 'Baik' };
+        if (n >= 60) return { g: 'C', k: 'Cukup' };
+        return { g: 'D', k: 'Kurang' };
+    }
+
+    function resetNilai() {
+        const aspek = ['passing','shooting','dribbling','control','positioning','speed'];
+        aspek.forEach(a => {
+            document.getElementById('n_'+a).innerText = '-';
+            document.getElementById('g_'+a).innerText = '-';
+            document.getElementById('k_'+a).innerText = '-';
+        });
+        document.getElementById("dispCatatan").innerText = "Belum ada evaluasi dari pelatih.";
+    }
+
+    // ==================== LOGIKA BARU PENEMPATAN PELATIH (SESUAI TUGAS & KU CLASS) ====================
+    function getCoachByKategori(kategori) {
+        if (!kategori) return dataPelatih.DEFAULT;
+
+        const kat = kategori.toString().toUpperCase().trim();
+
+        // Logika yang lebih akurat dan fleksibel sesuai data Profil Pelatih
+        if (kat.includes("8") || kat === "KU8" || kat === "U8") {
+            return dataPelatih["8"];
+        }
+        if (kat.includes("10") || kat === "KU10" || kat === "U10") {
+            return dataPelatih["10"];
+        }
+        if (kat.includes("12") || kat === "KU12" || kat === "U12") {
+            return dataPelatih["12"];
+        }
+        // KU-14, KU-16, KU-17, U-14, U-16, U-17, CLASS OF 14/16/17 → Coach Rizky Ibo
+        if (kat.includes("14") || kat.includes("16") || kat.includes("17") || 
+            kat === "KU14" || kat === "KU16" || kat === "KU17" ||
+            kat.includes("CLASS OF")) {
+            return dataPelatih["14"];
+        }
+
+        // Jika tidak ada kecocokan → default ke Direktur Teknik
+        return dataPelatih.DEFAULT;
+    }
+
+    function loadRaport() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const nisw = urlParams.get('nisw')?.trim().toUpperCase();
+        if (!nisw) {
+            document.getElementById("mainContent").style.display = "none";
+            document.getElementById("errorMessage").style.display = "block";
+            return;
+        }
+
+        resetNilai();
+        const siswa = DBManager.findSiswa(nisw);
+        if (!siswa) {
+            document.getElementById("mainContent").style.display = "none";
+            document.getElementById("errorMessage").style.display = "block";
+            return;
+        }
+
+        // Data Siswa
+        document.getElementById("dispNama").innerText = siswa.nama;
+        document.getElementById("dispNISW").innerText = siswa.nisw;
+        document.getElementById("dispKU").innerText = siswa.kategori || "-";
+        document.getElementById("dispFoto").src = siswa.foto || "assets/logossb.png";
+        document.getElementById("tipeText").innerText = (siswa.tipe || "Reguler").toUpperCase();
+
+        // ==================== PENEMPATAN PELATIH KEPALA (SUDAH DIPERBAIKI) ====================
+        const coach = getCoachByKategori(siswa.kategori);
+        document.getElementById("sigNamaPelatih").innerText = coach.nama;
+        document.getElementById("sigLisensiPelatih").innerText = coach.lisensi;
+
+        // ==================== DATA ANTROPOMETRI ====================
+        const nSiswa = (JSON.parse(localStorage.getItem("dataNilai")) || []).find(n => String(n.nisw).toUpperCase() === nisw);
+        const tb = parseFloat(siswa.tb || (nSiswa && nSiswa.tb)) || 0;
+        const bb = parseFloat(siswa.bb || (nSiswa && nSiswa.bb)) || 0;
+        const lingkar = parseFloat(siswa.lingkarPerut || (nSiswa && nSiswa.lingkarPerut)) || 0;
+
+        document.getElementById("dispTB").innerText = tb ? tb.toFixed(0) : "-";
+        document.getElementById("dispBB").innerText = bb ? bb.toFixed(1) : "-";
+        document.getElementById("dispLingkarPerut").innerText = lingkar ? lingkar.toFixed(1) : "-";
+
+        let bmi = "-";
+        if (tb > 0 && bb > 0) {
+            bmi = (bb / Math.pow(tb / 100, 2)).toFixed(1);
+        }
+        document.getElementById("dispBMI").innerText = bmi;
+
+        // Nilai evaluasi
+        if (nSiswa) {
+            const aspek = ['passing','shooting','dribbling','control','positioning','speed'];
+            aspek.forEach(a => {
+                let skor = nSiswa[a] || 0;
+                let hasil = hitungGrade(skor);
+                document.getElementById('n_'+a).innerText = skor;
+                document.getElementById('g_'+a).innerText = hasil.g;
+                document.getElementById('k_'+a).innerText = hasil.k;
+            });
+            document.getElementById("dispCatatan").innerText = nSiswa.catatan || "Terus berlatih!";
+        }
+    }
+
+    function downloadPDF() {
+        const nama = document.getElementById('dispNama').innerText.trim();
+        if (nama === "-" || !nama) {
+            alert("Silakan buka raport melalui link yang benar terlebih dahulu!");
+            return;
+        }
+        const btn = document.getElementById("btnDownload");
+        btn.innerHTML = "⌛ MEMBUAT PDF...";
+        btn.disabled = true;
+
+        const element = document.getElementById('raportContent');
+        const opt = {
+            margin: [10, 10, 10, 10],
+            filename: `Raport_${nama}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, allowTaint: true, logging: false },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        setTimeout(() => {
+            html2pdf().from(element).set(opt).save()
+                .then(() => {
+                    btn.innerHTML = "📥 DOWNLOAD PDF";
+                    btn.disabled = false;
+                    alert("✅ PDF berhasil diunduh!");
+                })
+                .catch(() => {
+                    btn.innerHTML = "📥 DOWNLOAD PDF";
+                    btn.disabled = false;
+                    alert("❌ Gagal membuat PDF.\nGunakan Live Server di VS Code.");
+                });
+        }, 1500);
+    }
+
+    window.onload = loadRaport;
+</script>
+</body>
+</html>

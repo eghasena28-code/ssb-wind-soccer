@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Informasi & Peraturan - SSB Wind Soccer</title>
+  <style>
+    :root {
+      --primary-blue: #003399;
+      --accent-gold: #ffb400;
+      --bg-dark: rgba(0, 0, 0, 0.85);
+      --glass: rgba(255, 255, 255, 0.1);
+    }
+    body {
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      background: var(--primary-blue);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: url("assets/lapangan.jpeg") no-repeat center center/cover;
+      opacity: 0.2;
+      z-index: -1;
+    }
+    header {
+      text-align: center;
+      padding: 40px 20px 20px;
+      animation: fadeInDown 0.8s ease-out;
+    }
+    .logo {
+      width: 100px;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+      margin-bottom: 15px;
+    }
+    h1 {
+      font-size: 28px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-gold);
+      margin: 0;
+    }
+    .owner-hero {
+      text-align: center;
+      margin: 0 auto 40px;
+      max-width: 800px;
+      padding: 0 20px;
+    }
+    .owner-photo {
+      width: 260px;
+      height: 260px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 8px solid var(--accent-gold);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+      margin-bottom: 20px;
+    }
+    .owner-name {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--accent-gold);
+      margin: 10px 0 5px;
+    }
+    .owner-title {
+      font-size: 17px;
+      color: #ddd;
+      font-style: italic;
+      letter-spacing: 0.5px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto 50px;
+      padding: 0 20px;
+      animation: fadeInUp 1s ease-out;
+    }
+    .info-card {
+      background: var(--bg-dark);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 30px;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+    }
+    .tagline {
+      text-align: center;
+      font-style: italic;
+      color: #ddd;
+      margin-bottom: 30px;
+      border-bottom: 1px solid var(--glass);
+      padding-bottom: 15px;
+    }
+    .section-title {
+      display: flex;
+      align-items: center;
+      color: var(--accent-gold);
+      font-size: 20px;
+      margin: 30px 0 15px;
+      padding-left: 10px;
+      border-left: 4px solid var(--accent-gold);
+    }
+    .sub-section-title {
+      color: #58ccff;
+      font-size: 18px;
+      margin: 20px 0 10px;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      background: rgba(255, 255, 255, 0.05);
+      margin-bottom: 8px;
+      padding: 12px 15px;
+      border-radius: 10px;
+      line-height: 1.5;
+      font-size: 15px;
+      transition: transform 0.2s;
+    }
+    li:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateX(5px);
+    }
+    li strong {
+      color: var(--accent-gold);
+    }
+    .tagihan-box {
+      background: linear-gradient(135deg, #003399, #001f66);
+      border-radius: 18px;
+      padding: 25px;
+      margin: 20px 0 35px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+      border: 2px solid var(--accent-gold);
+      position: relative;
+      overflow: hidden;
+    }
+    .tagihan-box::before {
+      content: "🏦";
+      position: absolute;
+      top: -20px;
+      right: -20px;
+      font-size: 120px;
+      opacity: 0.08;
+      color: var(--accent-gold);
+      z-index: 0;
+    }
+    .tagihan-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 2px solid rgba(255,255,255,0.2);
+      padding-bottom: 15px;
+      position: relative;
+      z-index: 1;
+    }
+    .tagihan-header h3 {
+      margin: 0;
+      font-size: 22px;
+      color: #fff;
+    }
+    .tagihan-header .periode {
+      background: rgba(255,255,255,0.15);
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    table.tagihan-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+      position: relative;
+      z-index: 1;
+    }
+    table.tagihan-table th {
+      text-align: left;
+      padding: 12px 10px;
+      font-size: 14px;
+      color: #ffd700;
+      border-bottom: 2px solid rgba(255,215,0,0.3);
+    }
+    table.tagihan-table td {
+      padding: 12px 10px;
+      font-size: 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .total-row {
+      background: rgba(255,255,255,0.15);
+      font-weight: 800;
+      font-size: 18px;
+    }
+    .metode {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px dashed rgba(255,255,255,0.3);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .nisw-input {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      text-align: center;
+    }
+    .nisw-input input {
+      padding: 12px;
+      width: 220px;
+      border-radius: 8px;
+      border: none;
+      margin-right: 10px;
+      font-size: 15px;
+    }
+    .nisw-input button {
+      padding: 12px 25px;
+      background: var(--accent-gold);
+      color: #003399;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .extra-buttons {
+      text-align: center;
+      margin-top: 40px;
+    }
+    .btn-back {
+      background: linear-gradient(45deg, #00b09b, #96c93d);
+      color: white;
+      border: none;
+      padding: 15px 40px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      transition: 0.3s;
+    }
+    .btn-back:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+    }
+    footer {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      text-align: center;
+      font-size: 13px;
+      margin-top: auto;
+    }
+    footer a { color: var(--accent-gold); text-decoration: none; }
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width: 600px) {
+      h1 { font-size: 22px; }
+      .owner-photo { width: 220px; height: 220px; }
+      .info-card { padding: 20px; }
+      .tagihan-box { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="assets/logossb.png" alt="Logo SSB" class="logo">
+    <h1>Informasi & Peraturan</h1>
+  </header>
+
+  <div class="owner-hero">
+    <img src="assets/bos.png" alt="Winarno S.Pd., M.M." class="owner-photo" onerror="this.src='https://via.placeholder.com/260?text=OWNER';">
+    <div class="owner-name">Winarno S.Pd., M.M.</div>
+    <div class="owner-title">Pemilik & Pendiri SSB Wind Soccer</div>
+  </div>
+
+  <div class="container">
+    <div class="info-card">
+      <p class="tagline">Membentuk karakter pemenang melalui disiplin dan sportivitas.</p>
+
+      <div class="section-title">⚖️ PERATURAN UMUM</div>
+      <ul>
+        <li>1. <strong>Disiplin Waktu:</strong> Hadir tepat waktu pada setiap sesi latihan dan pertandingan.</li>
+        <li>2. <strong>Kehadiran:</strong> Wajib memberi kabar jika berhalangan hadir.</li>
+        <li>3. <strong>Seragam:</strong> Wajib memakai atribut resmi selama sesi latihan.</li>
+        <li>4. <strong>Sikap:</strong> Menjaga sportivitas, sopan santun, dan menghormati sesama.</li>
+        <li>5. <strong>Kesehatan:</strong> Memastikan kondisi fisik prima sebelum merumput.</li>
+        <li>6. <strong>Kebersihan:</strong> Menjaga kebersihan diri dan lingkungan lapangan.</li>
+      </ul>
+
+      <div class="section-title">🛠️ PERATURAN KHUSUS</div>
+      <div class="sub-section-title">💳 Administrasi</div>
+      <ul>
+        <li>• <strong>Pendaftaran:</strong> Rp 400.000 (Termasuk Jersey Latihan).</li>
+        <li>• <strong>Iuran Bulanan:</strong> Rp 150.000,-</li>
+        <li>• <strong>Metode Bayar:</strong> Tanggal 1-5 di awal bulan atau cicil Rp 10.000/pertemuan.</li>
+      </ul>
+      <div class="sub-section-title">📝 Absensi & Denda</div>
+      <ul>
+        <li>• <strong>Kewajiban:</strong> Siswa wajib hadir di setiap jadwal yang ditentukan.</li>
+        <li>• <strong>Tanpa Keterangan:</strong> Denda absensi sebesar <strong>Rp 10.000</strong>.</li>
+        <li>• <strong>Batas Izin:</strong> Izin > 2x dalam sebulan denda Rp 10.000 (kecuali sakit/sekolah).</li>
+      </ul>
+      <div class="sub-section-title">🏆 Kompetisi & Turnamen</div>
+      <ul>
+        <li>• <strong>Partisipasi:</strong> Siswa wajib mengikuti turnamen yang dijadwalkan.</li>
+        <li>• <strong>Absen Turnamen:</strong> Denda iuran Rp 20.000 bagi yang tidak ikut serta.</li>
+        <li>• <strong>Registrasi:</strong> Wajib lunas minimal 7 hari sebelum hari pertandingan.</li>
+        <li>• <strong>Loyalitas:</strong> Dilarang mengikuti kompetisi/SSB lain tanpa izin manajemen.</li>
+      </ul>
+
+      <!-- ==================== TAGIHAN UANG (DINAMIS SESUAI ADMIN) ==================== -->
+      <div class="section-title">💰 TAGIHAN UANG</div>
+      <div class="tagihan-box">
+        <div class="nisw-input">
+          <strong>Masukkan NISW Anda untuk melihat tagihan pribadi:</strong><br><br>
+          <input type="text" id="inputNisw" placeholder="Contoh: R2026001" maxlength="10">
+          <button onclick="cekTagihanPribadi()">Tampilkan Tagihan Saya</button>
+        </div>
+
+        <div id="tagihanResult">
+          <div class="tagihan-header">
+            <h3>RINCIAN TAGIHAN</h3>
+            <div class="periode" id="periodeText">Periode 2026/2027</div>
+          </div>
+          <table class="tagihan-table" id="tableTagihan">
+            <thead>
+              <tr>
+                <th>KETERANGAN</th>
+                <th style="text-align:right">JUMLAH</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Akan diisi secara dinamis oleh JavaScript -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="metode">
+          <strong>Metode Pembayaran:</strong><br>
+          • Transfer Bank BCA a.n. <strong>AKBAR MEGDA DERMAWAN</strong> – 8015187227<br>
+          • DANA a.n. <strong>ELINA NOVIYANTI</strong> – 3901082260049401<br>
+          • Cash / Cicilan di tempat (sesuaikan dengan pelatih)<br><br>
+          <strong>Catatan:</strong> Pembayaran paling lambat tanggal 5 setiap bulannya.
+        </div>
+      </div>
+
+      <div class="extra-buttons">
+        <button class="btn-back" onclick="kembaliKeBeranda()">⬅ KEMBALI KE BERANDA</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2026 SSB Wind Soccer</p>
+    <p>Kontak: 📞 0812 9333 8781 | Instagram: <a href="https://instagram.com/windsoccer.official" target="_blank">@windsoccer.official</a></p>
+  </footer>
+
+  <script>
+    function cekTagihanPribadi() {
+      const nisw = document.getElementById("inputNisw").value.trim().toUpperCase();
+      if (!nisw) {
+        alert("❌ Masukkan NISW Anda terlebih dahulu!");
+        return;
+      }
+
+      const dataTagihan = JSON.parse(localStorage.getItem("dataTagihan")) || {};
+      const tagihan = dataTagihan[nisw];
+
+      const tbody = document.getElementById("tableTagihan").getElementsByTagName("tbody")[0];
+
+      if (tagihan) {
+        const total = (tagihan.iuran || 0) + (tagihan.dendaAbsen || 0) + (tagihan.dendaTurnamen || 0);
+
+        tbody.innerHTML = `
+          <tr><td><strong>Bulan</strong></td><td style="text-align:right">${tagihan.bulan || '-'}</td></tr>
+          <tr><td>Iuran Bulanan</td><td style="text-align:right">Rp ${(tagihan.iuran || 0).toLocaleString()}</td></tr>
+          <tr><td>Denda Absensi ${tagihan.keteranganDenda ? `(${tagihan.keteranganDenda})` : ''}</td><td style="text-align:right">Rp ${(tagihan.dendaAbsen || 0).toLocaleString()}</td></tr>
+          <tr><td>Denda Absen Turnamen</td><td style="text-align:right">Rp ${(tagihan.dendaTurnamen || 0).toLocaleString()}</td></tr>
+          <tr class="total-row">
+            <td><strong>TOTAL TAGIHAN BULAN INI</strong></td>
+            <td style="text-align:right"><strong>Rp ${total.toLocaleString()}</strong></td>
+          </tr>
+          <tr>
+            <td colspan="2" style="text-align:center; padding:15px; font-weight:bold; font-size:16px; color:${tagihan.status === 'Lunas' ? '#28a745' : '#ffc107'}">
+              STATUS: ${tagihan.status || 'Belum Lunas'}
+            </td>
+          </tr>
+        `;
+      } else {
+        tbody.innerHTML = `
+          <tr><td colspan="2" style="text-align:center; padding:40px; color:#ddd;">
+            Belum ada tagihan untuk NISW <strong>${nisw}</strong><br>
+            <small>Admin belum menginput data tagihan untuk siswa ini.</small>
+          </td></tr>
+        `;
+      }
+    }
+
+    function kembaliKeBeranda() {
+      window.location.href = "beranda.html";
+    }
+  </script>
+</body>
+</html>

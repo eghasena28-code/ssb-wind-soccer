@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saran & Masukan - SSB Wind Soccer</title>
+  <style>
+    body { 
+      font-family: 'Segoe UI', sans-serif; 
+      background: #003399; 
+      margin: 0; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      min-height: 100vh; 
+      color: #333;
+      padding: 20px;
+    }
+
+    body::before { 
+      content: ""; 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      background: url("assets/lapangan.jpeg") no-repeat center center/cover; 
+      opacity: 0.2; 
+      z-index: -1; 
+    }
+    
+    .card { 
+      background: white; 
+      width: 90%; 
+      max-width: 500px; 
+      border-radius: 20px; 
+      padding: 30px; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
+      border-top: 8px solid #ffb400;
+      animation: slideUp 0.5s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .header { 
+      text-align: center; 
+      margin-bottom: 25px; 
+    }
+
+    .logo { 
+      width: 70px; 
+      margin-bottom: 10px; 
+    }
+
+    h2 { 
+      color: #003399; 
+      margin: 0; 
+      font-size: 22px; 
+    }
+
+    p { 
+      font-size: 14px; 
+      color: #666; 
+      margin-top: 5px; 
+    }
+
+    .info-user { 
+      background: #f0f4ff; 
+      padding: 12px; 
+      border-radius: 10px; 
+      margin-bottom: 20px; 
+      border-left: 5px solid #003399; 
+      font-size: 14px; 
+    }
+    
+    label { 
+      display: block; 
+      font-size: 13px; 
+      font-weight: bold; 
+      margin-bottom: 8px; 
+      color: #003399; 
+      margin-top: 15px;
+    }
+
+    select, textarea { 
+      width: 100%; 
+      padding: 12px; 
+      margin-bottom: 20px; 
+      border: 1px solid #ccc; 
+      border-radius: 10px; 
+      box-sizing: border-box; 
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    select:focus, textarea:focus {
+      outline: none;
+      border-color: #003399;
+      box-shadow: 0 0 5px rgba(0, 51, 153, 0.3);
+    }
+
+    textarea { 
+      height: 120px; 
+      resize: vertical;
+      max-height: 250px;
+      min-height: 100px;
+    }
+
+    .btn-submit { 
+      width: 100%; 
+      padding: 15px; 
+      background: #003399; 
+      border: none; 
+      color: white; 
+      font-weight: bold; 
+      border-radius: 10px; 
+      cursor: pointer; 
+      font-size: 16px; 
+      transition: all 0.3s;
+      margin-top: 10px;
+    }
+
+    .btn-submit:hover { 
+      background: #002266; 
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 51, 153, 0.3);
+    }
+
+    .btn-submit:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-back { 
+      display: block; 
+      text-align: center; 
+      margin-top: 15px; 
+      color: #666; 
+      text-decoration: none; 
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .btn-back:hover { 
+      text-decoration: underline;
+      color: #003399;
+    }
+
+    .alert {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      display: none;
+      font-weight: 600;
+      animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .alert.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      display: block;
+    }
+
+    .alert.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="header">
+      <img src="assets/logossb.png" alt="Logo" class="logo">
+      <h2>Saran & Masukan</h2>
+      <p>Suara Anda membantu kami berkembang lebih baik.</p>
+    </div>
+
+    <div id="alertBox" class="alert"></div>
+
+    <div class="info-user" id="userInfo">
+      Memuat data pengirim...
+    </div>
+
+    <form id="formSaran">
+      <label>📂 Kategori Masukan</label>
+      <select id="kategori" required>
+        <option value="">-- Pilih Kategori --</option>
+        <option value="Fasilitas">Fasilitas Latihan</option>
+        <option value="Pelatih">Kinerja Pelatih</option>
+        <option value="Jadwal">Jadwal & Program</option>
+        <option value="Administrasi">Administrasi</option>
+        <option value="Lainnya">Lainnya</option>
+      </select>
+
+      <label>📝 Isi Pesan / Saran</label>
+      <textarea id="pesan" placeholder="Tuliskan saran atau masukan Anda di sini..." required></textarea>
+
+      <button type="submit" class="btn-submit" id="btnSubmit">📤 KIRIM MASUKAN</button>
+      <a href="beranda.html" class="btn-back">← Kembali ke Beranda</a>
+    </form>
+  </div>
+
+  <script src="db-sync.js"></script>
+  <script>
+    console.log("📩 Saran page loading...");
+
+    function showAlert(message, type) {
+      const box = document.getElementById('alertBox');
+      box.textContent = message;
+      box.className = 'alert ' + type;
+      setTimeout(() => {
+        if (type !== 'error') box.className = 'alert';
+      }, 4000);
+    }
+
+    const user = DBManager.getLoginUser();
+
+    if (!user) {
+      alert("❌ Sesi berakhir, silakan login kembali.");
+      window.location.href = "index.html";
+    } else {
+      document.getElementById("userInfo").innerHTML = `
+        <strong>Pengirim:</strong> ${user.nama} <br>
+        <strong>NISW:</strong> ${user.nisw} <br>
+        <strong>Kategori:</strong> ${user.kategori || '-'}
+      `;
+    }
+
+    document.getElementById("formSaran").onsubmit = function(e) {
+      e.preventDefault();
+
+      const btn = document.getElementById('btnSubmit');
+      btn.disabled = true;
+      btn.innerHTML = '⌛ Mengirim...';
+
+      try {
+        const kategori = document.getElementById("kategori").value;
+        const pesan = document.getElementById("pesan").value;
+        const tglPesan = new Date().toLocaleString('id-ID');
+
+        if (!kategori) {
+          showAlert('❌ Pilih kategori terlebih dahulu!', 'error');
+          btn.disabled = false;
+          btn.innerHTML = '📤 KIRIM MASUKAN';
+          return;
+        }
+
+        if (!pesan || pesan.trim().length < 10) {
+          showAlert('❌ Pesan minimal 10 karakter!', 'error');
+          btn.disabled = false;
+          btn.innerHTML = '📤 KIRIM MASUKAN';
+          return;
+        }
+
+        const saraBaru = {
+          nama: user.nama,
+          nisw: user.nisw,
+          kategori: kategori,
+          pesan: pesan,
+          tanggal: tglPesan
+        };
+
+        const berhasil = DBManager.addSaran(saraBaru);
+
+        if (berhasil) {
+          console.log("✅ Saran berhasil disimpan:", saraBaru);
+          showAlert('✅ Terima kasih! Masukan Anda telah terkirim.', 'success');
+          
+          setTimeout(() => {
+            document.getElementById("formSaran").reset();
+            window.location.href = "beranda.html";
+          }, 2000);
+        } else {
+          showAlert('❌ Gagal mengirim masukan. Coba lagi.', 'error');
+          btn.disabled = false;
+          btn.innerHTML = '📤 KIRIM MASUKAN';
+        }
+      } catch (error) {
+        console.error('❌ Error:', error);
+        showAlert('❌ Terjadi kesalahan: ' + error.message, 'error');
+        btn.disabled = false;
+        btn.innerHTML = '📤 KIRIM MASUKAN';
+      }
+    };
+  </script>
+
+</body>
+</html>

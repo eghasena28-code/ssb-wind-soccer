@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jadwal & Turnamen - SSB Wind Soccer</title>
+  <style>
+    :root {
+      --primary: #003399;
+      --secondary: #ffb400;
+      --accent: #28a745;
+      --danger: #ff4d4d;
+      --white: #ffffff;
+    }
+
+    body {
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      background: #003399;
+      color: white;
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center;
+      position: relative; overflow-x: hidden;
+    }
+
+    /* Background Overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: url("assets/lapangan.jpeg") no-repeat center center/cover;
+      opacity: 0.2;
+      z-index: -1;
+    }
+
+    .container {
+      text-align: center;
+      padding: 30px 15px;
+      max-width: 600px;
+      width: 90%;
+      margin: 20px auto;
+      z-index: 1;
+    }
+
+    .logo-small {
+      width: 90px;
+      margin-bottom: 15px;
+      filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
+    }
+
+    h1 {
+      font-size: 24px;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--secondary);
+    }
+
+    .tagline {
+      font-size: 13px; opacity: 0.8;
+      margin-bottom: 30px; font-style: italic;
+    }
+
+    .section-box {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 25px;
+      text-align: left;
+    }
+
+    .section-title {
+      font-size: 16px; font-weight: 800;
+      color: var(--secondary);
+      margin-bottom: 15px;
+      display: flex; align-items: center; gap: 10px;
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 8px;
+    }
+
+    .schedule-card {
+      background: white;
+      color: #333;
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      transition: 0.3s;
+    }
+
+    .info-left .day { font-weight: 800; font-size: 16px; margin: 0; color: var(--primary); }
+    .info-left .loc { font-size: 12px; color: #666; margin: 3px 0 0 0; }
+
+    .time-badge {
+      background: var(--primary);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-weight: bold; font-size: 13px;
+    }
+
+    .tournament-card { border-left: 5px solid var(--danger); }
+    .tournament-name { font-weight: 800; color: var(--danger); font-size: 14px; margin: 0; }
+
+    .btn-back {
+      background: var(--secondary);
+      color: var(--primary);
+      padding: 14px 30px;
+      border-radius: 50px;
+      font-weight: bold;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 10px;
+      box-shadow: 0 5px 15px rgba(255,180,0,0.3);
+    }
+
+    footer {
+      margin-top: auto;
+      background: rgba(0, 0, 0, 0.6);
+      width: 100%;
+      padding: 20px 0;
+      text-align: center;
+      font-size: 12px;
+      color: white;
+    }
+
+    .empty-state { text-align: center; font-size: 13px; opacity: 0.6; padding: 10px; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <img src="assets/logossb.png" alt="Logo" class="logo-small">
+    <h1>Jadwal Latihan & Turnamen</h1>
+    <p class="tagline">Disiplin • Kerja Keras • Juara</p>
+
+    <div class="section-box">
+      <div class="section-title">⚽ Jadwal Latihan Rutin</div>
+      <div id="listLatihan"></div>
+    </div>
+
+    <div class="section-box">
+      <div class="section-title">🏆 Turnamen & Event</div>
+      <div id="listTurnamen"></div>
+    </div>
+
+    <a href="beranda.html" class="btn-back">⬅ KEMBALI KE BERANDA</a>
+  </div>
+
+  <footer>
+    <p>© 2026 SSB Wind Soccer Official</p>
+    <p style="font-size: 10px; opacity: 0.8;">Hubungi: 📞 0812 9333 8781 | Instagram: @windsoccer.official</p>
+  </footer>
+
+  <script>
+    function renderJadwal() {
+      const containerLatihan = document.getElementById('listLatihan');
+      const containerTurnamen = document.getElementById('listTurnamen');
+
+      const dataLatihan = JSON.parse(localStorage.getItem("db_latihan")) || [
+        { hari: "SELASA", tempat: "Stadion Mini Legok", waktu: "15.00 WIB" },
+        { hari: "KAMIS", tempat: "Stadion Mini Legok", waktu: "15.00 WIB" },
+        { hari: "MINGGU", tempat: "Lapangan Jaha", waktu: "07.00 WIB" }
+      ];
+
+      const dataTurnamen = JSON.parse(localStorage.getItem("db_turnamen")) || [];
+
+      containerLatihan.innerHTML = "";
+      dataLatihan.forEach(item => {
+        containerLatihan.innerHTML += `
+          <div class="schedule-card">
+            <div class="info-left">
+              <p class="day">${item.hari}</p>
+              <p class="loc">📍 ${item.tempat}</p>
+            </div>
+            <div class="time-badge">${item.waktu}</div>
+          </div>
+        `;
+      });
+
+      containerTurnamen.innerHTML = "";
+      if (dataTurnamen.length === 0) {
+        containerTurnamen.innerHTML = `<p class="empty-state">Belum ada jadwal turnamen terdekat.</p>`;
+      } else {
+        dataTurnamen.forEach(item => {
+          containerTurnamen.innerHTML += `
+            <div class="schedule-card tournament-card">
+              <div class="info-left">
+                <p class="tournament-name">🔥 ${item.nama_event}</p>
+                <p class="loc">📅 ${item.tanggal} | 📍 ${item.lokasi}</p>
+              </div>
+              <div class="time-badge" style="background:var(--danger)">${item.waktu || 'FULL'}</div>
+            </div>
+          `;
+        });
+      }
+    }
+    window.onload = renderJadwal;
+  </script>
+</body>
+</html>

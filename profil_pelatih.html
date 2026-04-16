@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil Pelatih - SSB Wind Soccer</title>
+  <style>
+    /* --- CSS UTAMA (SAMA SEPERTI SEBELUMNYA) --- */
+    body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #003399; color: white; min-height: 100vh; padding: 20px; position: relative; }
+    
+    body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: url("assets/lapangan.jpeg") no-repeat center center/cover; z-index: -1; opacity: 0.15; }
+
+    .header { text-align: center; margin-bottom: 30px; }
+    .header img { width: 80px; }
+    .header h1 { margin: 10px 0; font-size: 26px; border-bottom: 4px solid #ffb400; display: inline-block; padding-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+
+    .coach-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; max-width: 1100px; margin: 0 auto; }
+
+    .coach-card { background: rgba(255, 255, 255, 0.98); color: #333; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.4); transition: 0.3s; border-bottom: 6px solid #ffb400; }
+    .coach-card:hover { transform: translateY(-10px); }
+
+    /* --- GAYA FOTO UMUM --- */
+    .coach-img { 
+      width: 100%; 
+      height: 280px; 
+      object-fit: cover; /* Memotong gambar agar pas bingkai */
+      object-position: center; /* Fokus default di tengah */
+      background: #eee; 
+      display: block; 
+    }
+
+    /* ==========================================================
+       FITUR KHUSUS: MENYESUAIKAN FOTO COACH ANGGIT
+       Tujuan: Menurunkan posisi gambar agar kepala masuk frame.
+       '0 10%' artinya horizontal di tengah (0), vertical turun 10%.
+       Sesuaikan angka % jika kepala masih terpotong atau terlalu turun.
+       ========================================================== */
+    .img-anggit {
+      object-position: 0 10% !important; 
+    }
+    /* ========================================================== */
+
+    .coach-info { padding: 20px; text-align: center; }
+    .coach-info h2 { margin: 0; color: #003399; font-size: 22px; font-weight: 800; }
+    .coach-info p { margin: 8px 0; font-weight: bold; color: #ffb400; background: #003399; display: inline-block; padding: 4px 18px; border-radius: 25px; font-size: 13px; }
+
+    .coach-bio { font-size: 13px; color: #555; margin-top: 12px; font-style: italic; line-height: 1.6; min-height: 40px; }
+
+    .lisensi { margin-top: 10px; font-size: 13px; font-weight: bold; color: #1e7e34; display: block; }
+    .no-lisensi { margin-top: 10px; font-size: 13px; font-style: italic; color: #777; display: block; }
+
+    .btn-back { display: block; width: 180px; margin: 40px auto; padding: 14px; background: #ffb400; color: #003399; text-align: center; text-decoration: none; font-weight: bold; border-radius: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: 0.3s; }
+    .btn-back:hover { background: #fff; transform: scale(1.05); }
+
+    footer { text-align: center; margin-top: 50px; font-size: 13px; padding-bottom: 30px; opacity: 0.7; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <img src="assets/logossb.png" alt="Logo SSB">
+    <br>
+    <h1>Staf Kepelatihan</h1>
+  </div>
+
+  <div class="coach-grid">
+    <div class="coach-card">
+      <img src="assets/dirtek.png" class="coach-img" alt="Coach Egha Sena" onerror="this.src='assets/logossb.png';">
+      <div class="coach-info">
+        <h2>Coach Egha Sena</h2>
+        <p>Direktur Teknik</p>
+        <span class="lisensi">Lisensi C AFC</span>
+        <div class="coach-bio">"Visi kami adalah menciptakan pemain yang cerdas secara taktik dan kuat secara mental."</div>
+      </div>
+    </div>
+
+    <div class="coach-card">
+      <img src="assets/8.png" class="coach-img" alt="Coach Andik" onerror="this.src='assets/logossb.png';">
+      <div class="coach-info">
+        <h2>Coach Andik Samsudin</h2>
+        <p>Head Coach KU-8</p>
+        <span class="no-lisensi">Mantan Pemain Persikota</span>
+        <div class="coach-bio">"Menanamkan kegembiraan bermain bola sejak usia dini adalah pondasi utama."</div>
+      </div>
+    </div>
+
+    <div class="coach-card">
+      <img src="assets/10.png" class="coach-img" alt="Coach Fahri" onerror="this.src='assets/logossb.png';">
+      <div class="coach-info">
+        <h2>Coach Fahri H.</h2>
+        <p>Head Coach KU-10</p>
+        <span class="no-lisensi">Staf Kepelatihan</span>
+        <div class="coach-bio">"Fokus pada peningkatan koordinasi gerak dan teknik dasar individu."</div>
+      </div>
+    </div>
+
+    <div class="coach-card">
+      <img src="assets/12.png" class="coach-img img-anggit" alt="Coach Anggit" onerror="this.src='assets/logossb.png';">
+      <div class="coach-info">
+        <h2>Coach Anggit Budianto</h2>
+        <p>Head Coach KU-12</p>
+        <span class="no-lisensi">Staf Kepelatihan</span>
+        <div class="coach-bio">"Membangun kreativitas di lapangan melalui pemahaman ruang dan posisi."</div>
+      </div>
+    </div>
+
+    <div class="coach-card">
+      <img src="assets/14.png" class="coach-img" alt="Coach Rizky Ibo" onerror="this.src='assets/logossb.png';">
+      <div class="coach-info">
+        <h2>Coach Rizky Ibo</h2>
+        <p>Head Coach KU-14</p>
+        <span class="lisensi">Lisensi D</span>
+        <div class="coach-bio">"Disiplin dalam taktik dan kesiapan fisik untuk menghadapi level kompetitif."</div>
+      </div>
+    </div>
+
+    <div class="coach-card">
+      <img src="assets/gk.png" class="coach-img" alt="Coach Agil" onerror="this.src='assets/logossb.png';">
+      <div class="coach-info">
+        <h2>Coach Agil</h2>
+        <p>Goalkeeper Coach</p>
+        <span class="lisensi">Lisensi D</span>
+        <div class="coach-bio">"Melatih ketangkasan dan mentalitas penjaga gawang yang tangguh."</div>
+      </div>
+    </div>
+
+    <div class="coach-card">
+      <img src="assets/isolator.png" class="coach-img" alt="Coach Dede" onerror="this.src='assets/logossb.png';">
+      <div class="coach-info">
+        <h2>Coach Dede Ap.</h2>
+        <p>Pelatih Isolasi</p>
+        <span class="lisensi">Lisensi D</span>
+        <div class="coach-bio">"Program latihan khusus untuk memaksimalkan potensi terbaik setiap pemain."</div>
+      </div>
+    </div>
+  </div>
+
+  <a href="beranda.html" class="btn-back">⬅ Kembali ke Beranda</a>
+
+  <footer>
+    © 2026 SSB Wind Soccer Official - Maju Bersama Sepakbola Indonesia
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Siswa - SSB Wind Soccer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #003399; --accent: #ffb400; --dark: #0a1931; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #0a1931 0%, #1e2a5e 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .profile-card { background: white; width: 100%; max-width: 520px; border-radius: 24px; overflow: hidden; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4); }
+        .photo-section { background: linear-gradient(135deg, var(--primary), #002266); padding: 40px 30px; text-align: center; color: white; }
+        .img-siswa { width: 160px; height: 160px; border-radius: 50%; border: 6px solid var(--accent); object-fit: cover; }
+        .nama-siswa { margin-top: 15px; font-size: 24px; font-weight: 700; text-transform: uppercase; }
+        .nisw-text { opacity: 0.9; font-size: 15px; }
+        .info-section { padding: 30px; }
+        .badge { display: inline-block; padding: 8px 20px; background: var(--primary); color: white; border-radius: 30px; font-size: 13px; font-weight: 600; margin-bottom: 20px; }
+        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .data-item { background: #f8f9ff; padding: 16px; border-radius: 12px; border-left: 4px solid var(--primary); }
+        .data-label { font-size: 12px; color: #555; font-weight: 500; margin-bottom: 4px; text-transform: uppercase; }
+        .data-value { font-size: 15px; font-weight: 600; color: #003399; }
+        .btn-back { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 25px; }
+        @media (max-width: 480px) { .data-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="profile-card">
+        <div class="photo-section">
+            <img id="imgSiswa" src="assets/default.png" class="img-siswa" alt="Foto Siswa">
+            <div class="nama-siswa" id="namaSiswa">NAMA SISWA</div>
+            <div class="nisw-text" id="niswSiswa">NISW: -</div>
+        </div>
+        <div class="info-section">
+            <div class="badge">REGULER</div>
+            <div class="data-grid">
+                <div class="data-item">
+                    <div class="data-label">📅 Tanggal Lahir</div>
+                    <div class="data-value" id="dTglLahir">Memuat...</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">📊 Kategori Umur</div>
+                    <div class="data-value" id="dKat">-</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">⚽ Posisi Favorit</div>
+                    <div class="data-value" id="dPos">-</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">👨‍👩‍👦 Nama Orang Tua</div>
+                    <div class="data-value" id="dOrtu">-</div>
+                </div>
+                <div class="data-item" style="grid-column: span 2;">
+                    <div class="data-label">📍 Alamat</div>
+                    <div class="data-value" id="dAlm">-</div>
+                </div>
+            </div>
+            <button class="btn-back" onclick="window.location.href='beranda.html'">← KEMBALI KE BERANDA</button>
+        </div>
+    </div>
+
+    <script src="db-sync.js"></script>
+    <script>
+        function formatTanggal(tgl) {
+            if (!tgl || tgl === "-" || tgl === "") return "-";
+            try {
+                // Jika formatnya sudah DD/MM/YYYY, kembalikan langsung
+                if (tgl.includes("/")) return tgl;
+                
+                const date = new Date(tgl);
+                if (isNaN(date.getTime())) return tgl;
+                const bulanID = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+                return `${date.getDate()} ${bulanID[date.getMonth()]} ${date.getFullYear()}`;
+            } catch(e) {
+                return tgl;
+            }
+        }
+
+        const s = DBManager.getLoginUser();
+
+        if (!s) {
+            alert("Siswa tidak ditemukan! Silakan login ulang.");
+            window.location.href = "index.html";
+        } else {
+            document.getElementById("imgSiswa").src = s.foto || "assets/default.png";
+            document.getElementById("namaSiswa").innerText = (s.nama || "").toUpperCase();
+            document.getElementById("niswSiswa").innerText = "NISW: " + (s.nisw || "-");
+
+            // JARING PENGAMAN: Mencari tglLahir di berbagai kemungkinan nama variabel
+            const tglRaw = s.tglLahir || s.tanggalLahir || s.tanggal_lahir || s.ttl || "-";
+            document.getElementById("dTglLahir").innerText = formatTanggal(tglRaw);
+
+            document.getElementById("dKat").innerText = s.kategori || "-";
+            document.getElementById("dPos").innerText = s.posisi || "-";
+            document.getElementById("dOrtu").innerText = s.namaOrtu || "-";
+            document.getElementById("dAlm").innerText = s.alamat || "-";
+        }
+    </script>
+</body>
+</html>

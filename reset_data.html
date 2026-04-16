@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reset Database SSB</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 50px; background: #f4f4f4; }
+        button { padding: 20px 40px; background: red; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 20px; }
+        button:hover { background: darkred; }
+    </style>
+</head>
+<body>
+    <h1>PENGHAPUSAN DATABASE TOTAL</h1>
+    <p>Klik tombol di bawah untuk mengosongkan semua data pendaftaran (Reguler & Beasiswa).</p>
+    
+    <button onclick="hapusSemua()">KOSONGKAN SEMUA DATA SEKARANG</button>
+
+    <script>
+        function hapusSemua() {
+            if(confirm("Apakah Anda yakin ingin menghapus SEMUA data siswa?")) {
+                localStorage.clear(); // Ini akan menghapus dataSiswa, dataBeasiswa, dan dataAbsensi
+                alert("DATABASE BERHASIL DIKOSONGKAN!");
+                window.location.href = "index.html";
+            }
+        }
+    </script>
+</body>
+</html>
