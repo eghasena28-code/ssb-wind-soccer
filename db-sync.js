@@ -1,11 +1,8 @@
-// ==================== db-sync.js (REALTIME DATABASE - FIXED & LENGKAP) ====================
-// Versi April 2026 - Siap pakai dengan admin.html
-
+// ==================== db-sync.js - FIXED & STABIL (17 April 2026) ====================
 const DBManager = {
-    // Helper tanggal
     getTglSekarang: function() {
         const d = new Date();
-        return d.toISOString().split('T')[0]; // format YYYY-MM-DD (standar)
+        return d.toISOString().split('T')[0]; // YYYY-MM-DD
     },
 
     formatTanggalPendek: function(tgl) {
@@ -14,10 +11,10 @@ const DBManager = {
         return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
     },
 
-    // ================== SISWA AKTIF ==================
+    // ===================== SISWA AKTIF =====================
     getSiswaAktif: function() {
-        return new Promise((resolve) => {
-            firebase.database().ref('siswaAktif').once('value', (snap) => {
+        return new Promise(resolve => {
+            firebase.database().ref('siswaAktif').once('value', snap => {
                 const data = snap.val();
                 resolve(data ? Object.values(data) : []);
             });
@@ -33,38 +30,37 @@ const DBManager = {
         return firebase.database().ref('siswaAktif/' + nisw).remove();
     },
     findSiswa: function(nisw) {
-        return new Promise((resolve) => {
-            firebase.database().ref('siswaAktif/' + nisw).once('value', (snap) => {
+        return new Promise(resolve => {
+            firebase.database().ref('siswaAktif/' + nisw).once('value', snap => {
                 resolve(snap.exists() ? snap.val() : null);
             });
         });
     },
 
-    // ================== PENDAFTAR ==================
+    // ===================== PENDAFTAR =====================
     getPendaftar: function() {
-        return new Promise((resolve) => {
-            firebase.database().ref('pendaftar').once('value', (snap) => {
+        return new Promise(resolve => {
+            firebase.database().ref('pendaftar').once('value', snap => {
                 const data = snap.val();
                 resolve(data ? Object.values(data) : []);
             });
         });
     },
     removePendaftar: function(index) {
-        // index diambil dari array hasil getPendaftar()
         return this.getPendaftar().then(list => {
             if (index < 0 || index >= list.length) return;
-            const fbKey = list[index].fbKey || list[index].id;
-            return firebase.database().ref('pendaftar/' + fbKey).remove();
+            const key = list[index].fbKey || list[index].id || Object.keys(list[index])[0];
+            return firebase.database().ref('pendaftar/' + key).remove();
         });
     },
 
-    // ================== KEUANGAN ==================
+    // ===================== KEUANGAN =====================
     getKeuangan: function() {
-        return new Promise((resolve) => {
-            firebase.database().ref('keuangan').orderByChild('tgl').once('value', (snap) => {
+        return new Promise(resolve => {
+            firebase.database().ref('keuangan').once('value', snap => {
                 const data = snap.val();
                 const arr = data ? Object.values(data) : [];
-                arr.reverse(); // terbaru di atas
+                arr.sort((a,b) => new Date(b.tgl) - new Date(a.tgl)); // terbaru dulu
                 resolve(arr);
             });
         });
@@ -76,21 +72,22 @@ const DBManager = {
     updateKeuangan: function(index, updates) {
         return this.getKeuangan().then(list => {
             if (index < 0 || index >= list.length) return;
-            const key = list[index].id || Object.keys(firebase.database().ref('keuangan').once('value')).find(k => firebase.database().ref('keuangan/' + k).val() === list[index]);
-            return firebase.database().ref('keuangan/' + list[index].key).update(updates); // pakai .key jika push
+            const key = list[index].key || Object.keys(list[index])[0];
+            return firebase.database().ref('keuangan/' + key).update(updates);
         });
     },
     deleteKeuangan: function(index) {
         return this.getKeuangan().then(list => {
             if (index < 0 || index >= list.length) return;
-            return firebase.database().ref('keuangan/' + list[index].key).remove();
+            const key = list[index].key || Object.keys(list[index])[0];
+            return firebase.database().ref('keuangan/' + key).remove();
         });
     },
 
-    // ================== ABSENSI ==================
+    // ===================== ABSENSI =====================
     getAbsensi: function() {
-        return new Promise((resolve) => {
-            firebase.database().ref('absensi').orderByChild('tanggal').once('value', (snap) => {
+        return new Promise(resolve => {
+            firebase.database().ref('absensi').once('value', snap => {
                 const data = snap.val();
                 resolve(data ? Object.values(data) : []);
             });
@@ -99,18 +96,20 @@ const DBManager = {
     updateAbsensi: function(index, updates) {
         return this.getAbsensi().then(list => {
             if (index < 0 || index >= list.length) return;
-            return firebase.database().ref('absensi/' + list[index].key).update(updates);
+            const key = list[index].key || Object.keys(list[index])[0];
+            return firebase.database().ref('absensi/' + key).update(updates);
         });
     },
     deleteAbsensi: function(index) {
         return this.getAbsensi().then(list => {
             if (index < 0 || index >= list.length) return;
-            return firebase.database().ref('absensi/' + list[index].key).remove();
+            const key = list[index].key || Object.keys(list[index])[0];
+            return firebase.database().ref('absensi/' + key).remove();
         });
     },
     hitungPresensiBySiswa: function(nisw) {
-        return new Promise((resolve) => {
-            firebase.database().ref('absensi').orderByChild('nisw').equalTo(nisw).once('value', (snap) => {
+        return new Promise(resolve => {
+            firebase.database().ref('absensi').orderByChild('nisw').equalTo(nisw).once('value', snap => {
                 let hadir = 0, total = 0;
                 snap.forEach(child => {
                     total++;
@@ -121,18 +120,18 @@ const DBManager = {
         });
     },
 
-    // ================== SARAN ==================
+    // ===================== SARAN =====================
     getSaran: function() {
-        return new Promise((resolve) => {
-            firebase.database().ref('saran').orderByChild('waktu').once('value', (snap) => {
+        return new Promise(resolve => {
+            firebase.database().ref('saran').once('value', snap => {
                 const data = snap.val();
                 resolve(data ? Object.values(data) : []);
             });
         });
     },
     getTotalSaranBelumDibaca: function() {
-        return new Promise((resolve) => {
-            firebase.database().ref('saran').orderByChild('dibaca').equalTo(false).once('value', (snap) => {
+        return new Promise(resolve => {
+            firebase.database().ref('saran').orderByChild('dibaca').equalTo(false).once('value', snap => {
                 resolve(snap.numChildren());
             });
         });
@@ -144,10 +143,10 @@ const DBManager = {
         return firebase.database().ref('saran/' + id).remove();
     },
 
-    // ================== JADWAL ==================
+    // ===================== JADWAL =====================
     getJadwalLatihan: function() {
-        return new Promise((resolve) => {
-            firebase.database().ref('jadwalLatihan').once('value', (snap) => {
+        return new Promise(resolve => {
+            firebase.database().ref('jadwalLatihan').once('value', snap => {
                 const data = snap.val();
                 const defaultJadwal = [
                     { id: 1, hari: "SELASA", tempat: "Stadion Mini Legok", waktu: "15.00 WIB" },
@@ -169,8 +168,8 @@ const DBManager = {
     },
 
     getJadwalTurnamen: function() {
-        return new Promise((resolve) => {
-            firebase.database().ref('jadwalTurnamen').once('value', (snap) => {
+        return new Promise(resolve => {
+            firebase.database().ref('jadwalTurnamen').once('value', snap => {
                 const data = snap.val();
                 resolve(data ? Object.values(data) : []);
             });
@@ -186,10 +185,10 @@ const DBManager = {
         return firebase.database().ref('jadwalTurnamen/' + id).remove();
     },
 
-    // ================== TAGIHAN & NILAI ==================
+    // ===================== TAGIHAN & NILAI =====================
     getTagihan: function(nisw) {
-        return new Promise((resolve) => {
-            firebase.database().ref('tagihan/' + nisw).once('value', (snap) => {
+        return new Promise(resolve => {
+            firebase.database().ref('tagihan/' + nisw).once('value', snap => {
                 resolve(snap.exists() ? snap.val() : {
                     bulan: "April 2026", iuran: 150000, dendaAbsen: 0,
                     dendaTurnamen: 0, status: "Belum Lunas", keteranganDenda: ""
@@ -207,4 +206,4 @@ const DBManager = {
 };
 
 window.DBManager = DBManager;
-console.log("✅ DBManager Realtime Database FIXED & LENGKAP - SSB Wind Soccer");
+console.log("✅ DBManager Realtime Database FIXED & STABIL - SSB Wind Soccer");
