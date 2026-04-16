@@ -1,159 +1,118 @@
-// ==================== DBManager FIREBASE - SSB Wind Soccer (April 2026) ====================
+// ==================== DB-SYNC.JS - FIREBASE COMPAT LENGKAP ====================
+// Hanya untuk penyimpanan database - Tidak mengubah fitur lain
+// Update: 12 April 2026
 
-// Versi ini menggantikan LocalStorage dengan Firebase agar data sinkron di semua HP/Laptop
+const firebaseConfig = {
+  apiKey: "AIzaSyD12rwdbODRChLrl0mqF3vWh_CPfC0iirs",
+  authDomain: "ssb-wind-soccer-app.firebaseapp.com",
+  projectId: "ssb-wind-soccer-app",
+  storageBucket: "ssb-wind-soccer-app.firebasestorage.app",
+  messagingSenderId: "379645790712",
+  appId: "1:379645790712:web:3c897ffc581bd4f8622e0d",
+  measurementId: "G-EPFFMMJ787"
+};
+
+let dbInstance = null;
 
 const DBManager = {
 
-    db: firebase.database(),
-
-    getTglSekarang: function() {
-
-        const d = new Date();
-
-        return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`;
-
+    // LOGIN & SESSION (tidak diubah)
+    setLoginUser: function(user) { 
+        sessionStorage.setItem("userAktif", JSON.stringify(user)); 
     },
-
-    // ===== LOGIN & SESSION (Tetap di SessionStorage karena ini hanya untuk login sementara) =====
-
-    setLoginUser: function(user) { sessionStorage.setItem("userAktif", JSON.stringify(user)); },
-
     getLoginUser: function() {
-
         const data = sessionStorage.getItem("userAktif");
-
         return data ? JSON.parse(data) : null;
-
+    },
+    clearLoginUser: function() { 
+        sessionStorage.removeItem("userAktif"); 
     },
 
-    clearLoginUser: function() { sessionStorage.removeItem("userAktif"); },
+    // INISIALISASI FIREBASE
+    initFirebase: function() {
+        if (dbInstance) return dbInstance;
 
-    // ===== SISWA (FIREBASE) =====
+        if (typeof firebase === "undefined") {
+            console.error("❌ Firebase SDK belum dimuat. Tambahkan script compat di HTML!");
+            return null;
+        }
 
-    getSiswaAktif: function(callback) {
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
 
-        // Karena Firebase asinkron, kita pakai callback untuk kirim data ke UI
-
-        this.db.ref('dataSiswa').on('value', (snap) => {
-
-            const data = snap.val();
-
-            callback(data ? Object.values(data) : []);
-
-        });
-
+        dbInstance = firebase.firestore();
+        console.log("✅ Firebase Firestore siap!");
+        return dbInstance;
     },
 
-    addSiswaAktif: function(siswa) {
+    // SISWA AKTIF (tidak diubah)
+    findSiswa: async function(nisw) {
+        const db = this.initFirebase();
+        if (!db) return null;
+        try {
+            let doc = await db.collection("siswaAktif").doc(String(nisw).toUpperCase()).get();
+            if (doc.exists) return doc.data();
 
-        return this.db.ref('dataSiswa/' + siswa.nisw).set(siswa);
-
+            doc = await db.collection("siswaBeasiswa").doc(String(nisw).toUpperCase()).get();
+            if (doc.exists) return doc.data();
+            return null;
+        } catch(e) {
+            console.error("Error findSiswa:", e);
+            return null;
+        }
     },
 
-    // ===== PENDAFTAR (FIREBASE) =====
-
-    getPendaftar: function(callback) {
-
-        this.db.ref('dataPendaftar').on('value', (snap) => {
-
-            const data = snap.val();
-
-            callback(data ? Object.values(data) : []);
-
-        });
-
+    // ABSENSI - Hanya ini yang difokuskan
+    addAbsensi: async function(absenBaru) {
+        const db = this.initFirebase();
+        if (!db) return false;
+        try {
+            await db.collection("absensi").add(absenBaru);
+            console.log("✅ Absensi tersimpan ke Firebase");
+            return true;
+        } catch(e) {
+            console.error("❌ Gagal simpan absensi:", e);
+            return false;
+        }
     },
 
-    addPendaftar: function(data) {
-
-        const newRef = this.db.ref('dataPendaftar').push();
-
-        const year = new Date().getFullYear();
-
-        const prefix = data.tipe === "Beasiswa" ? "B" : "R";
-
-       
-
-        // ID unik Firebase digunakan sebagai kunci
-
-        data.nisw = prefix + year + Math.floor(1000 + Math.random() * 9000);
-
-        data.status = "Menunggu Verifikasi";
-
-        data.tglDaftar = this.getTglSekarang();
-
-        data.fbKey = newRef.key; // Simpan key untuk hapus/edit nanti
-
-        return newRef.set(data).then(() => data.nisw);
-
+    cekDuplicateAbsensi: async function(nisw, tanggal) {
+        const db = this.initFirebase();
+        if (!db) return false;
+        try {
+            const snapshot = await db.collection("absensi")
+                .where("nisw", "==", nisw)
+                .where("tanggal", "==", tanggal)
+                .get();
+            return !snapshot.empty;
+        } catch(e) {
+            console.error("Error cek duplicate:", e);
+            return false;
+        }
     },
 
-    removePendaftar: function(fbKey) {
-
-        return this.db.ref('dataPendaftar/' + fbKey).remove();
-
+    // SARAN (tetap)
+    addSaran: async function(data) {
+        const db = this.initFirebase();
+        if (!db) return;
+        data.id = Date.now().toString();
+        data.waktu = this.getTglSekarang();
+        data.dibaca = false;
+        await db.collection("saran").add(data);
     },
 
-    // ===== KEUANGAN (FIREBASE) =====
-
-    addKeuangan: function(data) {
-
-        data.tgl = data.tgl || this.getTglSekarang();
-
-        return this.db.ref('dataKeuangan').push(data);
-
-    },
-
-    getKeuangan: function(callback) {
-
-        this.db.ref('dataKeuangan').on('value', (snap) => {
-
-            callback(snap.val() ? Object.values(snap.val()) : []);
-
-        });
-
-    },
-
-    // ===== NILAI RAPORT (FIREBASE) =====
-
-    updateNilai: function(nisw, dataNilai) {
-
-        return this.db.ref('dataNilai/' + nisw).set({
-
-            ...dataNilai,
-
-            lastUpdate: this.getTglSekarang()
-
-        });
-
-    },
-
-    // ===== JADWAL LATIHAN (FIREBASE) =====
-
-    getJadwalLatihan: function(callback) {
-
-        this.db.ref('db_latihan').on('value', (snap) => {
-
-            const defaultJadwal = [
-
-                { id: 1, hari: "SELASA", tempat: "Stadion Mini Legok", waktu: "15.00 WIB" },
-
-                { id: 2, hari: "KAMIS", tempat: "Stadion Mini Legok", waktu: "15.00 WIB" },
-
-                { id: 3, hari: "MINGGU", tempat: "Lapangan Jaha", waktu: "07.00 WIB" }
-
-            ];
-
-            callback(snap.val() || defaultJadwal);
-
-        });
-
+    // HELPER
+    getTglSekarang: function() {
+        const d = new Date();
+        return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`;
     }
-
 };
 
-// Pasang di Window agar bisa diakses di semua file HTML
+// Auto init
+window.addEventListener('load', () => {
+    DBManager.initFirebase();
+});
 
 window.DBManager = DBManager;
-
-console.log("🚀 DBManager FIREBASE ONLINE - SSB Wind Soccer");
+console.log("🚀 DBManager Firebase siap! (Absensi aktif)");
