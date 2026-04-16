@@ -6,7 +6,7 @@
   <title>Beranda - SSB Wind Soccer</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 0; background: #003399; color: white; min-height: 100vh; display: flex; flex-direction: column; position: relative; overflow: hidden; }
-    body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: url("assets/lapangan.jpeg") no-repeat center center/cover; z-index: -3; opacity: 0.25; }
+    body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: url("lapangan.jpeg") no-repeat center center/cover; z-index: -3; opacity: 0.25; }
     .bg-slideshow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; overflow: hidden; }
     .bg-slideshow img { position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.5s ease-in-out; }
     .bg-slideshow img.active { opacity: 1; }
@@ -32,12 +32,12 @@
 <body>
 
   <div class="bg-slideshow">
-    <img src="assets/pemain.png" class="active" alt="Background 1">
-    <img src="assets/coach.png" alt="Background 2">
+    <img src="pemain.png" class="active" alt="Background 1">
+    <img src="coach.png" alt="Background 2">
   </div>
 
   <div class="container">
-    <img src="assets/logossb.png" alt="Logo SSB" class="logo">
+    <img src="logossb.png" alt="Logo SSB" class="logo">
     <h1 id="sapaan">Selamat Datang</h1>
     <p class="tagline" id="niswInfo">Memuat informasi...</p>
 
