@@ -79,15 +79,12 @@
     .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
     .btn:active { transform: translateY(0); }
 
-    /* === ALERT MODAL DIBUAT LEBIH KECIL & RINGKAS === */
     .alert-modal {
       position: fixed;
-      top: 50%;
-      left: 50%;
+      top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      min-width: 260px;     /* dikecilkan */
-      max-width: 80%;
-      padding: 20px;        /* dikecilkan */
+      min-width: 260px;
+      padding: 20px;
       border-radius: 16px;
       background: white;
       color: #333;
@@ -96,144 +93,129 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       text-align: center;
       gap: 12px;
       animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      border: 1px solid #eee;
-    }
-   
-    .alert-modal div { 
-      font-weight: 600; 
-      font-size: 15px; 
-      line-height: 1.4; 
     }
     .alert-success { border-top: 6px solid #28a745; }
     .alert-error   { border-top: 6px solid #dc3545; }
     .alert-warn    { border-top: 6px solid #ff9800; }
     .alert-info    { border-top: 6px solid #003399; }
 
-    @keyframes zoomIn {
-      from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-      to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-    }
+    @keyframes zoomIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     footer { margin-top: 15px; font-size: 12px; color: #555; }
   </style>
 </head>
 <body>
   <div class="bg-slideshow">
-    <img src="coach.png" class="active">
-    <img src="pemain.png">
+    <img src="coach.png" class="active" onerror="this.src='https://via.placeholder.com/800x600?text=Wind+Soccer'">
+    <img src="pemain.png" onerror="this.src='https://via.placeholder.com/800x600?text=SSB+Wind+Soccer'">
   </div>
+
   <div class="container">
-    <img src="logossb.png" class="logo" alt="Logo SSB">
+    <img src="logossb.png" class="logo" alt="Logo SSB" onerror="this.src='https://via.placeholder.com/120'">
     <h1>Selamat Datang</h1>
     <p>SSB Wind Soccer - Membentuk pemain profesional sejak dini</p>
     
     <form id="formLogin">
       <div class="password-container">
-        <input type="password" id="nisw" placeholder="Masukkan NISW" autocomplete="username" required>
-        <span class="toggle-password" id="togglePassword" title="Lihat/Sembunyikan">👁️</span>
+        <input type="password" id="nisw" placeholder="Masukkan NISW" required>
+        <span class="toggle-password" id="togglePassword">👁️</span>
       </div>
-      <button type="submit" class="btn btn-login">Masuk Siswa</button>
+      <button type="submit" class="btn btn-login" id="btnLoginSiswa">Masuk Siswa</button>
     </form>
 
-    <button class="btn btn-daftar" id="btnDaftar">Daftar Baru</button>
-    <button class="btn btn-beasiswa" id="btnBeasiswa">Daftar Beasiswa</button>
+    <button class="btn btn-daftar" onclick="window.location.href='pendaftaran.html'">Daftar Baru</button>
+    <button class="btn btn-beasiswa" onclick="window.location.href='pendaftaran_beasiswa.html'">Daftar Beasiswa</button>
     <button class="btn btn-login" style="background:#444" id="btnAdmin">Login Admin</button>
     
     <footer>© 2026 SSB Wind Soccer</footer>
   </div>
 
-  <script src="db-sync.js"></script>
-  <script>
-    // Background slideshow
-    const slides = document.querySelectorAll(".bg-slideshow img");
-    let current = 0;
-    if (slides.length > 1) {
-      setInterval(() => {
-        slides[current].classList.remove("active");
-        current = (current + 1) % slides.length;
-        slides[current].classList.add("active");
-      }, 5000);
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+
+<script>
+// 1. KONFIGURASI FIREBASE COACH
+const firebaseConfig = {
+    apiKey: "AIzaSyC-DVKZfDHpfFl6kE_uupT5GFinwNaWhpw",
+    authDomain: "ssb-wind-soccer-110.firebaseapp.com",
+    databaseURL: "https://ssb-wind-soccer-110-default-rtdb.asia-southeast1.firebasedatabase.app/",
+    projectId: "ssb-wind-soccer-110",
+    storageBucket: "ssb-wind-soccer-110.firebasestorage.app",
+    messagingSenderId: "128234924459",
+    appId: "1:128234924459:web:37d97f167996d7d67ecaee"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// 2. BACKGROUND SLIDESHOW
+const slides = document.querySelectorAll(".bg-slideshow img");
+let current = 0;
+setInterval(() => {
+    slides[current].classList.remove("active");
+    current = (current + 1) % slides.length;
+    slides[current].classList.add("active");
+}, 5000);
+
+// 3. ALERT MODAL
+function showAlert(msg, type = "success") {
+    const box = document.createElement("div");
+    box.className = `alert-modal alert-${type}`;
+    box.innerHTML = `<div>${msg}</div>`;
+    document.body.appendChild(box);
+    setTimeout(() => { box.remove(); }, 2500);
+}
+
+// 4. TOGGLE PASSWORD
+document.getElementById("togglePassword").onclick = function() {
+    const niswInput = document.getElementById("nisw");
+    niswInput.type = (niswInput.type === "password") ? "text" : "password";
+    this.textContent = (niswInput.type === "password") ? "👁️" : "🙈";
+};
+
+// 5. LOGIN SISWA (CEK FIREBASE)
+document.getElementById("formLogin").onsubmit = function(e) {
+    e.preventDefault();
+    const niswVal = document.getElementById("nisw").value.trim().toUpperCase();
+    const btn = document.getElementById("btnLoginSiswa");
+
+    if (niswVal === "110ADMIN") {
+        showAlert("Gunakan tombol Login Admin!", "error");
+        return;
     }
 
-    // Alert Modal (sudah dikecilkan)
-    function showAlert(msg, type = "success", time = 2200) {
-      const icons = {
-        success: '<svg width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>',
-        error:   '<svg width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>',
-        warn:    '<svg width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="#ff9800" stroke-width="3"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
-        info:    '<svg width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="#003399" stroke-width="3"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>'
-      };
-      const box = document.createElement("div");
-      box.className = `alert-modal alert-${type}`;
-      box.innerHTML = `${icons[type]}<div>${msg}</div>`;
-      document.body.appendChild(box);
+    btn.disabled = true;
+    btn.textContent = "Mengecek NISW...";
 
-      setTimeout(() => {
-        box.style.opacity = "0";
-        box.style.transition = "0.4s ease";
-        setTimeout(() => box.remove(), 400);
-      }, time);
-    }
+    // Mencari data di folder 'pendaftar' berdasarkan NISW
+    db.ref('pendaftar/' + niswVal).once('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            // Simpan data login sementara di session (agar bisa tampil di beranda)
+            sessionStorage.setItem("userSSB", JSON.stringify(data));
+            showAlert("Selamat Datang, " + data.nama + "!", "success");
+            setTimeout(() => { window.location.href = "beranda.html"; }, 1500);
+        } else {
+            showAlert("NISW Tidak Ditemukan!", "error");
+            btn.disabled = false;
+            btn.textContent = "Masuk Siswa";
+        }
+    });
+};
 
-    // Toggle password
-    document.getElementById("togglePassword").onclick = function() {
-      const niswInput = document.getElementById("nisw");
-      niswInput.type = (niswInput.type === "text") ? "password" : "text";
-      this.textContent = niswInput.type === "text" ? "🙈" : "👁️";
-    };
-
-    // ==================== LOGIN SISWA ====================
-    document.getElementById("formLogin").onsubmit = function(e) {
-      e.preventDefault();
-      const niswVal = document.getElementById("nisw").value.trim();
-
-      if (!niswVal) {
-        showAlert("NISW tidak boleh kosong!", "warn");
-        return;
-      }
-
-      // PERBAIKAN: Jika memasukkan kode admin di login siswa → ALERT SALAH
-      if (niswVal.toLowerCase() === "110admin") {
-        showAlert("Kode Admin tidak boleh digunakan di sini.<br>Gunakan tombol <strong>Login Admin</strong>", "error");
-        document.getElementById("nisw").value = '';
-        return;
-      }
-
-      // Login siswa biasa
-      const niswInput = niswVal.toUpperCase();
-      const siswa = DBManager.findSiswa(niswInput);
-
-      if (siswa) {
-        DBManager.setLoginUser(siswa);
-        showAlert("Selamat Datang, " + siswa.nama + "!", "success");
-        setTimeout(() => { window.location.href = "beranda.html"; }, 1500);
-      } else {
-        showAlert("NISW Tidak Terdaftar", "error");
-        document.getElementById("nisw").value = '';
-      }
-    };
-
-    // ==================== LOGIN ADMIN ====================
-    document.getElementById("btnAdmin").onclick = () => {
-      const pass = document.getElementById("nisw").value.trim();
-
-      if (pass && pass.toLowerCase() === "110admin") {
+// 6. LOGIN ADMIN
+document.getElementById("btnAdmin").onclick = () => {
+    const pass = document.getElementById("nisw").value.trim();
+    if (pass.toLowerCase() === "110admin") {
         showAlert("Akses Admin Diterima", "info");
         setTimeout(() => { window.location.href = "admin.html"; }, 900);
-      } else {
-        // Jika klik tombol admin di tempat yang salah / kode salah
-        showAlert("Kode Admin Salah", "error");
-        document.getElementById("nisw").value = '';
-      }
-    };
-
-    // Tombol daftar
-    document.getElementById("btnDaftar").onclick = () => window.location.href = "pendaftaran.html";
-    document.getElementById("btnBeasiswa").onclick = () => window.location.href = "pendaftaran_beasiswa.html";
-  </script>
+    } else {
+        showAlert("Masukkan Kode Admin di kotak NISW!", "error");
+    }
+};
+</script>
 </body>
 </html>
