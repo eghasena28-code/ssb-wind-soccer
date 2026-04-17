@@ -523,18 +523,5 @@ document.getElementById("formPendaftaran").onsubmit = async function(e) {
 &nbsp;&nbsp;&nbsp;&nbsp;});
 };
 </script>
-  <!-- Firebase Config & Initialization -->
-<script src="firebase-config.js"></script>
-<script>
-    // Inisialisasi Firebase setelah halaman selesai dimuat
-    document.addEventListener('DOMContentLoaded', function() {
-        if (typeof initializeFirebase === 'function') {
-            initializeFirebase();
-            console.log("🚀 Firebase initialization started...");
-        } else {
-            console.log("⚠️ initializeFirebase function not found");
-        }
-    });
-</script>
 </body>
 </html>
