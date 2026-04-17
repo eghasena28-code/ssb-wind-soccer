@@ -70,16 +70,18 @@
 
 <script src="db-sync.js"></script>
 <script>
-// HITUNG OTOMATIS - VERSI YANG SUDAH DIPERBAIKI & STABIL
+// HITUNG OTOMATIS - MANDIRI & LANGSUNG BERFUNGSI
 function hitungOtomatis() {
     const tglInput = document.getElementById("tglLahir").value;
     if (!tglInput) return;
 
     const tahunLahir = new Date(tglInput).getFullYear();
-    const usia = new Date().getFullYear() - tahunLahir;
+    const tahunSekarang = new Date().getFullYear();
+    const usia = tahunSekarang - tahunLahir;
 
     document.getElementById("usia").value = usia + " Tahun";
 
+    // Logika kategori sesuai permintaan Anda
     let kategori = "";
     if (usia >= 17) kategori = "Other / 17 Tahun ke atas";
     else if (usia >= 15) kategori = "KU-16";
@@ -90,8 +92,6 @@ function hitungOtomatis() {
     else kategori = "KU-6";
 
     document.getElementById("kategori").value = kategori;
-
-    console.log(`Hitung otomatis: Usia ${usia} → ${kategori}`);
 }
 
 // SUBMIT FORM
@@ -109,7 +109,7 @@ document.getElementById("formPendaftaran").onsubmit = async function(e) {
         nama: document.getElementById("nama").value.trim(),
         tglLahir: tglLahir,
         tahunLahir: tahunLahir,
-        usia: new Date().getFullYear() - tahunLahir,
+        usia: parseInt(document.getElementById("usia").value),
         kelas: document.getElementById("kategori").value,
         posisi: document.getElementById("posisi").value,
         namaOrtu: document.getElementById("namaOrtu").value.trim(),
