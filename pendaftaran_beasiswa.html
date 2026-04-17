@@ -73,7 +73,7 @@
 
 <script src="db-sync.js"></script>
 <script>
-// HITUNG OTOMATIS - SAMA PERSIS DENGAN SCREENSHOT ANDA
+// HITUNG OTOMATIS - SAMA PERSIS DENGAN REGULER (KU-12 untuk usia 11 tahun)
 function hitungOtomatis() {
     const tgl = document.getElementById("tglLahir").value;
     if (!tgl) return;
@@ -83,16 +83,16 @@ function hitungOtomatis() {
 
     document.getElementById("usia").value = usia + " Tahun";
 
-    // Logika KU sesuai screenshot (usia 11 tahun = KU-12)
-    let kat = "";
-    if (tahunLahir >= 2017) kat = "KU-8";
-    else if (tahunLahir >= 2015) kat = "KU-10";
-    else if (tahunLahir >= 2013) kat = "KU-12";
-    else if (tahunLahir >= 2011) kat = "KU-14";
-    else if (tahunLahir >= 2009) kat = "KU-16";
-    else kat = "KU-17 / Other";
+    let kategori = "";
+    if (usia >= 17) kategori = "Other / 17 Tahun ke atas";
+    else if (usia >= 15) kategori = "KU-16";
+    else if (usia >= 13) kategori = "KU-14";
+    else if (usia >= 11) kategori = "KU-12";
+    else if (usia >= 9) kategori = "KU-10";
+    else if (usia >= 7) kategori = "KU-8";
+    else kategori = "KU-6";
 
-    document.getElementById("kategori").value = kat;
+    document.getElementById("kategori").value = kategori;
 }
 
 // SUBMIT FORM
@@ -111,7 +111,7 @@ document.getElementById("formPendaftaran").onsubmit = async function(e) {
         tglLahir: tglLahir,
         tahunLahir: tahunLahir,
         usia: new Date().getFullYear() - tahunLahir,
-        kelas: document.getElementById("kategori").value,
+        kelas: document.getElementById("kategori").value,   // KU-12, KU-14, dll
         posisi: document.getElementById("posisi").value,
         namaOrtu: document.getElementById("namaOrtu").value.trim(),
         noHp: document.getElementById("noHp").value.trim(),
