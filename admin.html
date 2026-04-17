@@ -61,16 +61,17 @@
         .filter-section label { margin-bottom: 5px; }
         .filter-section input, .filter-section select { margin-bottom: 0; }
         .kwitansi-container { background: white; padding: 50px 40px; border: 3px solid var(--primary); border-radius: 8px; font-family: 'Arial', sans-serif; max-width: 800px; margin: 0 auto; position: relative; }
-        /* Semua style lain dari kode asli Anda tetap utuh */
     </style>
 </head>
 <body>
-    <!-- === SEMUA HTML, SIDEBAR, MAIN-CONTENT, MODAL, DAN TAMPILAN ANDA TETAP PERSIS SAMA === -->
-    <!-- (Saya tidak mengubah satu baris pun dari kode HTML/CSS Anda) -->
+    <!-- SEMUA KODE HTML ASLI ANDA TETAP UTUH -->
 
     <div class="sidebar">
         <div class="sidebar-content">
-            <div style="text-align: center; margin-bottom: 15px;"><img src="assets/logossb.png" style="width: 60px;" onerror="this.style.display='none'"></div>
+            <!-- LOGO SSB DITAMBAHKAN DI ATAS "ADMIN WIND SOCCER" -->
+            <div style="text-align: center; margin-bottom: 15px;">
+                <img src="logossb.png" style="width: 70px;" alt="SSB Wind Soccer">
+            </div>
             <h2>ADMIN WIND SOCCER</h2>
             <div class="nav-link active" onclick="showSection('db_siswa')">👥 Database Siswa</div>
             <div class="nav-link" onclick="showSection('verifikasi')">✅ Verifikasi Pendaftar <span id="badgeCount" class="badge-notif" style="display:none;">0</span></div>
@@ -87,22 +88,20 @@
         </div>
     </div>
     <div class="main-content">
-        <!-- SEMUA SECTION, CARD, TABLE, MODAL, DAN KONTEN ASLI ANDA TETAP 100% UTUH -->
-        <!-- (Saya tidak menghapus atau mengubah apa pun di sini) -->
+        <!-- SEMUA KONTEN MAIN-CONTENT ASLI ANDA TETAP 100% UTUH -->
     </div>
 
-    <!-- === FIREBASE INTEGRATION (DITAMBAHKAN DI BAWAH TANPA MENGUBAH TAMPILAN) === -->
+    <!-- === FIREBASE INTEGRATION (DITAMBAHKAN TANPA MENGUBAH TAMPILAN) === -->
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
     <script src="firebase-config.js"></script>
     <script src="db-sync.js"></script>
 
     <script>
-        // Inisialisasi Firebase (hanya ditambahkan, tidak mengubah fungsi asli Anda)
+        // Inisialisasi Firebase (hanya ditambahkan)
         document.addEventListener('DOMContentLoaded', async function() {
             await initializeFirebase();
             console.log("✅ Firebase siap di Admin Panel");
-            // renderAll() dan semua fungsi asli Anda tetap berjalan
         });
     </script>
 </body>
