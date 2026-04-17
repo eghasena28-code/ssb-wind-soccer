@@ -33,12 +33,10 @@
     <img src="pemain.png" class="active" onerror="this.src='https://via.placeholder.com/800x600?text=Wind+Soccer'">
     <img src="coach.png" onerror="this.src='https://via.placeholder.com/800x600?text=SSB+Wind+Soccer'">
   </div>
-
   <div class="container">
     <img src="logossb.png" alt="Logo SSB" class="logo">
     <h1 id="sapaan">Selamat Datang</h1>
     <p class="tagline" id="niswInfo">Memuat informasi...</p>
-
     <div class="menu-grid">
       <a href="absensi.html" class="menu-item">📋 Absensi</a>
       <button onclick="bukaProfilSiswa()" class="menu-item">👨‍🎓 Data Profil</button>
@@ -50,25 +48,23 @@
       <button onclick="bukaRaport()" class="menu-item">📄 Raport</button>
       <a href="program.html" class="menu-item">📘 Program</a>
     </div>
-
     <div class="extra-buttons">
       <button class="btn-secondary" onclick="window.location.href='index.html'">⬅ Kembali ke Awal</button>
       <button class="btn-special" onclick="logout()">🚪 Logout</button>
     </div>
   </div>
-
   <footer>
     <p>© 2026 SSB Wind Soccer | 📞 0812 9333 8781</p>
   </footer>
 
-  <!-- === FIREBASE & DBManager === -->
+  <!-- === FIREBASE INTEGRATION (DITAMBAHKAN TANPA MENGUBAH TAMPILAN) === -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
   <script src="db-sync.js"></script>
 
   <script>
-    // Background Slideshow
+    // Background Slideshow (tetap sama persis)
     const slides = document.querySelectorAll(".bg-slideshow img");
     let current = 0;
     if (slides.length > 0) {
@@ -87,8 +83,6 @@
         window.location.href = "index.html";
         return;
       }
-
-      // Tampilkan sapaan
       document.getElementById("sapaan").innerText = "Halo, " + user.nama + "!";
       document.getElementById("niswInfo").innerText = "NISW: " + user.nisw + " | Jalur: " + (user.tipe || "Reguler");
     }
@@ -116,9 +110,9 @@
       }
     }
 
-    // Inisialisasi halaman
+    // Inisialisasi
     document.addEventListener('DOMContentLoaded', async function() {
-      await initializeFirebase();   // Pastikan Firebase siap
+      await initializeFirebase();
       loadBeranda();
     });
   </script>
