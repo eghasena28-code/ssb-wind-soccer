@@ -104,8 +104,39 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     footer { margin-top: 15px; font-size: 12px; color: #555; }
   </style>
+  <!-- TAILWIND CSS + FONT AWESOME (hanya ditambah) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
+
+<!-- NAVBAR KONSISTEN (hanya ditambah) -->
+<nav class="bg-green-700 text-white shadow-lg sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex justify-between items-center h-16">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-green-700 text-2xl font-bold">⚽</div>
+        <span class="font-bold text-xl">SSB WIND SOCCER</span>
+      </div>
+      <div class="hidden md:flex items-center gap-8 text-sm font-medium">
+        <a href="index.html" class="hover:text-green-200">Beranda</a>
+        <a href="pendaftaran.html" class="hover:text-green-200">Pendaftaran</a>
+        <a href="pendaftaran_beasiswa.html" class="hover:text-green-200">Beasiswa</a>
+        <a href="admin.html" class="hover:text-green-200">Admin</a>
+      </div>
+      <button onclick="toggleMobileMenu()" class="md:hidden text-3xl"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </div>
+  <div id="mobileMenu" class="hidden md:hidden bg-green-800 py-4">
+    <div class="flex flex-col gap-4 px-6 text-sm font-medium">
+      <a href="index.html" class="hover:text-green-200">Beranda</a>
+      <a href="pendaftaran.html" class="hover:text-green-200">Pendaftaran</a>
+      <a href="pendaftaran_beasiswa.html" class="hover:text-green-200">Beasiswa</a>
+      <a href="admin.html" class="hover:text-green-200">Admin</a>
+    </div>
+  </div>
+</nav>
+
   <div class="bg-slideshow">
     <img src="coach.png" class="active" onerror="this.src='https://via.placeholder.com/800x600?text=Wind+Soccer'">
     <img src="pemain.png" onerror="this.src='https://via.placeholder.com/800x600?text=SSB+Wind+Soccer'">
@@ -128,6 +159,14 @@
    
     <footer>© 2026 SSB Wind Soccer</footer>
   </div>
+
+<!-- FOOTER KONSISTEN (hanya ditambah) -->
+<footer class="bg-gray-900 text-white py-6 text-center text-sm mt-auto">
+  <p class="font-bold">SSB WIND SOCCER</p>
+  <p class="text-gray-400">Mencetak Talenta Juara Sejak 2024</p>
+  <p class="text-xs text-gray-500 mt-4">© 2026 SSB Wind Soccer - All Rights Reserved</p>
+</footer>
+
 <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
 <script>
@@ -176,11 +215,9 @@ document.getElementById("formLogin").onsubmit = function(e) {
     }
     btn.disabled = true;
     btn.textContent = "Mengecek NISW...";
-    // Mencari data di folder 'pendaftar' berdasarkan NISW
     db.ref('pendaftar/' + niswVal).once('value', (snapshot) => {
         const data = snapshot.val();
         if (data) {
-            // Simpan data login sementara di session (agar bisa tampil di beranda)
             sessionStorage.setItem("userSSB", JSON.stringify(data));
             showAlert("Selamat Datang, " + data.nama + "!", "success");
             setTimeout(() => { window.location.href = "beranda.html"; }, 1500);
@@ -201,6 +238,11 @@ document.getElementById("btnAdmin").onclick = () => {
         showAlert("Masukkan Kode Admin di kotak NISW!", "error");
     }
 };
+
+// SCRIPT MOBILE MENU (hanya ditambah)
+function toggleMobileMenu() {
+  document.getElementById('mobileMenu').classList.toggle('hidden');
+}
 </script>
 </body>
 </html>
