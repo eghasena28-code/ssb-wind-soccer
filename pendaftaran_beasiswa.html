@@ -73,7 +73,7 @@
 
 <script src="db-sync.js"></script>
 <script>
-// HITUNG OTOMATIS - Sama persis dengan pendaftaran reguler
+// HITUNG OTOMATIS - SAMA PERSIS DENGAN SCREENSHOT ANDA
 function hitungOtomatis() {
     const tgl = document.getElementById("tglLahir").value;
     if (!tgl) return;
@@ -82,10 +82,20 @@ function hitungOtomatis() {
     const usia = new Date().getFullYear() - tahunLahir;
 
     document.getElementById("usia").value = usia + " Tahun";
-    document.getElementById("kategori").value = "Class of " + tahunLahir;
+
+    // Logika KU sesuai screenshot (usia 11 tahun = KU-12)
+    let kat = "";
+    if (tahunLahir >= 2017) kat = "KU-8";
+    else if (tahunLahir >= 2015) kat = "KU-10";
+    else if (tahunLahir >= 2013) kat = "KU-12";
+    else if (tahunLahir >= 2011) kat = "KU-14";
+    else if (tahunLahir >= 2009) kat = "KU-16";
+    else kat = "KU-17 / Other";
+
+    document.getElementById("kategori").value = kat;
 }
 
-// SUBMIT FORM - Sama persis dengan reguler
+// SUBMIT FORM
 document.getElementById("formPendaftaran").onsubmit = async function(e) {
     e.preventDefault();
 
@@ -101,7 +111,7 @@ document.getElementById("formPendaftaran").onsubmit = async function(e) {
         tglLahir: tglLahir,
         tahunLahir: tahunLahir,
         usia: new Date().getFullYear() - tahunLahir,
-        kelas: "Class of " + tahunLahir,
+        kelas: document.getElementById("kategori").value,
         posisi: document.getElementById("posisi").value,
         namaOrtu: document.getElementById("namaOrtu").value.trim(),
         noHp: document.getElementById("noHp").value.trim(),
@@ -114,7 +124,7 @@ document.getElementById("formPendaftaran").onsubmit = async function(e) {
 
     try {
         const niswBaru = await DBManager.addPendaftar(dataBaru);
-        alert(`✅ PENGAJUAN BEASISWA BERHASIL!\nNISW: ${niswBaru}\nKelas: Class of ${tahunLahir}`);
+        alert(`✅ PENGAJUAN BEASISWA BERHASIL!\nNISW: ${niswBaru}\nKategori: ${dataBaru.kelas}`);
         window.location.href = "index.html";
     } catch (err) {
         alert("❌ Gagal: " + err.message);
