@@ -4,11 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SSB Wind Soccer - Selamat Datang</title>
-  
-  <!-- TAILWIND CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  
   <style>
     body {
       margin: 0;
@@ -16,6 +11,9 @@
       background: #003399;
       color: white;
       min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       overflow: hidden;
       position: relative;
     }
@@ -35,7 +33,6 @@
       object-fit: cover; opacity: 0; transition: opacity 1.5s ease-in-out;
     }
     .bg-slideshow img.active { opacity: 1; }
-    
     .container {
       background: rgba(255,255,255,0.95);
       padding: 40px 30px;
@@ -80,6 +77,7 @@
     .btn-daftar { background: #ff9800; color: #fff; }
     .btn-beasiswa { background: #28a745; color: #fff; }
     .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+    .btn:active { transform: translateY(0); }
     .alert-modal {
       position: fixed;
       top: 50%; left: 50%;
@@ -108,75 +106,32 @@
   </style>
 </head>
 <body>
-
-  <!-- NAVBAR BARU (Konsisten) -->
-  <nav class="bg-[#003399] text-white shadow-lg sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4">
-      <div class="flex justify-between items-center h-16">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#003399] text-2xl font-bold">⚽</div>
-          <span class="font-bold text-xl">SSB WIND SOCCER</span>
-        </div>
-        <div class="hidden md:flex items-center gap-8 text-sm font-medium">
-          <a href="index.html" class="hover:text-blue-200 transition">Beranda</a>
-          <a href="pendaftaran.html" class="hover:text-blue-200 transition">Pendaftaran</a>
-          <a href="pendaftaran_beasiswa.html" class="hover:text-blue-200 transition">Beasiswa</a>
-          <a href="jadwal.html" class="hover:text-blue-200 transition">Jadwal</a>
-          <a href="admin.html" class="hover:text-blue-200 transition">Admin</a>
-        </div>
-        <button onclick="toggleMobileMenu()" class="md:hidden text-3xl">
-          <i class="fa-solid fa-bars"></i>
-        </button>
-      </div>
-    </div>
-    <!-- Mobile Menu -->
-    <div id="mobileMenu" class="hidden md:hidden bg-[#003399] py-4 border-t border-blue-800">
-      <div class="flex flex-col gap-4 px-6 text-sm font-medium">
-        <a href="index.html" class="hover:text-blue-200">Beranda</a>
-        <a href="pendaftaran.html" class="hover:text-blue-200">Pendaftaran Reguler</a>
-        <a href="pendaftaran_beasiswa.html" class="hover:text-blue-200">Pendaftaran Beasiswa</a>
-        <a href="admin.html" class="hover:text-blue-200">Admin Panel</a>
-      </div>
-    </div>
-  </nav>
-
   <div class="bg-slideshow">
     <img src="coach.png" class="active" onerror="this.src='https://via.placeholder.com/800x600?text=Wind+Soccer'">
     <img src="pemain.png" onerror="this.src='https://via.placeholder.com/800x600?text=SSB+Wind+Soccer'">
   </div>
-
-  <div class="flex items-center justify-center min-h-screen px-4 pt-4">
-    <div class="container">
-      <img src="logossb.png" class="logo" alt="Logo SSB" onerror="this.src='https://via.placeholder.com/120'">
-      <h1>Selamat Datang</h1>
-      <p>SSB Wind Soccer - Membentuk pemain profesional sejak dini</p>
-      
-      <form id="formLogin">
-        <div class="password-container">
-          <input type="password" id="nisw" placeholder="Masukkan NISW" required>
-          <span class="toggle-password" id="togglePassword">👁️</span>
-        </div>
-        <button type="submit" class="btn btn-login" id="btnLoginSiswa">Masuk Siswa</button>
-      </form>
-      <button class="btn btn-daftar" onclick="window.location.href='pendaftaran.html'">Daftar Baru</button>
-      <button class="btn btn-beasiswa" onclick="window.location.href='pendaftaran_beasiswa.html'">Daftar Beasiswa</button>
-      <button class="btn btn-login" style="background:#444" id="btnAdmin">Login Admin</button>
-      
-      <footer>© 2026 SSB Wind Soccer</footer>
-    </div>
+  <div class="container">
+    <img src="logossb.png" class="logo" alt="Logo SSB" onerror="this.src='https://via.placeholder.com/120'">
+    <h1>Selamat Datang</h1>
+    <p>SSB Wind Soccer - Membentuk pemain profesional sejak dini</p>
+   
+    <form id="formLogin">
+      <div class="password-container">
+        <input type="password" id="nisw" placeholder="Masukkan NISW" required>
+        <span class="toggle-password" id="togglePassword">👁️</span>
+      </div>
+      <button type="submit" class="btn btn-login" id="btnLoginSiswa">Masuk Siswa</button>
+    </form>
+    <button class="btn btn-daftar" onclick="window.location.href='pendaftaran.html'">Daftar Baru</button>
+    <button class="btn btn-beasiswa" onclick="window.location.href='pendaftaran_beasiswa.html'">Daftar Beasiswa</button>
+    <button class="btn btn-login" style="background:#444" id="btnAdmin">Login Admin</button>
+   
+    <footer>© 2026 SSB Wind Soccer</footer>
   </div>
-
-  <!-- FOOTER BARU -->
-  <footer class="bg-[#003399] text-white py-8 text-center text-sm border-t border-blue-800">
-    <p class="font-bold">SSB WIND SOCCER</p>
-    <p class="text-blue-200">Mencetak Talenta Juara Sejak 2024</p>
-    <p class="mt-4 text-xs text-blue-300">© 2026 All Rights Reserved</p>
-  </footer>
-
 <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
 <script>
-// ... (SEMUA SCRIPT KAMU TETAP SAMA, TIDAK DIUBAH)
+// 1. KONFIGURASI FIREBASE COACH
 const firebaseConfig = {
     apiKey: "AIzaSyC-DVKZfDHpfFl6kE_uupT5GFinwNaWhpw",
     authDomain: "ssb-wind-soccer-110.firebaseapp.com",
@@ -188,8 +143,7 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-
-// Background Slideshow
+// 2. BACKGROUND SLIDESHOW
 const slides = document.querySelectorAll(".bg-slideshow img");
 let current = 0;
 setInterval(() => {
@@ -197,8 +151,7 @@ setInterval(() => {
     current = (current + 1) % slides.length;
     slides[current].classList.add("active");
 }, 5000);
-
-// Alert Modal
+// 3. ALERT MODAL
 function showAlert(msg, type = "success") {
     const box = document.createElement("div");
     box.className = `alert-modal alert-${type}`;
@@ -206,15 +159,13 @@ function showAlert(msg, type = "success") {
     document.body.appendChild(box);
     setTimeout(() => { box.remove(); }, 2500);
 }
-
-// Toggle Password
+// 4. TOGGLE PASSWORD
 document.getElementById("togglePassword").onclick = function() {
     const niswInput = document.getElementById("nisw");
     niswInput.type = (niswInput.type === "password") ? "text" : "password";
     this.textContent = (niswInput.type === "password") ? "👁️" : "🙈";
 };
-
-// Login Siswa
+// 5. LOGIN SISWA (CEK FIREBASE)
 document.getElementById("formLogin").onsubmit = function(e) {
     e.preventDefault();
     const niswVal = document.getElementById("nisw").value.trim().toUpperCase();
@@ -225,9 +176,11 @@ document.getElementById("formLogin").onsubmit = function(e) {
     }
     btn.disabled = true;
     btn.textContent = "Mengecek NISW...";
+    // Mencari data di folder 'pendaftar' berdasarkan NISW
     db.ref('pendaftar/' + niswVal).once('value', (snapshot) => {
         const data = snapshot.val();
         if (data) {
+            // Simpan data login sementara di session (agar bisa tampil di beranda)
             sessionStorage.setItem("userSSB", JSON.stringify(data));
             showAlert("Selamat Datang, " + data.nama + "!", "success");
             setTimeout(() => { window.location.href = "beranda.html"; }, 1500);
@@ -238,8 +191,7 @@ document.getElementById("formLogin").onsubmit = function(e) {
         }
     });
 };
-
-// Login Admin
+// 6. LOGIN ADMIN
 document.getElementById("btnAdmin").onclick = () => {
     const pass = document.getElementById("nisw").value.trim();
     if (pass.toLowerCase() === "110admin") {
@@ -249,11 +201,6 @@ document.getElementById("btnAdmin").onclick = () => {
         showAlert("Masukkan Kode Admin di kotak NISW!", "error");
     }
 };
-
-// Mobile Menu
-function toggleMobileMenu() {
-    document.getElementById('mobileMenu').classList.toggle('hidden');
-}
 </script>
 </body>
 </html>
