@@ -13,8 +13,7 @@
     section { background: #f9f9f9; border: 1px solid #eee; padding: 18px; border-radius: 12px; margin-bottom: 18px; }
     label { display: block; font-size: 13.5px; font-weight: bold; margin-bottom: 6px; color: #003399; }
     input, select, textarea { width: 100%; padding: 11px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14.5px; }
-    .btn-submit { width: 100%; padding: 15px; background: #28a745; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; }
-    .btn-submit:hover { background: #218838; }
+    .btn-submit { width: 100%; padding: 15px; background: #28a745; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; }
     .btn-submit:disabled { background: #999; cursor: not-allowed; }
   </style>
 </head>
@@ -60,7 +59,7 @@
       <textarea id="alamat" rows="2" required placeholder="Alamat lengkap..."></textarea>
 
       <label>Alasan / Jalur Beasiswa</label>
-      <input type="text" id="alasan" required placeholder="Contoh: Juara 1 O2SN / Yatim">
+      <input type="text" id="alasan" required placeholder="Contoh: Juara 1 O2SN / Yatim / Prestasi">
     </section>
 
     <section>
@@ -74,7 +73,7 @@
 
 <script src="db-sync.js"></script>
 <script>
-// HITUNG OTOMATIS - SESUAI PERMINTAAN ANDA
+// HITUNG OTOMATIS - Class of [Tahun Lahir]
 function hitungOtomatis() {
     const tgl = document.getElementById("tglLahir").value;
     if (!tgl) return;
@@ -115,7 +114,7 @@ document.getElementById("formPendaftaran").onsubmit = async function(e) {
 
     try {
         const niswBaru = await DBManager.addPendaftar(dataBaru);
-        alert(`✅ PENGAJUAN BEASISWA BERHASIL!\nNISW: ${niswBaru}\nKategori: Class of ${tahunLahir}`);
+        alert(`✅ PENGAJUAN BEASISWA BERHASIL!\nNISW: ${niswBaru}\nKelas: Class of ${tahunLahir}`);
         window.location.href = "index.html";
     } catch (err) {
         alert("❌ Gagal: " + err.message);
