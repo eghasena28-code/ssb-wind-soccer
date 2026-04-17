@@ -70,6 +70,7 @@
 
 <script src="db-sync.js"></script>
 <script>
+// HITUNG OTOMATIS (SESUAI PERMINTAAN ANDA)
 function hitungOtomatis() {
     const tgl = document.getElementById("tglLahir").value;
     if (!tgl) return;
@@ -79,13 +80,19 @@ function hitungOtomatis() {
 
     document.getElementById("usia").value = usia + " Tahun";
 
-    let kategori = DBManager.getKelas(tahunLahir);
-    if (usia >= 17) kategori = "Other / 17 Tahun ke atas";
+    // Logika KU yang Anda inginkan (hanya KU-X, tanpa Class of tahun)
+    let kategori = "";
+    if (usia <= 6) kategori = "KU-8";
+    else if (usia <= 8) kategori = "KU-10";
+    else if (usia <= 10) kategori = "KU-12";
+    else if (usia <= 12) kategori = "KU-14";
+    else if (usia <= 14) kategori = "KU-16";
+    else kategori = "Other / 17 Tahun ke atas";
 
     document.getElementById("kategori").value = kategori;
 }
 
-// Submit Form
+// SUBMIT FORM
 document.getElementById("formPendaftaran").onsubmit = async function(e) {
     e.preventDefault();
 
@@ -101,7 +108,7 @@ document.getElementById("formPendaftaran").onsubmit = async function(e) {
         tglLahir: tglLahir,
         tahunLahir: tahunLahir,
         usia: DBManager.getUsia(tahunLahir),
-        kelas: DBManager.getKelas(tahunLahir),
+        kelas: DBManager.getKelas(tahunLahir),          // ← menggunakan fungsi dinamis
         kategori: document.getElementById("kategori").value,
         posisi: document.getElementById("posisi").value,
         namaOrtu: document.getElementById("namaOrtu").value.trim(),
