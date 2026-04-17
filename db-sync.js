@@ -1,94 +1,86 @@
-// ==================== DBManager HYBRID - SSB Wind Soccer (Firebase + localStorage) ====================
-// Versi April 2026 - Satu Database Firebase
+// ==================== DBManager HYBRID - SSB Wind Soccer ====================
+// Firebase + localStorage | April 2026 | Satu Database Firebase
 
 const DBManager = {
-    // ====================== FIREBASE INTEGRATION ======================
     db: null,
     isFirebaseReady: false,
 
+    // ====================== FIREBASE INIT ======================
     initFirebase: async function() {
         if (this.isFirebaseReady) return true;
-        
         try {
-            if (typeof firebase === 'undefined' || typeof firebase.firestore === 'undefined') {
-                console.warn("Firebase SDK belum dimuat");
+            if (typeof firebase === 'undefined' || !firebase.firestore) {
+                console.warn("Firebase SDK belum siap");
                 return false;
             }
-
             this.db = firebase.firestore();
             this.isFirebaseReady = true;
-            console.log("✅ Firebase Firestore terhubung (Hybrid Mode)");
+            console.log("✅ Firebase Firestore connected - Hybrid Mode Active");
             return true;
         } catch (e) {
-            console.error("Gagal init Firebase:", e);
+            console.error("Firebase init failed:", e);
             return false;
         }
     },
 
-    // ====================== HELPER FIREBASE ======================
-    getCollection: function(collectionName) {
-        if (!this.db) return null;
-        return this.db.collection(collectionName);
+    // ====================== HELPER ======================
+    getCollection: function(name) {
+        return this.db ? this.db.collection(name) : null;
     },
 
-    // Save to both localStorage and Firebase
-    saveToBoth: async function(key, data) {
-        // Save to localStorage (backup)
-        localStorage.setItem(key, JSON.stringify(data));
+    saveToBoth: async function(key, dataArray) {
+        // Simpan ke localStorage (selalu)
+        localStorage.setItem(key, JSON.stringify(dataArray));
 
-        // Save to Firebase (jika sudah ready)
+        // Simpan ke Firebase jika siap
         if (this.isFirebaseReady) {
             try {
-                const collection = this.getCollection(key);
-                if (collection) {
-                    // Untuk simplicity, kita simpan sebagai document dengan id "main"
-                    await collection.doc("main").set({ data: data, lastUpdated: new Date().toISOString() });
-                    console.log(`✅ Synced to Firebase: ${key}`);
-                }
+                await this.getCollection(key).doc("main").set({
+                    data: dataArray,
+                    lastUpdated: new Date().toISOString()
+                });
+                console.log(`✅ Synced to Firebase → ${key}`);
             } catch (e) {
-                console.warn(`Gagal sync ke Firebase ${key}:`, e);
+                console.warn(`Firebase sync failed for ${key}`, e);
             }
         }
     },
 
-    // Load from localStorage first, then try Firebase
     loadFromHybrid: async function(key) {
-        // Prioritas 1: localStorage
+        // Ambil dari localStorage dulu
         let data = JSON.parse(localStorage.getItem(key) || "[]");
 
-        // Prioritas 2: Coba ambil dari Firebase jika ready
+        // Coba ambil dari Firebase jika sudah siap
         if (this.isFirebaseReady) {
             try {
-                const collection = this.getCollection(key);
-                const doc = await collection.doc("main").get();
+                const doc = await this.getCollection(key).doc("main").get();
                 if (doc.exists) {
-                    const firebaseData = doc.data().data || [];
-                    // Merge jika Firebase lebih baru
-                    if (firebaseData.length > data.length) {
-                        data = firebaseData;
+                    const fbData = doc.data().data || [];
+                    // Gunakan data Firebase jika lebih banyak / lebih baru
+                    if (fbData.length > data.length) {
+                        data = fbData;
                         localStorage.setItem(key, JSON.stringify(data));
-                        console.log(`🔄 Updated from Firebase: ${key}`);
+                        console.log(`🔄 Loaded from Firebase → ${key}`);
                     }
                 }
             } catch (e) {
-                console.warn(`Gagal load dari Firebase ${key}`);
+                console.warn(`Firebase load failed for ${key}`);
             }
         }
         return data;
     },
 
-    // ====================== INIT DATA ======================
+    // ====================== INIT ======================
     initData: async function() {
-        const keys = ["dataSiswa","dataBeasiswa","dataPendaftar","dataAbsensi","dataKeuangan","dataNilai","dataSaran","db_latihan","db_turnamen"];
-        
-        // Init localStorage dulu
+        const keys = ["dataSiswa", "dataBeasiswa", "dataPendaftar", "dataAbsensi", 
+                     "dataKeuangan", "dataNilai", "dataSaran", "db_latihan", "db_turnamen"];
+
         keys.forEach(key => {
             if (!localStorage.getItem(key)) {
                 localStorage.setItem(key, JSON.stringify([]));
             }
         });
 
-        // Init Firebase
         await this.initFirebase();
     },
 
@@ -97,7 +89,7 @@ const DBManager = {
         return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`;
     },
 
-    // ====================== LOGIN & SESSION (tetap sama) ======================
+    // ====================== LOGIN & SESSION ======================
     setLoginUser: function(user) { 
         sessionStorage.setItem("userAktif", JSON.stringify(user)); 
     },
@@ -105,46 +97,167 @@ const DBManager = {
         const data = sessionStorage.getItem("userAktif");
         return data ? JSON.parse(data) : null;
     },
-    clearLoginUser: function() { sessionStorage.removeItem("userAktif"); },
+    clearLoginUser: function() { 
+        sessionStorage.removeItem("userAktif"); 
+    },
 
-    // ====================== SISWA (Reguler & Beasiswa) ======================
+    // ====================== SISWA ======================
     findSiswa: function(nisw) {
-        const semua = [...this.getSiswaAktif()];
+        const semua = this.getSiswaAktif();
         return semua.find(s => String(s.nisw).toUpperCase() === String(nisw).toUpperCase());
     },
 
-    getSiswaAktif: async function() {
-        const reguler = await this.loadFromHybrid("dataSiswa");
-        const beasiswa = await this.loadFromHybrid("dataBeasiswa");
+    getSiswaAktif: function() {
+        const reguler = JSON.parse(localStorage.getItem("dataSiswa") || "[]");
+        const beasiswa = JSON.parse(localStorage.getItem("dataBeasiswa") || "[]");
         return [...reguler, ...beasiswa];
     },
 
     addSiswaAktif: async function(siswa) {
         const key = siswa.tipe === "Beasiswa" ? "dataBeasiswa" : "dataSiswa";
-        let list = await this.loadFromHybrid(key);
+        let list = JSON.parse(localStorage.getItem(key) || "[]");
         list.push(siswa);
         await this.saveToBoth(key, list);
-        return true;
     },
 
-    // ... (saya akan lengkapi semua fungsi di versi final)
+    updateSiswaAktif: async function(nisw, updateData) {
+        ["dataSiswa", "dataBeasiswa"].forEach(async (key) => {
+            let list = JSON.parse(localStorage.getItem(key) || "[]");
+            const idx = list.findIndex(s => String(s.nisw).toUpperCase() === String(nisw).toUpperCase());
+            if (idx > -1) {
+                list[idx] = { ...list[idx], ...updateData };
+                await this.saveToBoth(key, list);
+            }
+        });
+    },
 
-    // Untuk sementara ini, kita pakai versi hybrid dasar dulu
-    // Saya akan kasih versi lengkap setelah kamu konfirmasi
+    deleteSiswaAktif: async function(nisw) {
+        ["dataSiswa", "dataBeasiswa"].forEach(async (key) => {
+            let list = JSON.parse(localStorage.getItem(key) || "[]");
+            list = list.filter(s => String(s.nisw).toUpperCase() !== String(nisw).toUpperCase());
+            await this.saveToBoth(key, list);
+        });
+    },
 
-    // ====================== BACKUP & RESTORE (tetap sama) ======================
-    backupAllData: function() {
+    // ====================== PENDAFTAR ======================
+    getPendaftar: function() {
+        return JSON.parse(localStorage.getItem("dataPendaftar") || "[]");
+    },
+
+    addPendaftar: async function(data) {
+        let list = this.getPendaftar();
+        const total = this.getSiswaAktif().length + list.length + 1;
+        const prefix = data.tipe === "Beasiswa" ? "B" : "R";
+        data.nisw = prefix + new Date().getFullYear() + total.toString().padStart(3, '0');
+        data.status = "Menunggu Verifikasi";
+        data.tglDaftar = this.getTglSekarang();
+        list.push(data);
+        await this.saveToBoth("dataPendaftar", list);
+        return data.nisw;
+    },
+
+    removePendaftar: async function(index) {
+        let list = this.getPendaftar();
+        list.splice(index, 1);
+        await this.saveToBoth("dataPendaftar", list);
+    },
+
+    // ====================== ABSENSI ======================
+    addAbsensi: async function(data) {
+        let list = JSON.parse(localStorage.getItem("dataAbsensi") || "[]");
+        list.push(data);
+        await this.saveToBoth("dataAbsensi", list);
+    },
+
+    getAbsensi: function() {
+        return JSON.parse(localStorage.getItem("dataAbsensi") || "[]");
+    },
+
+    deleteAbsensi: async function(index) {
+        let list = this.getAbsensi();
+        list.splice(index, 1);
+        await this.saveToBoth("dataAbsensi", list);
+    },
+
+    // ====================== KEUANGAN ======================
+    getKeuangan: function() {
+        return JSON.parse(localStorage.getItem("dataKeuangan") || "[]");
+    },
+
+    addKeuangan: async function(data) {
+        let list = this.getKeuangan();
+        data.tgl = data.tgl || this.getTglSekarang();
+        list.push(data);
+        await this.saveToBoth("dataKeuangan", list);
+    },
+
+    // ====================== NILAI ======================
+    getNilai: function() {
+        return JSON.parse(localStorage.getItem("dataNilai") || "[]");
+    },
+
+    updateNilai: async function(nisw, dataNilai) {
+        let list = this.getNilai();
+        const idx = list.findIndex(n => String(n.nisw).toUpperCase() === String(nisw).toUpperCase());
+        if (idx > -1) list[idx] = { ...list[idx], ...dataNilai };
+        else list.push(dataNilai);
+        await this.saveToBoth("dataNilai", list);
+    },
+
+    // ====================== SARAN ======================
+    getSaran: function() {
+        return JSON.parse(localStorage.getItem("dataSaran") || "[]");
+    },
+
+    addSaran: async function(data) {
+        let list = this.getSaran();
+        data.id = Date.now();
+        data.waktu = this.getTglSekarang();
+        data.dibaca = false;
+        list.push(data);
+        await this.saveToBoth("dataSaran", list);
+    },
+
+    // ====================== JADWAL ======================
+    getJadwalLatihan: function() {
+        return JSON.parse(localStorage.getItem("db_latihan") || "[]");
+    },
+
+    addJadwalLatihan: async function(data) {
+        let list = this.getJadwalLatihan();
+        data.id = Date.now();
+        list.push(data);
+        await this.saveToBoth("db_latihan", list);
+    },
+
+    getJadwalTurnamen: function() {
+        return JSON.parse(localStorage.getItem("db_turnamen") || "[]");
+    },
+
+    addJadwalTurnamen: async function(data) {
+        let list = this.getJadwalTurnamen();
+        data.id = Date.now();
+        list.push(data);
+        await this.saveToBoth("db_turnamen", list);
+    },
+
+    // ====================== HELPER LAINNYA ======================
+    getTotalSiswa: function() {
+        return this.getSiswaAktif().length;
+    },
+
+    getTotalPendaftar: function() {
+        return this.getPendaftar().length;
+    },
+
+    exportDataToFile: function() {
         const backup = {};
         ["dataSiswa","dataBeasiswa","dataPendaftar","dataAbsensi","dataKeuangan","dataNilai","dataSaran","db_latihan","db_turnamen"].forEach(key => {
             backup[key] = JSON.parse(localStorage.getItem(key) || "[]");
         });
-        return JSON.stringify(backup, null, 2);
-    },
-
-    exportDataToFile: function() {
-        const dataStr = this.backupAllData();
-        const dataBlob = new Blob([dataStr], {type: 'application/json'});
-        const url = URL.createObjectURL(dataBlob);
+        const dataStr = JSON.stringify(backup, null, 2);
+        const blob = new Blob([dataStr], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
         link.download = `SSB_Backup_${new Date().toISOString().split('T')[0]}.json`;
@@ -153,8 +266,8 @@ const DBManager = {
     }
 };
 
-// AUTO INIT
+// ====================== AUTO INIT ======================
 DBManager.initData().then(() => {
     window.DBManager = DBManager;
-    console.log("🚀 DBManager HYBRID (Firebase + localStorage) sudah aktif!");
+    console.log("🚀 DBManager HYBRID (Firebase + localStorage) AKTIF - Siap Publish!");
 });
