@@ -33,10 +33,12 @@
     <img src="pemain.png" class="active" onerror="this.src='https://via.placeholder.com/800x600?text=Wind+Soccer'">
     <img src="coach.png" onerror="this.src='https://via.placeholder.com/800x600?text=SSB+Wind+Soccer'">
   </div>
+
   <div class="container">
-    <img src="logossb.png" alt="Logo SSB" class="logo" onerror="this.src='https://via.placeholder.com/100'">
+    <img src="logossb.png" alt="Logo SSB" class="logo">
     <h1 id="sapaan">Selamat Datang</h1>
     <p class="tagline" id="niswInfo">Memuat informasi...</p>
+
     <div class="menu-grid">
       <a href="absensi.html" class="menu-item">📋 Absensi</a>
       <button onclick="bukaProfilSiswa()" class="menu-item">👨‍🎓 Data Profil</button>
@@ -48,83 +50,77 @@
       <button onclick="bukaRaport()" class="menu-item">📄 Raport</button>
       <a href="program.html" class="menu-item">📘 Program</a>
     </div>
+
     <div class="extra-buttons">
       <button class="btn-secondary" onclick="window.location.href='index.html'">⬅ Kembali ke Awal</button>
       <button class="btn-special" onclick="logout()">🚪 Logout</button>
     </div>
   </div>
+
   <footer>
     <p>© 2026 SSB Wind Soccer | 📞 0812 9333 8781</p>
   </footer>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-<script>
-// 1. KONFIGURASI FIREBASE
-const firebaseConfig = {
-    apiKey: "AIzaSyC-DVKZfDHpfFl6kE_uupT5GFinwNaWhpw",
-    authDomain: "ssb-wind-soccer-110.firebaseapp.com",
-    databaseURL: "https://ssb-wind-soccer-110-default-rtdb.asia-southeast1.firebasedatabase.app/",
-    projectId: "ssb-wind-soccer-110",
-    storageBucket: "ssb-wind-soccer-110.firebasestorage.app",
-    messagingSenderId: "128234924459",
-    appId: "1:128234924459:web:37d97f167996d7d67ecaee"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-// 2. BACKGROUND SLIDESHOW
-const slides = document.querySelectorAll(".bg-slideshow img");
-let current = 0;
-if(slides.length > 0) {
-    setInterval(() => {
+
+  <!-- === FIREBASE & DBManager === -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="db-sync.js"></script>
+
+  <script>
+    // Background Slideshow
+    const slides = document.querySelectorAll(".bg-slideshow img");
+    let current = 0;
+    if (slides.length > 0) {
+      setInterval(() => {
         slides[current].classList.remove("active");
         current = (current + 1) % slides.length;
         slides[current].classList.add("active");
-    }, 5000);
-}
-// 3. LOGIKA CEK LOGIN & SYNC DATA
-const userStr = sessionStorage.getItem("userSSB");
-if (!userStr) {
-    alert("Silakan login terlebih dahulu!");
-    window.location.href = "index.html";
-} else {
-    const localUser = JSON.parse(userStr);
-   
-    // Hubungkan ke Firebase untuk sinkronisasi data terbaru
-    db.ref('pendaftar/' + localUser.nisw).on('value', (snapshot) => {
-        const cloudData = snapshot.val();
-        if (cloudData) {
-            // Update tampilan secara real-time
-            document.getElementById("sapaan").innerText = "Halo, " + cloudData.nama + "!";
-            document.getElementById("niswInfo").innerText = "NISW: " + cloudData.nisw + " | Jalur: " + (cloudData.tipe || "Reguler");
-            // Update data di session agar file lain (profil/raport) dapat data terbaru
-            sessionStorage.setItem("userSSB", JSON.stringify(cloudData));
-        }
-    });
-}
-function bukaProfilSiswa() {
-    const userStr = sessionStorage.getItem("userSSB");
-    if (!userStr) return;
-    const user = JSON.parse(userStr);
-   
-    // Tetap mengikuti logika Coach: B masuk ke siswabeasiswa, lainnya datasiswa
-    if (String(user.nisw).toUpperCase().includes('B')) {
-        window.location.href = "siswabeasiswa.html";
-    } else {
-        window.location.href = "datasiswa.html";
+      }, 5000);
     }
-}
-function bukaRaport() {
-    const userStr = sessionStorage.getItem("userSSB");
-    if (!userStr) return;
-    const user = JSON.parse(userStr);
-    window.location.href = `raport.html?nisw=${encodeURIComponent(user.nisw)}`;
-}
-function logout() {
-    if (confirm("Yakin ingin logout?")) {
-        sessionStorage.removeItem("userSSB");
+
+    // Cek Login & Tampilkan Data
+    async function loadBeranda() {
+      const user = DBManager.getLoginUser();
+      if (!user) {
+        alert("Silakan login terlebih dahulu!");
         window.location.href = "index.html";
+        return;
+      }
+
+      // Tampilkan sapaan
+      document.getElementById("sapaan").innerText = "Halo, " + user.nama + "!";
+      document.getElementById("niswInfo").innerText = "NISW: " + user.nisw + " | Jalur: " + (user.tipe || "Reguler");
     }
-}
-</script>
+
+    function bukaProfilSiswa() {
+      const user = DBManager.getLoginUser();
+      if (!user) return;
+      if (String(user.nisw).toUpperCase().startsWith('B')) {
+        window.location.href = "siswabeasiswa.html";
+      } else {
+        window.location.href = "datasiswa.html";
+      }
+    }
+
+    function bukaRaport() {
+      const user = DBManager.getLoginUser();
+      if (!user) return;
+      window.location.href = `raport.html?nisw=${encodeURIComponent(user.nisw)}`;
+    }
+
+    function logout() {
+      if (confirm("Yakin ingin logout?")) {
+        DBManager.clearLoginUser();
+        window.location.href = "index.html";
+      }
+    }
+
+    // Inisialisasi halaman
+    document.addEventListener('DOMContentLoaded', async function() {
+      await initializeFirebase();   // Pastikan Firebase siap
+      loadBeranda();
+    });
+  </script>
 </body>
 </html>
