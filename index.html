@@ -1,208 +1,526 @@
-<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SSB Wind Soccer - Selamat Datang</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #003399;
-      color: white;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-      position: relative;
-    }
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: url("lapangan.jpeg") no-repeat center center/cover;
-      opacity: 0.25;
-      z-index: -3;
-    }
-    .bg-slideshow {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; overflow: hidden;
-    }
-    .bg-slideshow img {
-      position: absolute; width: 100%; height: 100%;
-      object-fit: cover; opacity: 0; transition: opacity 1.5s ease-in-out;
-    }
-    .bg-slideshow img.active { opacity: 1; }
-    .container {
-      background: rgba(255,255,255,0.95);
-      padding: 40px 30px;
-      border-radius: 18px;
-      max-width: 400px;
-      width: 100%;
-      text-align: center;
-      box-shadow: 0 8px 22px rgba(0,0,0,0.35);
-      z-index: 1;
-      animation: fadeIn 0.7s ease-in-out;
-      color: #003399;
-    }
-    .logo { width: 120px; margin-bottom: 15px; }
-    h1 { margin-bottom: 10px; font-size: 24px; font-weight: bold; }
-    p { margin-bottom: 20px; font-size: 14px; font-style: italic; color: #333; }
-    .password-container { position: relative; width: 100%; margin-bottom: 15px; }
-    input {
-      width: 100%;
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-      text-align: center;
-      box-sizing: border-box;
-    }
-    .toggle-password {
-      position: absolute; right: 15px; top: 50%;
-      transform: translateY(-50%);
-      cursor: pointer;
-      color: #666;
-      font-size: 18px;
-      user-select: none;
-    }
-    .btn {
-      display: block; width: 100%; padding: 12px; margin: 8px 0;
-      border-radius: 10px; font-size: 15px; font-weight: bold;
-      cursor: pointer;
-      border: none;
-      transition: all 0.3s;
-    }
-    .btn-login { background: #003399; color: #fff; }
-    .btn-daftar { background: #ff9800; color: #fff; }
-    .btn-beasiswa { background: #28a745; color: #fff; }
-    .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-    .alert-modal {
-      position: fixed;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      min-width: 260px;
-      padding: 20px;
-      border-radius: 16px;
-      background: white;
-      color: #333;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.45);
-      z-index: 10000;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      gap: 12px;
-      animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    .alert-success { border-top: 6px solid #28a745; }
-    .alert-error { border-top: 6px solid #dc3545; }
-    .alert-warn { border-top: 6px solid #ff9800; }
-    .alert-info { border-top: 6px solid #003399; }
-    @keyframes zoomIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    footer { margin-top: 15px; font-size: 12px; color: #555; }
-  </style>
+&nbsp;&nbsp;<meta charset="UTF-8">
+&nbsp;&nbsp;<meta name="viewport" content="width=device-width, initial-scale=1.0">
+&nbsp;&nbsp;<title>SSB Wind Soccer - Selamat Datang</title>
+&nbsp;&nbsp;<style>
+&nbsp;&nbsp;&nbsp;&nbsp;body {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin: 0;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;font-family: 'Segoe UI', Arial, sans-serif;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background: #003399;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;color: white;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;min-height: 100vh;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;display: flex;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;justify-content: center;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;align-items: center;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;overflow: hidden;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;position: relative;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;body::before {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;content: "";
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;position: fixed;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;top: 0; left: 0; width: 100%; height: 100%;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background: url("lapangan.jpeg") no-repeat center center/cover;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;opacity: 0.25;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;z-index: -3;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;.bg-slideshow {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; overflow: hidden;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;.bg-slideshow img {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;position: absolute; width: 100%; height: 100%;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;object-fit: cover; opacity: 0; transition: opacity 1.5s ease-in-out;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;.bg-slideshow img.active { opacity: 1; }
+&nbsp;&nbsp;&nbsp;&nbsp;.container {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background: rgba(255,255,255,0.95);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;padding: 40px 30px;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border-radius: 18px;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;max-width: 400px;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width: 100%;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text-align: center;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;box-shadow: 0 8px 22px rgba(0,0,0,0.35);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;z-index: 1;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;animation: fadeIn 0.7s ease-in-out;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;color: #003399;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;.logo { width: 120px; margin-bottom: 15px; }
+&nbsp;&nbsp;&nbsp;&nbsp;h1 { margin-bottom: 10px; font-size: 24px; font-weight: bold; }
+&nbsp;&nbsp;&nbsp;&nbsp;p { margin-bottom: 20px; font-size: 14px; font-style: italic; color: #333; }
+&nbsp;&nbsp;&nbsp;&nbsp;.password-container { position: relative; width: 100%; margin-bottom: 15px; }
+&nbsp;&nbsp;&nbsp;&nbsp;input {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width: 100%;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;padding: 12px;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border-radius: 8px;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border: 1px solid #ccc;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;font-size: 14px;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text-align: center;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;box-sizing: border-box;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;.toggle-password {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;position: absolute; right: 15px; top: 50%;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;transform: translateY(-50%);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cursor: pointer;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;color: #666;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;font-size: 18px;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;user-select: none;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;.btn {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;display: block; width: 100%; padding: 12px; margin: 8px 0;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border-radius: 10px; font-size: 15px; font-weight: bold;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cursor: pointer;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border: none;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;transition: all 0.3s;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;.btn-login { background: #003399; color: #fff; }
+&nbsp;&nbsp;&nbsp;&nbsp;.btn-daftar { background: #ff9800; color: #fff; }
+&nbsp;&nbsp;&nbsp;&nbsp;.btn-beasiswa { background: #28a745; color: #fff; }
+&nbsp;&nbsp;&nbsp;&nbsp;.btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+&nbsp;&nbsp;&nbsp;&nbsp;.btn:active { transform: translateY(0); }
+&nbsp;&nbsp;&nbsp;&nbsp;.alert-modal {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;position: fixed;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;top: 50%; left: 50%;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;transform: translate(-50%, -50%);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;min-width: 260px;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;padding: 20px;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border-radius: 16px;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background: white;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;color: #333;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;z-index: 10000;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;display: flex;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;flex-direction: column;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;align-items: center;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text-align: center;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gap: 12px;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;.alert-success { border-top: 6px solid #28a745; }
+&nbsp;&nbsp;&nbsp;&nbsp;.alert-error { border-top: 6px solid #dc3545; }
+&nbsp;&nbsp;&nbsp;&nbsp;.alert-warn { border-top: 6px solid #ff9800; }
+&nbsp;&nbsp;&nbsp;&nbsp;.alert-info { border-top: 6px solid #003399; }
+&nbsp;&nbsp;&nbsp;&nbsp;@keyframes zoomIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } }
+&nbsp;&nbsp;&nbsp;&nbsp;@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+&nbsp;&nbsp;&nbsp;&nbsp;footer { margin-top: 15px; font-size: 12px; color: #555; }
+&nbsp;&nbsp;</style>
 </head>
 <body>
-  <div class="bg-slideshow">
-    <img src="coach.png" class="active" onerror="this.src='https://via.placeholder.com/800x600?text=Wind+Soccer'">
-    <img src="pemain.png" onerror="this.src='https://via.placeholder.com/800x600?text=SSB+Wind+Soccer'">
-  </div>
-  <div class="container">
-    <img src="logossb.png" class="logo" alt="Logo SSB" onerror="this.src='https://via.placeholder.com/120'">
-    <h1>Selamat Datang</h1>
-    <p>SSB Wind Soccer - Membentuk pemain profesional sejak dini</p>
-   
-    <form id="formLogin">
-      <div class="password-container">
-        <input type="password" id="nisw" placeholder="Masukkan NISW" required>
-        <span class="toggle-password" id="togglePassword">👁️</span>
-      </div>
-      <button type="submit" class="btn btn-login" id="btnLoginSiswa">Masuk Siswa</button>
-    </form>
-    <button class="btn btn-daftar" onclick="window.location.href='pendaftaran.html'">Daftar Baru</button>
-    <button class="btn btn-beasiswa" onclick="window.location.href='pendaftaran_beasiswa.html'">Daftar Beasiswa</button>
-    <button class="btn btn-login" style="background:#444" id="btnAdmin">Login Admin</button>
-   
-    <footer>© 2026 SSB Wind Soccer</footer>
-  </div>
-
+&nbsp;&nbsp;<div class="bg-slideshow">
+&nbsp;&nbsp;&nbsp;&nbsp;<img src="coach.png" class="active" onerror="this.src='https://via.placeholder.com/800x600?text=Wind+Soccer'">
+&nbsp;&nbsp;&nbsp;&nbsp;<img src="pemain.png" onerror="this.src='https://via.placeholder.com/800x600?text=SSB+Wind+Soccer'">
+&nbsp;&nbsp;</div>
+&nbsp;&nbsp;<div class="container">
+&nbsp;&nbsp;&nbsp;&nbsp;<img src="logossb.png" class="logo" alt="Logo SSB" onerror="this.src='https://via.placeholder.com/120'">
+&nbsp;&nbsp;&nbsp;&nbsp;<h1>Selamat Datang</h1>
+&nbsp;&nbsp;&nbsp;&nbsp;<p>SSB Wind Soccer - Membentuk pemain profesional sejak dini</p>
+&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<form id="formLogin">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<div class="password-container">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="password" id="nisw" placeholder="Masukkan NISW" required>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="toggle-password" id="togglePassword">👁️</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="submit" class="btn btn-login" id="btnLoginSiswa">Masuk Siswa</button>
+&nbsp;&nbsp;&nbsp;&nbsp;</form>
+&nbsp;&nbsp;&nbsp;&nbsp;<button class="btn btn-daftar" onclick="window.location.href='pendaftaran.html'">Daftar Baru</button>
+&nbsp;&nbsp;&nbsp;&nbsp;<button class="btn btn-beasiswa" onclick="window.location.href='pendaftaran_beasiswa.html'">Daftar Beasiswa</button>
+&nbsp;&nbsp;&nbsp;&nbsp;<button class="btn btn-login" style="background:#444" id="btnAdmin">Login Admin</button>
+&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<footer>© 2026 SSB Wind Soccer</footer>
+&nbsp;&nbsp;</div>
 <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
 <script>
-// 1. KONFIGURASI FIREBASE
+// 1. KONFIGURASI FIREBASE COACH
 const firebaseConfig = {
-    apiKey: "AIzaSyC-DVKZfDHpfFl6kE_uupT5GFinwNaWhpw",
-    authDomain: "ssb-wind-soccer-110.firebaseapp.com",
-    databaseURL: "https://ssb-wind-soccer-110-default-rtdb.asia-southeast1.firebasedatabase.app/",
-    projectId: "ssb-wind-soccer-110",
-    storageBucket: "ssb-wind-soccer-110.firebasestorage.app",
-    messagingSenderId: "128234924459",
-    appId: "1:128234924459:web:37d97f167996d7d67ecaee"
+&nbsp;&nbsp;&nbsp;&nbsp;apiKey: "AIzaSyC-DVKZfDHpfFl6kE_uupT5GFinwNaWhpw",
+&nbsp;&nbsp;&nbsp;&nbsp;authDomain: "ssb-wind-soccer-110.firebaseapp.com",
+&nbsp;&nbsp;&nbsp;&nbsp;databaseURL: "https://ssb-wind-soccer-110-default-rtdb.asia-southeast1.firebasedatabase.app/",
+&nbsp;&nbsp;&nbsp;&nbsp;projectId: "ssb-wind-soccer-110",
+&nbsp;&nbsp;&nbsp;&nbsp;storageBucket: "ssb-wind-soccer-110.firebasestorage.app",
+&nbsp;&nbsp;&nbsp;&nbsp;messagingSenderId: "128234924459",
+&nbsp;&nbsp;&nbsp;&nbsp;appId: "1:128234924459:web:37d97f167996d7d67ecaee"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-
 // 2. BACKGROUND SLIDESHOW
 const slides = document.querySelectorAll(".bg-slideshow img");
 let current = 0;
 setInterval(() => {
-    slides[current].classList.remove("active");
-    current = (current + 1) % slides.length;
-    slides[current].classList.add("active");
+&nbsp;&nbsp;&nbsp;&nbsp;slides[current].classList.remove("active");
+&nbsp;&nbsp;&nbsp;&nbsp;current = (current + 1) % slides.length;
+&nbsp;&nbsp;&nbsp;&nbsp;slides[current].classList.add("active");
 }, 5000);
-
 // 3. ALERT MODAL
 function showAlert(msg, type = "success") {
-    const box = document.createElement("div");
-    box.className = `alert-modal alert-${type}`;
-    box.innerHTML = `<div>${msg}</div>`;
-    document.body.appendChild(box);
-    setTimeout(() => { box.remove(); }, 2500);
+&nbsp;&nbsp;&nbsp;&nbsp;const box = document.createElement("div");
+&nbsp;&nbsp;&nbsp;&nbsp;box.className = `alert-modal alert-${type}`;
+&nbsp;&nbsp;&nbsp;&nbsp;box.innerHTML = `<div>${msg}</div>`;
+&nbsp;&nbsp;&nbsp;&nbsp;document.body.appendChild(box);
+&nbsp;&nbsp;&nbsp;&nbsp;setTimeout(() => { box.remove(); }, 2500);
 }
-
 // 4. TOGGLE PASSWORD
 document.getElementById("togglePassword").onclick = function() {
-    const niswInput = document.getElementById("nisw");
-    niswInput.type = (niswInput.type === "password") ? "text" : "password";
-    this.textContent = (niswInput.type === "password") ? "👁️" : "🙈";
+&nbsp;&nbsp;&nbsp;&nbsp;const niswInput = document.getElementById("nisw");
+&nbsp;&nbsp;&nbsp;&nbsp;niswInput.type = (niswInput.type === "password") ? "text" : "password";
+&nbsp;&nbsp;&nbsp;&nbsp;this.textContent = (niswInput.type === "password") ? "👁️" : "🙈";
 };
-
-// 5. LOGIN SISWA
+// 5. LOGIN SISWA (CEK FIREBASE)
 document.getElementById("formLogin").onsubmit = function(e) {
-    e.preventDefault();
-    const niswVal = document.getElementById("nisw").value.trim().toUpperCase();
-    const btn = document.getElementById("btnLoginSiswa");
-    if (niswVal === "110ADMIN") {
-        showAlert("Gunakan tombol Login Admin!", "error");
-        return;
-    }
-    btn.disabled = true;
-    btn.textContent = "Mengecek NISW...";
-    db.ref('pendaftar/' + niswVal).once('value', (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-            sessionStorage.setItem("userSSB", JSON.stringify(data));
-            showAlert("Selamat Datang, " + data.nama + "!", "success");
-            setTimeout(() => { window.location.href = "beranda.html"; }, 1500);
-        } else {
-            showAlert("NISW Tidak Ditemukan!", "error");
-            btn.disabled = false;
-            btn.textContent = "Masuk Siswa";
-        }
-    });
+&nbsp;&nbsp;&nbsp;&nbsp;e.preventDefault();
+&nbsp;&nbsp;&nbsp;&nbsp;const niswVal = document.getElementById("nisw").value.trim().toUpperCase();
+&nbsp;&nbsp;&nbsp;&nbsp;const btn = document.getElementById("btnLoginSiswa");
+&nbsp;&nbsp;&nbsp;&nbsp;if (niswVal === "110ADMIN") {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;showAlert("Gunakan tombol Login Admin!", "error");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;btn.disabled = true;
+&nbsp;&nbsp;&nbsp;&nbsp;btn.textContent = "Mengecek NISW...";
+&nbsp;&nbsp;&nbsp;&nbsp;// Mencari data di folder 'pendaftar' berdasarkan NISW
+&nbsp;&nbsp;&nbsp;&nbsp;db.ref('pendaftar/' + niswVal).once('value', (snapshot) => {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const data = snapshot.val();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (data) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Simpan data login sementara di session (agar bisa tampil di beranda)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sessionStorage.setItem("userSSB", JSON.stringify(data));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;showAlert("Selamat Datang, " + data.nama + "!", "success");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setTimeout(() => { window.location.href = "beranda.html"; }, 1500);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} else {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;showAlert("NISW Tidak Ditemukan!", "error");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;btn.disabled = false;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;btn.textContent = "Masuk Siswa";
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;});
 };
-
 // 6. LOGIN ADMIN
 document.getElementById("btnAdmin").onclick = () => {
-    const pass = document.getElementById("nisw").value.trim();
-    if (pass.toLowerCase() === "110admin") {
-        showAlert("Akses Admin Diterima", "info");
-        setTimeout(() => { window.location.href = "admin.html"; }, 900);
-    } else {
-        showAlert("Masukkan Kode Admin di kotak NISW!", "error");
-    }
+&nbsp;&nbsp;&nbsp;&nbsp;const pass = document.getElementById("nisw").value.trim();
+&nbsp;&nbsp;&nbsp;&nbsp;if (pass.toLowerCase() === "110admin") {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;showAlert("Akses Admin Diterima", "info");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setTimeout(() => { window.location.href = "admin.html"; }, 900);
+&nbsp;&nbsp;&nbsp;&nbsp;} else {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;showAlert("Masukkan Kode Admin di kotak NISW!", "error");
+&nbsp;&nbsp;&nbsp;&nbsp;}
+};
+</script>
+</body>
+</html>
+ 
+pendaftran
+ 
+<!DOCTYPE html>
+<html lang="id">
+<head>
+&nbsp;&nbsp;<meta charset="UTF-8">
+&nbsp;&nbsp;<meta name="viewport" content="width=device-width, initial-scale=1.0">
+&nbsp;&nbsp;<title>Pendaftaran Reguler - SSB Wind Soccer</title>
+&nbsp;&nbsp;<style>
+&nbsp;&nbsp;&nbsp;&nbsp;body { font-family: 'Segoe UI', sans-serif; background: #003399; margin: 0; display: flex; justify-content: center; padding: 20px; }
+&nbsp;&nbsp;&nbsp;&nbsp;.card { background: white; width: 100%; max-width: 520px; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border-top: 8px solid #ffb400; }
+&nbsp;&nbsp;&nbsp;&nbsp;.header { text-align: center; margin-bottom: 25px; }
+&nbsp;&nbsp;&nbsp;&nbsp;.logo { width: 85px; }
+&nbsp;&nbsp;&nbsp;&nbsp;h2 { color: #003399; margin: 10px 0; text-transform: uppercase; font-size: 22px; }
+&nbsp;&nbsp;&nbsp;&nbsp;section { background: #f9f9f9; border: 1px solid #eee; padding: 18px; border-radius: 12px; margin-bottom: 18px; }
+&nbsp;&nbsp;&nbsp;&nbsp;label { display: block; font-size: 13.5px; font-weight: bold; margin-bottom: 6px; color: #003399; }
+&nbsp;&nbsp;&nbsp;&nbsp;input, select, textarea { width: 100%; padding: 11px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14.5px; }
+&nbsp;&nbsp;&nbsp;&nbsp;.btn-submit { width: 100%; padding: 15px; background: #ffb400; color: #003399; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; }
+&nbsp;&nbsp;&nbsp;&nbsp;.btn-submit:disabled { background: #999; cursor: not-allowed; }
+&nbsp;&nbsp;</style>
+</head>
+<body>
+<div class="card">
+&nbsp;&nbsp;<div class="header">
+&nbsp;&nbsp;&nbsp;&nbsp;<img src="logossb.png" class="logo" onerror="this.src='https://via.placeholder.com/80'">
+&nbsp;&nbsp;&nbsp;&nbsp;<h2>PENDAFTARAN SISWA BARU</h2>
+&nbsp;&nbsp;</div>
+&nbsp;&nbsp;<form id="formPendaftaran">
+&nbsp;&nbsp;&nbsp;&nbsp;<section>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label>Nama Lengkap Siswa</label>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="nama" required placeholder="Nama Lengkap">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label>Tanggal Lahir</label>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="date" id="tglLahir" required oninput="hitungOtomatis()">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label>Usia (Otomatis)</label>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="usia" readonly>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label>Kategori Umur (Otomatis)</label>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="kategori" readonly>
+&nbsp;&nbsp;&nbsp;&nbsp;</section>
+&nbsp;&nbsp;&nbsp;&nbsp;<section>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label>Posisi Favorit</label>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<select id="posisi" required>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<option value="">-- Pilih Posisi --</option>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<option value="Kiper">Kiper (GK)</option>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<option value="Bek">Bek (DF)</option>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<option value="Gelandang">Gelandang (MF)</option>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<option value="Penyerang">Penyerang (FW)</option>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</select>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label>Nama Orang Tua / Wali</label>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="namaOrtu" required placeholder="Nama Ibu/Ayah">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label>No. WhatsApp</label>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="tel" id="noHp" required placeholder="0812xxxxxxxx">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label>Alamat Lengkap</label>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<textarea id="alamat" rows="2" required placeholder="Alamat lengkap..."></textarea>
+&nbsp;&nbsp;&nbsp;&nbsp;</section>
+&nbsp;&nbsp;&nbsp;&nbsp;<section>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label>Upload Foto Siswa</label>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="file" id="foto" accept="image/*" required>
+&nbsp;&nbsp;&nbsp;&nbsp;</section>
+&nbsp;&nbsp;&nbsp;&nbsp;<button type="submit" class="btn-submit" id="btnSubmit">KIRIM PENDAFTARAN</button>
+&nbsp;&nbsp;</form>
+</div>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+<script>
+// 1. KONFIGURASI FIREBASE COACH SYAMSUL
+const firebaseConfig = {
+&nbsp;&nbsp;&nbsp;&nbsp;apiKey: "AIzaSyC-DVKZfDHpfFl6kE_uupT5GFinwNaWhpw",
+&nbsp;&nbsp;&nbsp;&nbsp;authDomain: "ssb-wind-soccer-110.firebaseapp.com",
+&nbsp;&nbsp;&nbsp;&nbsp;databaseURL: "https://ssb-wind-soccer-110-default-rtdb.asia-southeast1.firebasedatabase.app/",
+&nbsp;&nbsp;&nbsp;&nbsp;projectId: "ssb-wind-soccer-110",
+&nbsp;&nbsp;&nbsp;&nbsp;storageBucket: "ssb-wind-soccer-110.firebasestorage.app",
+&nbsp;&nbsp;&nbsp;&nbsp;messagingSenderId: "128234924459",
+&nbsp;&nbsp;&nbsp;&nbsp;appId: "1:128234924459:web:37d97f167996d7d67ecaee"
+};
+// 2. INISIALISASI FIREBASE
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+// 3. FUNGSI KOMPRESI GAMBAR (TETAP SAMA)
+async function compressImage(file) {
+&nbsp;&nbsp;&nbsp;&nbsp;return new Promise((resolve) => {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const reader = new FileReader();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reader.readAsDataURL(file);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reader.onload = (event) => {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const img = new Image();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;img.src = event.target.result;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;img.onload = () => {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const canvas = document.createElement("canvas");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const MAX_WIDTH = 400;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const scaleSize = MAX_WIDTH / img.width;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;canvas.width = MAX_WIDTH;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;canvas.height = img.height * scaleSize;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const ctx = canvas.getContext("2d");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resolve(canvas.toDataURL("image/jpeg", 0.7));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};
+&nbsp;&nbsp;&nbsp;&nbsp;});
+}
+// 4. FUNGSI HITUNG OTOMATIS (TETAP SAMA)
+function hitungOtomatis() {
+&nbsp;&nbsp;&nbsp;&nbsp;const tgl = document.getElementById("tglLahir").value;
+&nbsp;&nbsp;&nbsp;&nbsp;if (!tgl) return;
+&nbsp;&nbsp;&nbsp;&nbsp;const thn = new Date(tgl).getFullYear();
+&nbsp;&nbsp;&nbsp;&nbsp;document.getElementById("usia").value = (new Date().getFullYear() - thn) + " Tahun";
+&nbsp;&nbsp;&nbsp;&nbsp;let kat = "";
+&nbsp;&nbsp;&nbsp;&nbsp;if (thn >= 2017) kat = "KU-8 Class of 2017/2018";
+&nbsp;&nbsp;&nbsp;&nbsp;else if (thn >= 2015) kat = "KU-10 Class of 2015/2016";
+&nbsp;&nbsp;&nbsp;&nbsp;else if (thn >= 2013) kat = "KU-14 Class of 2013/2014";
+&nbsp;&nbsp;&nbsp;&nbsp;else if (thn >= 2011) kat = "KU-16 Class of 2011/2012";
+&nbsp;&nbsp;&nbsp;&nbsp;else kat = "KU-17 / Other";
+&nbsp;&nbsp;&nbsp;&nbsp;document.getElementById("kategori").value = kat;
+}
+// 5. PROSES SUBMIT KE FIREBASE (MENGGANTIKAN DBMANAGER LAMA)
+document.getElementById("formPendaftaran").onsubmit = async function(e) {
+&nbsp;&nbsp;&nbsp;&nbsp;e.preventDefault();
+&nbsp;&nbsp;&nbsp;&nbsp;const btn = document.getElementById("btnSubmit");
+&nbsp;&nbsp;&nbsp;&nbsp;btn.disabled = true;
+&nbsp;&nbsp;&nbsp;&nbsp;btn.textContent = "Mengirim ke Database Pusat...";
+&nbsp;&nbsp;&nbsp;&nbsp;const file = document.getElementById("foto").files[0];
+&nbsp;&nbsp;&nbsp;&nbsp;let fotoData = "default.png";
+&nbsp;&nbsp;&nbsp;&nbsp;if (file) fotoData = await compressImage(file);
+&nbsp;&nbsp;&nbsp;&nbsp;// Membuat ID Unik (NISW) Otomatis
+&nbsp;&nbsp;&nbsp;&nbsp;const niswBaru = "R" + new Date().getFullYear() + Date.now().toString().slice(-4);
+&nbsp;&nbsp;&nbsp;&nbsp;const dataBaru = {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nisw: niswBaru,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nama: document.getElementById("nama").value.trim(),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;foto: fotoData,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tglLahir: document.getElementById("tglLahir").value,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;usia: document.getElementById("usia").value,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;kategori: document.getElementById("kategori").value,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;posisi: document.getElementById("posisi").value,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;namaOrtu: document.getElementById("namaOrtu").value.trim(),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;noHp: document.getElementById("noHp").value.trim(),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alamat: document.getElementById("alamat").value.trim(),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tipe: "Reguler",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;status: "Menunggu Verifikasi",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tglDaftar: new Date().toLocaleString('id-ID')
+&nbsp;&nbsp;&nbsp;&nbsp;};
+&nbsp;&nbsp;&nbsp;&nbsp;// KIRIM KE FIREBASE
+&nbsp;&nbsp;&nbsp;&nbsp;db.ref('pendaftar/' + niswBaru).set(dataBaru)
+&nbsp;&nbsp;&nbsp;&nbsp;.then(() => {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert("✅ BERHASIL!\nData tersimpan di pusat.\nNISW: " + niswBaru);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window.location.href = "index.html";
+&nbsp;&nbsp;&nbsp;&nbsp;})
+&nbsp;&nbsp;&nbsp;&nbsp;.catch((err) => {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert("❌ Gagal: " + err.message);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;btn.disabled = false;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;btn.textContent = "KIRIM PENDAFTARAN";
+&nbsp;&nbsp;&nbsp;&nbsp;});
+};
+</script>
+</body>
+</html>
+ 
+pendaftaran beasiswa
+ 
+<!DOCTYPE html>
+<html lang="id">
+<head>
+&nbsp;&nbsp;<meta charset="UTF-8">
+&nbsp;&nbsp;<meta name="viewport" content="width=device-width, initial-scale=1.0">
+&nbsp;&nbsp;<title>Pendaftaran Beasiswa - SSB Wind Soccer</title>
+&nbsp;&nbsp;<style>
+&nbsp;&nbsp;&nbsp;&nbsp;/* Menggunakan skema warna Hijau untuk Beasiswa */
+&nbsp;&nbsp;&nbsp;&nbsp;body { font-family: 'Segoe UI', sans-serif; background: #003399; margin: 0; display: flex; justify-content: center; padding: 20px; }
+&nbsp;&nbsp;&nbsp;&nbsp;.card { background: white; width: 100%; max-width: 520px; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border-top: 8px solid #28a745; }
+&nbsp;&nbsp;&nbsp;&nbsp;.header { text-align: center; margin-bottom: 25px; }
+&nbsp;&nbsp;&nbsp;&nbsp;.logo { width: 85px; }
+&nbsp;&nbsp;&nbsp;&nbsp;h2 { color: #003399; margin: 10px 0; text-transform: uppercase; font-size: 22px; }
+&nbsp;&nbsp;&nbsp;&nbsp;section { background: #f9f9f9; border: 1px solid #eee; padding: 18px; border-radius: 12px; margin-bottom: 18px; }
+&nbsp;&nbsp;&nbsp;&nbsp;label { display: block; font-size: 13.5px; font-weight: bold; margin-bottom: 6px; color: #003399; }
+&nbsp;&nbsp;&nbsp;&nbsp;input, select, textarea { width: 100%; padding: 11px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14.5px; margin-bottom: 10px; }
+&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;/* Tombol dengan warna beasiswa */
+&nbsp;&nbsp;&nbsp;&nbsp;.btn-submit { width: 100%; padding: 15px; background: #28a745; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; }
+&nbsp;&nbsp;&nbsp;&nbsp;.btn-submit:hover { background: #218838; }
+&nbsp;&nbsp;&nbsp;&nbsp;.btn-submit:disabled { background: #999; cursor: not-allowed; }
+&nbsp;&nbsp;</style>
+</head>
+<body>
+<div class="card">
+&nbsp;&nbsp;<div class="header">
+&nbsp;&nbsp;&nbsp;&nbsp;<img src="logossb.png" class="logo" onerror="this.src='https://via.placeholder.com/80'">
+&nbsp;&nbsp;&nbsp;&nbsp;<h2>PENDAFTARAN BEASISWA</h2>
+&nbsp;&nbsp;</div>
+&nbsp;&nbsp;<form id="formPendaftaran">
+&nbsp;&nbsp;&nbsp;&nbsp;<section>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label>Nama Lengkap Siswa</label>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="nama" required placeholder="Nama Lengkap">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label>Tanggal Lahir</label>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="date" id="tglLahir" required oninput="hitungOtomatis()">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label>Usia (Otomatis)</label>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="usia" readonly style="background: #eee;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label>Kategori Umur (Otomatis)</label>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="kategori" readonly style="background: #eee;">
+&nbsp;&nbsp;&nbsp;&nbsp;</section>
+&nbsp;&nbsp;&nbsp;&nbsp;<section>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label>Posisi Favorit</label>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<select id="posisi" required>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<option value="">-- Pilih Posisi --</option>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<option value="Kiper">Kiper (GK)</option>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<option value="Bek">Bek (DF)</option>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<option value="Gelandang">Gelandang (MF)</option>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<option value="Penyerang">Penyerang (FW)</option>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</select>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label>Nama Orang Tua / Wali</label>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="namaOrtu" required placeholder="Nama Ibu/Ayah">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label>No. WhatsApp</label>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="tel" id="noHp" required placeholder="0812xxxxxxxx">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label>Alamat Lengkap</label>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<textarea id="alamat" rows="2" required placeholder="Alamat lengkap..."></textarea>
+&nbsp;&nbsp;&nbsp;&nbsp;</section>
+&nbsp;&nbsp;&nbsp;&nbsp;<section>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label>Alasan / Jalur Beasiswa</label>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="alasan" required placeholder="Contoh: Juara 1 O2SN / Yatim">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label>Upload Foto Siswa</label>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="file" id="foto" accept="image/*" required>
+&nbsp;&nbsp;&nbsp;&nbsp;</section>
+&nbsp;&nbsp;&nbsp;&nbsp;<button type="submit" class="btn-submit" id="btnSubmit">KIRIM PENGAJUAN BEASISWA</button>
+&nbsp;&nbsp;</form>
+</div>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+<script>
+// 1. KONFIGURASI FIREBASE COACH SYAMSUL
+const firebaseConfig = {
+&nbsp;&nbsp;&nbsp;&nbsp;apiKey: "AIzaSyC-DVKZfDHpfFl6kE_uupT5GFinwNaWhpw",
+&nbsp;&nbsp;&nbsp;&nbsp;authDomain: "ssb-wind-soccer-110.firebaseapp.com",
+&nbsp;&nbsp;&nbsp;&nbsp;databaseURL: "https://ssb-wind-soccer-110-default-rtdb.asia-southeast1.firebasedatabase.app/",
+&nbsp;&nbsp;&nbsp;&nbsp;projectId: "ssb-wind-soccer-110",
+&nbsp;&nbsp;&nbsp;&nbsp;storageBucket: "ssb-wind-soccer-110.firebasestorage.app",
+&nbsp;&nbsp;&nbsp;&nbsp;messagingSenderId: "128234924459",
+&nbsp;&nbsp;&nbsp;&nbsp;appId: "1:128234924459:web:37d97f167996d7d67ecaee"
+};
+// 2. INISIALISASI
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+// 3. FUNGSI KOMPRESI GAMBAR (TETAP SAMA)
+async function compressImage(file) {
+&nbsp;&nbsp;&nbsp;&nbsp;return new Promise((resolve) => {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const reader = new FileReader();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reader.readAsDataURL(file);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reader.onload = (event) => {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const img = new Image();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;img.src = event.target.result;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;img.onload = () => {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const canvas = document.createElement("canvas");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const MAX_WIDTH = 400;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const scaleSize = MAX_WIDTH / img.width;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;canvas.width = MAX_WIDTH;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;canvas.height = img.height * scaleSize;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const ctx = canvas.getContext("2d");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resolve(canvas.toDataURL("image/jpeg", 0.7));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};
+&nbsp;&nbsp;&nbsp;&nbsp;});
+}
+// 4. FUNGSI HITUNG OTOMATIS (TETAP SAMA)
+function hitungOtomatis() {
+&nbsp;&nbsp;&nbsp;&nbsp;const tgl = document.getElementById("tglLahir").value;
+&nbsp;&nbsp;&nbsp;&nbsp;if (!tgl) return;
+&nbsp;&nbsp;&nbsp;&nbsp;const thn = new Date(tgl).getFullYear();
+&nbsp;&nbsp;&nbsp;&nbsp;document.getElementById("usia").value = (new Date().getFullYear() - thn) + " Tahun";
+&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;let kat = "";
+&nbsp;&nbsp;&nbsp;&nbsp;if (thn >= 2017) kat = "KU-8 Class of 2017/2018";
+&nbsp;&nbsp;&nbsp;&nbsp;else if (thn >= 2015) kat = "KU-10 Class of 2015/2016";
+&nbsp;&nbsp;&nbsp;&nbsp;else if (thn >= 2013) kat = "KU-14 Class of 2013/2014";
+&nbsp;&nbsp;&nbsp;&nbsp;else if (thn >= 2011) kat = "KU-16 Class of 2011/2012";
+&nbsp;&nbsp;&nbsp;&nbsp;else kat = "KU-17 / Other";
+&nbsp;&nbsp;&nbsp;&nbsp;document.getElementById("kategori").value = kat;
+}
+// 5. PROSES SIMPAN KE FIREBASE
+document.getElementById("formPendaftaran").onsubmit = async function(e) {
+&nbsp;&nbsp;&nbsp;&nbsp;e.preventDefault();
+&nbsp;&nbsp;&nbsp;&nbsp;const btn = document.getElementById("btnSubmit");
+&nbsp;&nbsp;&nbsp;&nbsp;btn.disabled = true;
+&nbsp;&nbsp;&nbsp;&nbsp;btn.textContent = "Mengirim Pengajuan Beasiswa...";
+&nbsp;&nbsp;&nbsp;&nbsp;const file = document.getElementById("foto").files[0];
+&nbsp;&nbsp;&nbsp;&nbsp;let fotoData = "default.png";
+&nbsp;&nbsp;&nbsp;&nbsp;if (file) fotoData = await compressImage(file);
+&nbsp;&nbsp;&nbsp;&nbsp;// Membuat NISW Khusus Beasiswa (B)
+&nbsp;&nbsp;&nbsp;&nbsp;const niswBaru = "B" + new Date().getFullYear() + Date.now().toString().slice(-4);
+&nbsp;&nbsp;&nbsp;&nbsp;const dataBaru = {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nisw: niswBaru,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nama: document.getElementById("nama").value.trim(),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;foto: fotoData,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tglLahir: document.getElementById("tglLahir").value,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;usia: document.getElementById("usia").value,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;kategori: document.getElementById("kategori").value,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;posisi: document.getElementById("posisi").value,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;namaOrtu: document.getElementById("namaOrtu").value.trim(),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;noHp: document.getElementById("noHp").value.trim(),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alamat: document.getElementById("alamat").value.trim(),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alasan: document.getElementById("alasan").value.trim(),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tipe: "Beasiswa",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;status: "Menunggu Verifikasi",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tglDaftar: new Date().toLocaleString('id-ID')
+&nbsp;&nbsp;&nbsp;&nbsp;};
+&nbsp;&nbsp;&nbsp;&nbsp;// KIRIM KE FIREBASE
+&nbsp;&nbsp;&nbsp;&nbsp;db.ref('pendaftar/' + niswBaru).set(dataBaru)
+&nbsp;&nbsp;&nbsp;&nbsp;.then(() => {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert("✅ PENGAJUAN BEASISWA BERHASIL!\nData Anda sedang diproses oleh Coach Syamsul.\nNISW: " + niswBaru);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window.location.href = "index.html";
+&nbsp;&nbsp;&nbsp;&nbsp;})
+&nbsp;&nbsp;&nbsp;&nbsp;.catch((err) => {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert("❌ Gagal Mengirim: " + err.message);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;btn.disabled = false;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;btn.textContent = "KIRIM PENGAJUAN BEASISWA";
+&nbsp;&nbsp;&nbsp;&nbsp;});
 };
 </script>
 </body>
