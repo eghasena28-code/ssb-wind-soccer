@@ -78,7 +78,6 @@
     .btn-beasiswa { background: #28a745; color: #fff; }
     .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
     .btn:active { transform: translateY(0); }
-
     .alert-modal {
       position: fixed;
       top: 50%;
@@ -106,7 +105,6 @@
     .alert-error { border-top: 6px solid #dc3545; }
     .alert-warn { border-top: 6px solid #ff9800; }
     .alert-info { border-top: 6px solid #003399; }
-
     @keyframes zoomIn {
       from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
       to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
@@ -120,12 +118,11 @@
     <img src="coach.png" class="active">
     <img src="pemain.png">
   </div>
-
   <div class="container">
     <img src="logossb.png" class="logo" alt="Logo SSB">
     <h1>Selamat Datang</h1>
     <p>SSB Wind Soccer - Membentuk pemain profesional sejak dini</p>
-   
+  
     <form id="formLogin">
       <div class="password-container">
         <input type="password" id="nisw" placeholder="Masukkan NISW" autocomplete="username" required>
@@ -136,12 +133,18 @@
     <button class="btn btn-daftar" id="btnDaftar">Daftar Baru</button>
     <button class="btn btn-beasiswa" id="btnBeasiswa">Daftar Beasiswa</button>
     <button class="btn btn-login" style="background:#444" id="btnAdmin">Login Admin</button>
-   
+  
     <footer>© 2026 SSB Wind Soccer</footer>
   </div>
 
   <!-- Script -->
   <script src="db-sync.js"></script>
+
+  <!-- === FIREBASE SDK & CONFIG (DITAMBAHKAN DI SINI) === -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
   <script>
     // Background slideshow
     const slides = document.querySelectorAll(".bg-slideshow img");
@@ -219,6 +222,21 @@
     // Tombol daftar
     document.getElementById("btnDaftar").onclick = () => window.location.href = "pendaftaran.html";
     document.getElementById("btnBeasiswa").onclick = () => window.location.href = "pendaftaran_beasiswa.html";
+
+    // ==================== FIREBASE INITIALIZATION ====================
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("📄 Halaman index.html dimuat");
+
+        if (typeof initializeFirebase === 'function') {
+            initializeFirebase().then(() => {
+                console.log("✅ Firebase berhasil diinisialisasi di index.html");
+            }).catch((err) => {
+                console.error("❌ Gagal initialize Firebase:", err);
+            });
+        } else {
+            console.warn("⚠️ initializeFirebase function tidak ditemukan");
+        }
+    });
   </script>
 </body>
 </html>
