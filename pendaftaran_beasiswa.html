@@ -73,7 +73,7 @@
 
 <script src="db-sync.js"></script>
 <script>
-// HITUNG OTOMATIS - Class of [Tahun Lahir]
+// HITUNG OTOMATIS - Sama persis dengan pendaftaran reguler
 function hitungOtomatis() {
     const tgl = document.getElementById("tglLahir").value;
     if (!tgl) return;
@@ -85,7 +85,7 @@ function hitungOtomatis() {
     document.getElementById("kategori").value = "Class of " + tahunLahir;
 }
 
-// SUBMIT FORM
+// SUBMIT FORM - Sama persis dengan reguler
 document.getElementById("formPendaftaran").onsubmit = async function(e) {
     e.preventDefault();
 
