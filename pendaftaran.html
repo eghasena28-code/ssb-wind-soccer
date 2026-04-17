@@ -20,20 +20,25 @@
 <body>
 <div class="card">
   <div class="header">
-    <img src="logossb.png" class="logo" onerror="this.src='https://via.placeholder.com/80'">
+    <img src="logossb.png" class="logo">
     <h2>PENDAFTARAN SISWA BARU</h2>
   </div>
+
   <form id="formPendaftaran">
     <section>
       <label>Nama Lengkap Siswa</label>
       <input type="text" id="nama" required placeholder="Nama Lengkap">
+
       <label>Tanggal Lahir</label>
       <input type="date" id="tglLahir" required oninput="hitungOtomatis()">
+
       <label>Usia (Otomatis)</label>
       <input type="text" id="usia" readonly>
+
       <label>Kategori Umur (Otomatis)</label>
       <input type="text" id="kategori" readonly>
     </section>
+
     <section>
       <label>Posisi Favorit</label>
       <select id="posisi" required>
@@ -43,87 +48,60 @@
         <option value="Gelandang">Gelandang (MF)</option>
         <option value="Penyerang">Penyerang (FW)</option>
       </select>
+
       <label>Nama Orang Tua / Wali</label>
       <input type="text" id="namaOrtu" required placeholder="Nama Ibu/Ayah">
+
       <label>No. WhatsApp</label>
       <input type="tel" id="noHp" required placeholder="0812xxxxxxxx">
+
       <label>Alamat Lengkap</label>
       <textarea id="alamat" rows="2" required placeholder="Alamat lengkap..."></textarea>
     </section>
+
     <section>
       <label>Upload Foto Siswa</label>
       <input type="file" id="foto" accept="image/*" required>
     </section>
+
     <button type="submit" class="btn-submit" id="btnSubmit">KIRIM PENDAFTARAN</button>
   </form>
 </div>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+
+<script src="db-sync.js"></script>
 <script>
-// 1. KONFIGURASI FIREBASE COACH SYAMSUL
-const firebaseConfig = {
-    apiKey: "AIzaSyC-DVKZfDHpfFl6kE_uupT5GFinwNaWhpw",
-    authDomain: "ssb-wind-soccer-110.firebaseapp.com",
-    databaseURL: "https://ssb-wind-soccer-110-default-rtdb.asia-southeast1.firebasedatabase.app/",
-    projectId: "ssb-wind-soccer-110",
-    storageBucket: "ssb-wind-soccer-110.firebasestorage.app",
-    messagingSenderId: "128234924459",
-    appId: "1:128234924459:web:37d97f167996d7d67ecaee"
-};
-// 2. INISIALISASI FIREBASE
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-// 3. FUNGSI KOMPRESI GAMBAR (TETAP SAMA)
-async function compressImage(file) {
-    return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (event) => {
-            const img = new Image();
-            img.src = event.target.result;
-            img.onload = () => {
-                const canvas = document.createElement("canvas");
-                const MAX_WIDTH = 400;
-                const scaleSize = MAX_WIDTH / img.width;
-                canvas.width = MAX_WIDTH;
-                canvas.height = img.height * scaleSize;
-                const ctx = canvas.getContext("2d");
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                resolve(canvas.toDataURL("image/jpeg", 0.7));
-            };
-        };
-    });
-}
-// 4. FUNGSI HITUNG OTOMATIS (TETAP SAMA)
 function hitungOtomatis() {
     const tgl = document.getElementById("tglLahir").value;
     if (!tgl) return;
-    const thn = new Date(tgl).getFullYear();
-    document.getElementById("usia").value = (new Date().getFullYear() - thn) + " Tahun";
-    let kat = "";
-    if (thn >= 2017) kat = "KU-8 Class of 2017/2018";
-    else if (thn >= 2015) kat = "KU-10 Class of 2015/2016";
-    else if (thn >= 2013) kat = "KU-14 Class of 2013/2014";
-    else if (thn >= 2011) kat = "KU-16 Class of 2011/2012";
-    else kat = "KU-17 / Other";
-    document.getElementById("kategori").value = kat;
+
+    const tahunLahir = new Date(tgl).getFullYear();
+    const usia = DBManager.getUsia(tahunLahir);
+
+    document.getElementById("usia").value = usia + " Tahun";
+
+    let kategori = DBManager.getKelas(tahunLahir);
+    if (usia >= 17) kategori = "Other / 17 Tahun ke atas";
+
+    document.getElementById("kategori").value = kategori;
 }
-// 5. PROSES SUBMIT KE FIREBASE (SUDAH DIPERBAIKI & DIBERSIHKAN)
+
+// Submit Form
 document.getElementById("formPendaftaran").onsubmit = async function(e) {
     e.preventDefault();
+
     const btn = document.getElementById("btnSubmit");
     btn.disabled = true;
-    btn.textContent = "Mengirim ke Database Pusat...";
-    const file = document.getElementById("foto").files[0];
-    let fotoData = "default.png";
-    if (file) fotoData = await compressImage(file);
-    const niswBaru = "R" + new Date().getFullYear() + Date.now().toString().slice(-4);
+    btn.textContent = "Mengirim...";
+
+    const tglLahir = document.getElementById("tglLahir").value;
+    const tahunLahir = new Date(tglLahir).getFullYear();
+
     const dataBaru = {
-        nisw: niswBaru,
         nama: document.getElementById("nama").value.trim(),
-        foto: fotoData,
-        tglLahir: document.getElementById("tglLahir").value,
-        usia: document.getElementById("usia").value,
+        tglLahir: tglLahir,
+        tahunLahir: tahunLahir,
+        usia: DBManager.getUsia(tahunLahir),
+        kelas: DBManager.getKelas(tahunLahir),
         kategori: document.getElementById("kategori").value,
         posisi: document.getElementById("posisi").value,
         namaOrtu: document.getElementById("namaOrtu").value.trim(),
@@ -131,18 +109,18 @@ document.getElementById("formPendaftaran").onsubmit = async function(e) {
         alamat: document.getElementById("alamat").value.trim(),
         tipe: "Reguler",
         status: "Menunggu Verifikasi",
-        tglDaftar: new Date().toLocaleString('id-ID')
+        tglDaftar: DBManager.getTglSekarang()
     };
-    db.ref('pendaftar/' + niswBaru).set(dataBaru)
-    .then(() => {
-        alert("✅ BERHASIL!\nData tersimpan di pusat.\nNISW: " + niswBaru);
+
+    try {
+        const niswBaru = await DBManager.addPendaftar(dataBaru);
+        alert(`✅ Pendaftaran Berhasil!\nNISW: ${niswBaru}\nKategori: ${dataBaru.kategori}`);
         window.location.href = "index.html";
-    })
-    .catch((err) => {
+    } catch (err) {
         alert("❌ Gagal: " + err.message);
         btn.disabled = false;
         btn.textContent = "KIRIM PENDAFTARAN";
-    });
+    }
 };
 </script>
 </body>
