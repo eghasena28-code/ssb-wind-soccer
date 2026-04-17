@@ -108,7 +108,7 @@ function hitungOtomatis() {
     else kat = "KU-17 / Other";
     document.getElementById("kategori").value = kat;
 }
-// 5. PROSES SUBMIT KE FIREBASE (MENGGANTIKAN DBMANAGER LAMA)
+// 5. PROSES SUBMIT KE FIREBASE (SUDAH DIPERBAIKI & DIBERSIHKAN)
 document.getElementById("formPendaftaran").onsubmit = async function(e) {
     e.preventDefault();
     const btn = document.getElementById("btnSubmit");
@@ -117,7 +117,6 @@ document.getElementById("formPendaftaran").onsubmit = async function(e) {
     const file = document.getElementById("foto").files[0];
     let fotoData = "default.png";
     if (file) fotoData = await compressImage(file);
-    // Membuat ID Unik (NISW) Otomatis
     const niswBaru = "R" + new Date().getFullYear() + Date.now().toString().slice(-4);
     const dataBaru = {
         nisw: niswBaru,
@@ -134,7 +133,6 @@ document.getElementById("formPendaftaran").onsubmit = async function(e) {
         status: "Menunggu Verifikasi",
         tglDaftar: new Date().toLocaleString('id-ID')
     };
-    // KIRIM KE FIREBASE
     db.ref('pendaftar/' + niswBaru).set(dataBaru)
     .then(() => {
         alert("✅ BERHASIL!\nData tersimpan di pusat.\nNISW: " + niswBaru);
