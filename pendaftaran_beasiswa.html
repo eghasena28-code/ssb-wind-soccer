@@ -12,7 +12,7 @@
     h2 { color: #003399; margin: 10px 0; text-transform: uppercase; font-size: 22px; }
     section { background: #f9f9f9; border: 1px solid #eee; padding: 18px; border-radius: 12px; margin-bottom: 18px; }
     label { display: block; font-size: 13.5px; font-weight: bold; margin-bottom: 6px; color: #003399; }
-    input, select, textarea { width: 100%; padding: 11px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14.5px; margin-bottom: 10px; }
+    input, select, textarea { width: 100%; padding: 11px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14.5px; }
     .btn-submit { width: 100%; padding: 15px; background: #28a745; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; }
     .btn-submit:hover { background: #218838; }
     .btn-submit:disabled { background: #999; cursor: not-allowed; }
@@ -34,10 +34,10 @@
       <input type="date" id="tglLahir" required oninput="hitungOtomatis()">
 
       <label>Usia (Otomatis)</label>
-      <input type="text" id="usia" readonly style="background: #eee;">
+      <input type="text" id="usia" readonly>
 
       <label>Kategori Umur (Otomatis)</label>
-      <input type="text" id="kategori" readonly style="background: #eee;">
+      <input type="text" id="kategori" readonly>
     </section>
 
     <section>
@@ -58,11 +58,12 @@
 
       <label>Alamat Lengkap</label>
       <textarea id="alamat" rows="2" required placeholder="Alamat lengkap..."></textarea>
+
+      <label>Alasan / Jalur Beasiswa</label>
+      <input type="text" id="alasan" required placeholder="Contoh: Juara 1 O2SN / Yatim">
     </section>
 
     <section>
-      <label>Alasan / Jalur Beasiswa</label>
-      <input type="text" id="alasan" required placeholder="Contoh: Juara 1 O2SN / Yatim / Kurang Mampu">
       <label>Upload Foto Siswa</label>
       <input type="file" id="foto" accept="image/*" required>
     </section>
@@ -82,12 +83,7 @@ function hitungOtomatis() {
     const usia = new Date().getFullYear() - tahunLahir;
 
     document.getElementById("usia").value = usia + " Tahun";
-
-    // Kategori sesuai keinginan Anda
-    let kategori = "Class of " + tahunLahir;
-    if (usia >= 17) kategori = "Other / 17 Tahun ke atas";
-
-    document.getElementById("kategori").value = kategori;
+    document.getElementById("kategori").value = "Class of " + tahunLahir;
 }
 
 // SUBMIT FORM
@@ -96,7 +92,7 @@ document.getElementById("formPendaftaran").onsubmit = async function(e) {
 
     const btn = document.getElementById("btnSubmit");
     btn.disabled = true;
-    btn.textContent = "Mengirim Pengajuan...";
+    btn.textContent = "Mengirim...";
 
     const tglLahir = document.getElementById("tglLahir").value;
     const tahunLahir = new Date(tglLahir).getFullYear();
@@ -106,7 +102,7 @@ document.getElementById("formPendaftaran").onsubmit = async function(e) {
         tglLahir: tglLahir,
         tahunLahir: tahunLahir,
         usia: new Date().getFullYear() - tahunLahir,
-        kelas: document.getElementById("kategori").value,
+        kelas: "Class of " + tahunLahir,
         posisi: document.getElementById("posisi").value,
         namaOrtu: document.getElementById("namaOrtu").value.trim(),
         noHp: document.getElementById("noHp").value.trim(),
@@ -119,7 +115,7 @@ document.getElementById("formPendaftaran").onsubmit = async function(e) {
 
     try {
         const niswBaru = await DBManager.addPendaftar(dataBaru);
-        alert(`✅ PENGAJUAN BEASISWA BERHASIL!\nNISW: ${niswBaru}\nKategori: ${dataBaru.kelas}`);
+        alert(`✅ PENGAJUAN BEASISWA BERHASIL!\nNISW: ${niswBaru}\nKategori: Class of ${tahunLahir}`);
         window.location.href = "index.html";
     } catch (err) {
         alert("❌ Gagal: " + err.message);
