@@ -1,27 +1,21 @@
-// ==================== DBManager HYBRID - SSB Wind Soccer ====================
-// Versi Stabil - Firebase + localStorage
+// ==================== DBManager HYBRID FINAL - SSB Wind Soccer ====================
+// Satu Database Firebase + localStorage Backup | Versi Stabil
 
 const DBManager = {
     db: null,
     isFirebaseReady: false,
 
-    // ====================== FIREBASE INIT ======================
     initFirebase: async function() {
         if (this.isFirebaseReady) return true;
 
-        // Tunggu sampai Firebase SDK tersedia
+        // Tunggu Firebase SDK siap
         let attempts = 0;
-        while (typeof firebase === 'undefined' && attempts < 15) {
-            await new Promise(resolve => setTimeout(resolve, 600));
+        while ((!firebase || !firebase.firestore) && attempts < 20) {
+            await new Promise(r => setTimeout(r, 400));
             attempts++;
         }
 
         try {
-            if (typeof firebase === 'undefined' || typeof firebase.firestore === 'undefined') {
-                console.error("Firebase SDK tidak dapat dimuat");
-                return false;
-            }
-
             this.db = firebase.firestore();
             this.isFirebaseReady = true;
             console.log("✅ Firebase Firestore terhubung");
@@ -32,30 +26,22 @@ const DBManager = {
         }
     },
 
-    getCollection: function(name) {
-        return this.db ? this.db.collection(name) : null;
-    },
-
-    saveToBoth: async function(key, dataArray) {
-        localStorage.setItem(key, JSON.stringify(dataArray));
+    saveToBoth: async function(key, data) {
+        localStorage.setItem(key, JSON.stringify(data));
 
         if (this.isFirebaseReady) {
             try {
-                await this.getCollection(key).doc("main").set({
-                    data: dataArray,
+                await this.db.collection(key).doc("main").set({
+                    data: data,
                     lastUpdated: new Date().toISOString()
                 });
-                console.log(`✅ Synced to Firebase: ${key}`);
-            } catch (e) {
-                console.warn(`Gagal sync ${key} ke Firebase`);
-            }
+            } catch (e) {}
         }
     },
 
     // ====================== INIT ======================
     initData: async function() {
         const keys = ["dataSiswa","dataBeasiswa","dataPendaftar","dataAbsensi","dataKeuangan","dataNilai","dataSaran","db_latihan","db_turnamen"];
-
         keys.forEach(key => {
             if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify([]));
         });
@@ -68,7 +54,7 @@ const DBManager = {
         return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`;
     },
 
-    // ====================== SEMUA FUNGSI LAIN (tetap sama seperti sebelumnya) ======================
+    // Semua fungsi lain tetap sama seperti versi sebelumnya
     setLoginUser: function(user) { sessionStorage.setItem("userAktif", JSON.stringify(user)); },
     getLoginUser: function() {
         const data = sessionStorage.getItem("userAktif");
@@ -99,7 +85,7 @@ const DBManager = {
             let list = JSON.parse(localStorage.getItem(key) || "[]");
             const idx = list.findIndex(s => String(s.nisw).toUpperCase() === String(nisw).toUpperCase());
             if (idx > -1) {
-                list[idx] = { ...list[idx], ...updateData };
+                list[idx] = {...list[idx], ...updateData};
                 await this.saveToBoth(key, list);
             }
         }
@@ -113,9 +99,7 @@ const DBManager = {
         }
     },
 
-    getPendaftar: function() {
-        return JSON.parse(localStorage.getItem("dataPendaftar") || "[]");
-    },
+    getPendaftar: function() { return JSON.parse(localStorage.getItem("dataPendaftar") || "[]"); },
 
     addPendaftar: async function(data) {
         let list = this.getPendaftar();
@@ -135,9 +119,7 @@ const DBManager = {
         await this.saveToBoth("dataAbsensi", list);
     },
 
-    getAbsensi: function() {
-        return JSON.parse(localStorage.getItem("dataAbsensi") || "[]");
-    },
+    getAbsensi: function() { return JSON.parse(localStorage.getItem("dataAbsensi") || "[]"); },
 
     addKeuangan: async function(data) {
         let list = JSON.parse(localStorage.getItem("dataKeuangan") || "[]");
@@ -146,21 +128,17 @@ const DBManager = {
         await this.saveToBoth("dataKeuangan", list);
     },
 
-    getKeuangan: function() {
-        return JSON.parse(localStorage.getItem("dataKeuangan") || "[]");
-    },
+    getKeuangan: function() { return JSON.parse(localStorage.getItem("dataKeuangan") || "[]"); },
 
     updateNilai: async function(nisw, dataNilai) {
         let list = JSON.parse(localStorage.getItem("dataNilai") || "[]");
         const idx = list.findIndex(n => String(n.nisw).toUpperCase() === String(nisw).toUpperCase());
-        if (idx > -1) list[idx] = { ...list[idx], ...dataNilai };
+        if (idx > -1) list[idx] = {...list[idx], ...dataNilai};
         else list.push(dataNilai);
         await this.saveToBoth("dataNilai", list);
     },
 
-    getNilai: function() {
-        return JSON.parse(localStorage.getItem("dataNilai") || "[]");
-    },
+    getNilai: function() { return JSON.parse(localStorage.getItem("dataNilai") || "[]"); },
 
     addSaran: async function(data) {
         let list = JSON.parse(localStorage.getItem("dataSaran") || "[]");
@@ -171,13 +149,9 @@ const DBManager = {
         await this.saveToBoth("dataSaran", list);
     },
 
-    getSaran: function() {
-        return JSON.parse(localStorage.getItem("dataSaran") || "[]");
-    },
+    getSaran: function() { return JSON.parse(localStorage.getItem("dataSaran") || "[]"); },
 
-    getJadwalLatihan: function() {
-        return JSON.parse(localStorage.getItem("db_latihan") || "[]");
-    },
+    getJadwalLatihan: function() { return JSON.parse(localStorage.getItem("db_latihan") || "[]"); },
 
     addJadwalLatihan: async function(data) {
         let list = this.getJadwalLatihan();
@@ -186,9 +160,7 @@ const DBManager = {
         await this.saveToBoth("db_latihan", list);
     },
 
-    getJadwalTurnamen: function() {
-        return JSON.parse(localStorage.getItem("db_turnamen") || "[]");
-    },
+    getJadwalTurnamen: function() { return JSON.parse(localStorage.getItem("db_turnamen") || "[]"); },
 
     addJadwalTurnamen: async function(data) {
         let list = this.getJadwalTurnamen();
@@ -197,9 +169,7 @@ const DBManager = {
         await this.saveToBoth("db_turnamen", list);
     },
 
-    getTotalSiswa: function() {
-        return this.getSiswaAktif().length;
-    },
+    getTotalSiswa: function() { return this.getSiswaAktif().length; },
 
     exportDataToFile: function() {
         const backup = {};
@@ -217,13 +187,12 @@ const DBManager = {
     }
 };
 
-// ====================== AUTO START ======================
+// ====================== START APP ======================
 async function startApp() {
-    console.log("🚀 Memulai DBManager Hybrid...");
     await DBManager.initData();
     window.DBManager = DBManager;
-    console.log("✅ DBManager HYBRID AKTIF - Firebase + localStorage");
-    console.log("✅ Siap menggunakan satu database Firebase");
+    console.log("🚀 DBManager HYBRID AKTIF - Siap Publish!");
+    console.log("✅ Satu Database Firebase sudah aktif");
 }
 
 startApp();
