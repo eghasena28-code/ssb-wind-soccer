@@ -121,7 +121,7 @@ function hitungOtomatis() {
     else kat = "KU-17 / Other";
     document.getElementById("kategori").value = kat;
 }
-// 5. PROSES SIMPAN KE FIREBASE
+// 5. PROSES SIMPAN KE FIREBASE (SUDAH DIPERBAIKI & DIBERSIHKAN)
 document.getElementById("formPendaftaran").onsubmit = async function(e) {
     e.preventDefault();
     const btn = document.getElementById("btnSubmit");
@@ -130,7 +130,6 @@ document.getElementById("formPendaftaran").onsubmit = async function(e) {
     const file = document.getElementById("foto").files[0];
     let fotoData = "default.png";
     if (file) fotoData = await compressImage(file);
-    // Membuat NISW Khusus Beasiswa (B)
     const niswBaru = "B" + new Date().getFullYear() + Date.now().toString().slice(-4);
     const dataBaru = {
         nisw: niswBaru,
@@ -148,7 +147,6 @@ document.getElementById("formPendaftaran").onsubmit = async function(e) {
         status: "Menunggu Verifikasi",
         tglDaftar: new Date().toLocaleString('id-ID')
     };
-    // KIRIM KE FIREBASE
     db.ref('pendaftar/' + niswBaru).set(dataBaru)
     .then(() => {
         alert("✅ PENGAJUAN BEASISWA BERHASIL!\nData Anda sedang diproses oleh Coach Syamsul.\nNISW: " + niswBaru);
@@ -163,4 +161,3 @@ document.getElementById("formPendaftaran").onsubmit = async function(e) {
 </script>
 </body>
 </html>
- 
