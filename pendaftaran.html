@@ -70,18 +70,16 @@
 
 <script src="db-sync.js"></script>
 <script>
-// HITUNG OTOMATIS - MANDIRI & LANGSUNG BERFUNGSI
+// HITUNG OTOMATIS - MANDIRI & DINAMIS (SESUAI PERMINTAAN ANDA)
 function hitungOtomatis() {
-    const tglInput = document.getElementById("tglLahir").value;
-    if (!tglInput) return;
+    const tgl = document.getElementById("tglLahir").value;
+    if (!tgl) return;
 
-    const tahunLahir = new Date(tglInput).getFullYear();
-    const tahunSekarang = new Date().getFullYear();
-    const usia = tahunSekarang - tahunLahir;
+    const tahunLahir = new Date(tgl).getFullYear();
+    const usia = new Date().getFullYear() - tahunLahir;
 
     document.getElementById("usia").value = usia + " Tahun";
 
-    // Logika kategori sesuai permintaan Anda
     let kategori = "";
     if (usia >= 17) kategori = "Other / 17 Tahun ke atas";
     else if (usia >= 15) kategori = "KU-16";
@@ -109,7 +107,7 @@ document.getElementById("formPendaftaran").onsubmit = async function(e) {
         nama: document.getElementById("nama").value.trim(),
         tglLahir: tglLahir,
         tahunLahir: tahunLahir,
-        usia: parseInt(document.getElementById("usia").value),
+        usia: new Date().getFullYear() - tahunLahir,
         kelas: document.getElementById("kategori").value,
         posisi: document.getElementById("posisi").value,
         namaOrtu: document.getElementById("namaOrtu").value.trim(),
@@ -117,7 +115,7 @@ document.getElementById("formPendaftaran").onsubmit = async function(e) {
         alamat: document.getElementById("alamat").value.trim(),
         tipe: "Reguler",
         status: "Menunggu Verifikasi",
-        tglDaftar: new Date().toLocaleDateString('id-ID')
+        tglDaftar: DBManager.getTglSekarang()
     };
 
     try {
