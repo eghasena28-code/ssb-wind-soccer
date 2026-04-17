@@ -1,5 +1,5 @@
 // ==================== DBManager HYBRID - SSB Wind Soccer ====================
-// Firebase + localStorage | Versi Stabil April 2026
+// Versi Stabil - Firebase + localStorage
 
 const DBManager = {
     db: null,
@@ -9,11 +9,17 @@ const DBManager = {
     initFirebase: async function() {
         if (this.isFirebaseReady) return true;
 
+        // Tunggu sampai Firebase SDK tersedia
+        let attempts = 0;
+        while (typeof firebase === 'undefined' && attempts < 15) {
+            await new Promise(resolve => setTimeout(resolve, 600));
+            attempts++;
+        }
+
         try {
             if (typeof firebase === 'undefined' || typeof firebase.firestore === 'undefined') {
-                console.warn("Firebase SDK belum siap, mencoba lagi...");
-                await new Promise(resolve => setTimeout(resolve, 800));
-                return this.initFirebase();
+                console.error("Firebase SDK tidak dapat dimuat");
+                return false;
             }
 
             this.db = firebase.firestore();
@@ -26,7 +32,6 @@ const DBManager = {
         }
     },
 
-    // ====================== HELPER ======================
     getCollection: function(name) {
         return this.db ? this.db.collection(name) : null;
     },
@@ -34,7 +39,7 @@ const DBManager = {
     saveToBoth: async function(key, dataArray) {
         localStorage.setItem(key, JSON.stringify(dataArray));
 
-        if (this.isFirebaseReady && this.db) {
+        if (this.isFirebaseReady) {
             try {
                 await this.getCollection(key).doc("main").set({
                     data: dataArray,
@@ -42,30 +47,9 @@ const DBManager = {
                 });
                 console.log(`✅ Synced to Firebase: ${key}`);
             } catch (e) {
-                console.warn(`Gagal sync ke Firebase ${key}`);
+                console.warn(`Gagal sync ${key} ke Firebase`);
             }
         }
-    },
-
-    loadFromHybrid: async function(key) {
-        let data = JSON.parse(localStorage.getItem(key) || "[]");
-
-        if (this.isFirebaseReady && this.db) {
-            try {
-                const doc = await this.getCollection(key).doc("main").get();
-                if (doc.exists) {
-                    const fbData = doc.data().data || [];
-                    if (fbData.length > data.length) {
-                        data = fbData;
-                        localStorage.setItem(key, JSON.stringify(data));
-                        console.log(`🔄 Diupdate dari Firebase: ${key}`);
-                    }
-                }
-            } catch (e) {
-                console.warn(`Gagal load dari Firebase ${key}`);
-            }
-        }
-        return data;
     },
 
     // ====================== INIT ======================
@@ -73,9 +57,7 @@ const DBManager = {
         const keys = ["dataSiswa","dataBeasiswa","dataPendaftar","dataAbsensi","dataKeuangan","dataNilai","dataSaran","db_latihan","db_turnamen"];
 
         keys.forEach(key => {
-            if (!localStorage.getItem(key)) {
-                localStorage.setItem(key, JSON.stringify([]));
-            }
+            if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify([]));
         });
 
         await this.initFirebase();
@@ -86,19 +68,14 @@ const DBManager = {
         return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`;
     },
 
-    // ====================== LOGIN & SESSION ======================
-    setLoginUser: function(user) { 
-        sessionStorage.setItem("userAktif", JSON.stringify(user)); 
-    },
+    // ====================== SEMUA FUNGSI LAIN (tetap sama seperti sebelumnya) ======================
+    setLoginUser: function(user) { sessionStorage.setItem("userAktif", JSON.stringify(user)); },
     getLoginUser: function() {
         const data = sessionStorage.getItem("userAktif");
         return data ? JSON.parse(data) : null;
     },
-    clearLoginUser: function() { 
-        sessionStorage.removeItem("userAktif"); 
-    },
+    clearLoginUser: function() { sessionStorage.removeItem("userAktif"); },
 
-    // ====================== SISWA ======================
     findSiswa: function(nisw) {
         const semua = this.getSiswaAktif();
         return semua.find(s => String(s.nisw).toUpperCase() === String(nisw).toUpperCase());
@@ -136,7 +113,6 @@ const DBManager = {
         }
     },
 
-    // ====================== PENDAFTAR ======================
     getPendaftar: function() {
         return JSON.parse(localStorage.getItem("dataPendaftar") || "[]");
     },
@@ -153,7 +129,6 @@ const DBManager = {
         return data.nisw;
     },
 
-    // ====================== ABSENSI, KEUANGAN, NILAI, SARAN, JADWAL ======================
     addAbsensi: async function(data) {
         let list = JSON.parse(localStorage.getItem("dataAbsensi") || "[]");
         list.push(data);
@@ -222,7 +197,6 @@ const DBManager = {
         await this.saveToBoth("db_turnamen", list);
     },
 
-    // Helper Lain
     getTotalSiswa: function() {
         return this.getSiswaAktif().length;
     },
@@ -245,9 +219,10 @@ const DBManager = {
 
 // ====================== AUTO START ======================
 async function startApp() {
+    console.log("🚀 Memulai DBManager Hybrid...");
     await DBManager.initData();
     window.DBManager = DBManager;
-    console.log("🚀 DBManager HYBRID AKTIF - Firebase + localStorage");
+    console.log("✅ DBManager HYBRID AKTIF - Firebase + localStorage");
     console.log("✅ Siap menggunakan satu database Firebase");
 }
 
