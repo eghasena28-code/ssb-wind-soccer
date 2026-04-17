@@ -70,7 +70,7 @@
 
 <script src="db-sync.js"></script>
 <script>
-// HITUNG OTOMATIS - MANDIRI & DINAMIS (SESUAI PERMINTAAN ANDA)
+// HITUNG OTOMATIS - VERSI STABIL & SESUAI PERMINTAAN ANDA
 function hitungOtomatis() {
     const tgl = document.getElementById("tglLahir").value;
     if (!tgl) return;
@@ -78,17 +78,11 @@ function hitungOtomatis() {
     const tahunLahir = new Date(tgl).getFullYear();
     const usia = new Date().getFullYear() - tahunLahir;
 
+    // Usia
     document.getElementById("usia").value = usia + " Tahun";
 
-    let kategori = "";
-    if (usia >= 17) kategori = "Other / 17 Tahun ke atas";
-    else if (usia >= 15) kategori = "KU-16";
-    else if (usia >= 13) kategori = "KU-14";
-    else if (usia >= 11) kategori = "KU-12";
-    else if (usia >= 9) kategori = "KU-10";
-    else if (usia >= 7) kategori = "KU-8";
-    else kategori = "KU-6";
-
+    // Kategori = "Class of [Tahun Lahir]" (tahun tunggal)
+    const kategori = "Class of " + tahunLahir;
     document.getElementById("kategori").value = kategori;
 }
 
@@ -108,7 +102,7 @@ document.getElementById("formPendaftaran").onsubmit = async function(e) {
         tglLahir: tglLahir,
         tahunLahir: tahunLahir,
         usia: new Date().getFullYear() - tahunLahir,
-        kelas: document.getElementById("kategori").value,
+        kelas: "Class of " + tahunLahir,          // ← Sesuai permintaan
         posisi: document.getElementById("posisi").value,
         namaOrtu: document.getElementById("namaOrtu").value.trim(),
         noHp: document.getElementById("noHp").value.trim(),
@@ -120,7 +114,7 @@ document.getElementById("formPendaftaran").onsubmit = async function(e) {
 
     try {
         const niswBaru = await DBManager.addPendaftar(dataBaru);
-        alert(`✅ Pendaftaran Berhasil!\nNISW: ${niswBaru}\nKategori: ${dataBaru.kelas}`);
+        alert(`✅ Pendaftaran Berhasil!\nNISW: ${niswBaru}\nKelas: Class of ${tahunLahir}`);
         window.location.href = "index.html";
     } catch (err) {
         alert("❌ Gagal: " + err.message);
