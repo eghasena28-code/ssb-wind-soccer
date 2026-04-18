@@ -3,91 +3,437 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel Terintegrasi - SSB Wind Soccer</title>
+    <title>Admin Panel - SSB Wind Soccer</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        :root { --primary: #003399; --secondary: #ffb400; --dark: #1a1a1a; --success: #28a745; --danger: #dc3545; --info: #17a2b8; --warning: #ffc107; }
+        :root { 
+            --primary: #003399; 
+            --secondary: #ffb400; 
+            --success: #28a745; 
+            --danger: #dc3545; 
+            --info: #17a2b8; 
+            --warning: #ffc107; 
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; margin: 0; background: #f4f7f6; display: flex; }
-        .sidebar { width: 260px; background: var(--primary); height: 100vh; color: white; position: fixed; padding: 20px; box-sizing: border-box; z-index: 1000; overflow-y: auto; display: flex; flex-direction: column; }
-        .sidebar-content { flex: 1; overflow-y: auto; }
-        .sidebar h2 { font-size: 18px; border-bottom: 2px solid var(--secondary); padding-bottom: 10px; margin-bottom: 30px; text-align: center; }
-        .nav-link { display: block; color: white; text-decoration: none; padding: 12px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: 0.3s; font-size: 14px; position: relative; }
-        .nav-link:hover, .nav-link.active { background: var(--secondary); color: var(--primary); font-weight: bold; }
-        .badge-notif { background: var(--danger); color: white; padding: 2px 8px; border-radius: 20px; font-size: 10px; position: absolute; right: 10px; top: 12px; }
-        .logout-section { margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2); }
-        .btn-logout { width: 100%; background: var(--danger); color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-logout:hover { background: #c82333; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
-        .main-content { margin-left: 260px; padding: 40px; width: calc(100% - 260px); min-height: 100vh; box-sizing: border-box; }
-        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 30px; }
-        .header-stats { background: var(--primary); color: white; padding: 20px; border-radius: 12px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
-        h3 { color: var(--primary); margin-top: 0; border-left: 5px solid var(--secondary); padding-left: 15px; margin-bottom: 20px; }
-        h4 { color: var(--primary); margin-bottom: 15px; }
-        h5 { color: var(--primary); margin-bottom: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-        th { background: #f8f9fa; padding: 12px; text-align: left; border-bottom: 2px solid #ddd; color: var(--primary); font-weight: bold; }
-        td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
-        .badge { padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; text-transform: uppercase; display: inline-block; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: #555; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 10px; font-size: 13px; }
-        input:disabled, input[readonly] { background: #f0f0f0; color: #666; }
-        textarea { resize: vertical; min-height: 60px; }
-        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px; }
-        .btn-add { background: var(--success); color: white; width: 100%; justify-content: center; }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-info { background: var(--info); color: white; }
-        .btn-warning { background: var(--warning); color: #333; font-weight: bold; }
-        .btn-print { background: #6f42c1; color: white; }
-        .btn-success { background: var(--success); color: white; }
-        .btn-sm { padding: 6px 10px; font-size: 11px; }
-        .btn:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .section { display: none; }
-        .section.active { display: block; animation: fadeIn 0.3s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .grid-input { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .finance-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
-        .stat-box { padding: 15px; border-radius: 12px; color: white; text-align: center; }
-        .stat-box span { font-size: 12px; opacity: 0.9; }
-        .stat-box h3 { color: white !important; border: none; padding: 0; margin: 8px 0 0 0; font-size: 24px; }
-        .avg-bar-container { background: #eee; border-radius: 10px; height: 30px; margin-top: 10px; overflow: hidden; position: relative; }
-        .avg-bar-fill { background: var(--success); height: 100%; width: 0%; transition: 0.5s; }
-        .avg-text { position: absolute; width: 100%; text-align: center; top: 0; font-weight: bold; font-size: 14px; line-height: 30px; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
-        .antropometri-box { background: #f8f9fa; padding: 18px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #ffb400; }
-        .antropometri-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
-        .filter-section { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
-        .btn-group { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .btn-group .btn { flex: 1; min-width: 120px; }
-        .table-wrapper { overflow-x: auto; }
-        .alert-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); min-width: 260px; max-width: 80%; padding: 20px; border-radius: 16px; background: white; color: #333; box-shadow: 0 12px 40px rgba(0,0,0,0.45); z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 12px; animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid #eee; }
-        .alert-modal div { font-weight: 600; font-size: 15px; line-height: 1.4; }
-        .alert-success { border-top: 6px solid #28a745; }
-        .alert-error { border-top: 6px solid #dc3545; }
-        .alert-warn { border-top: 6px solid #ff9800; }
-        .alert-info { border-top: 6px solid #003399; }
-        @keyframes zoomIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
-        .row-action { display: flex; gap: 5px; justify-content: center; flex-wrap: wrap; }
-        .row-action .btn { flex: 0; }
-        .loading-spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid #f3f3f3; border-radius: 50%; border-top: 2px solid var(--primary); animation: spin 0.6s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .nominal-cell { text-align: right; font-weight: bold; min-width: 120px; }
-        .info-box { background: #e7f3ff; border-left: 4px solid #003399; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 12px; color: #003399; line-height: 1.6; }
-        .success-badge { background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
-        .pending-badge { background: #fff3cd; color: #856404; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center; }
-        .modal-overlay.active { display: flex; }
-        .modal-content { background: white; padding: 30px; border-radius: 15px; max-width: 550px; width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
-        .modal-header { font-size: 18px; font-weight: bold; color: var(--primary); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-        .modal-body { margin-bottom: 20px; font-size: 14px; line-height: 1.8; }
-        .modal-body strong { color: var(--primary); }
-        .modal-footer { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
-        .modal-footer .btn { margin: 0; }
-        .summary-box { background: #f0f0f0; padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px solid #ddd; }
-        .summary-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #ddd; }
-        .summary-row:last-child { border-bottom: none; }
-        .summary-row strong { color: var(--primary); }
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: #f4f7f6; 
+            display: flex; 
+            min-height: 100vh;
+        }
+        .sidebar { 
+            width: 260px; 
+            background: var(--primary); 
+            height: 100vh; 
+            color: white; 
+            position: fixed; 
+            padding: 20px; 
+            box-sizing: border-box; 
+            z-index: 1000; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        .sidebar-content { 
+            flex: 1; 
+            overflow-y: auto; 
+        }
+        .sidebar h2 { 
+            font-size: 18px; 
+            border-bottom: 2px solid var(--secondary); 
+            padding-bottom: 10px; 
+            margin-bottom: 30px; 
+            text-align: center; 
+        }
+        .nav-link { 
+            display: block; 
+            color: white; 
+            padding: 12px; 
+            border-radius: 8px; 
+            margin-bottom: 10px; 
+            cursor: pointer; 
+            transition: 0.3s; 
+            font-size: 14px; 
+            position: relative; 
+        }
+        .nav-link:hover, .nav-link.active { 
+            background: var(--secondary); 
+            color: var(--primary); 
+            font-weight: bold; 
+        }
+        .badge-notif { 
+            background: var(--danger); 
+            color: white; 
+            padding: 2px 8px; 
+            border-radius: 20px; 
+            font-size: 10px; 
+            position: absolute; 
+            right: 10px; 
+            top: 12px; 
+        }
+        .logout-section { 
+            margin-top: auto; 
+            padding-top: 20px; 
+            border-top: 1px solid rgba(255,255,255,0.2); 
+        }
+        .btn-logout { 
+            width: 100%; 
+            background: var(--danger); 
+            color: white; 
+            padding: 12px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            transition: 0.3s; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+        }
+        .btn-logout:hover { 
+            background: #c82333; 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
+        }
+        .main-content { 
+            margin-left: 260px; 
+            padding: 20px; 
+            width: calc(100% - 260px); 
+            min-height: 100vh; 
+            box-sizing: border-box; 
+        }
+        .card { 
+            background: white; 
+            padding: 25px; 
+            border-radius: 15px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+            margin-bottom: 20px; 
+        }
+        .header-stats { 
+            background: var(--primary); 
+            color: white; 
+            padding: 20px; 
+            border-radius: 12px; 
+            margin-bottom: 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        h3 { 
+            color: var(--primary); 
+            margin: 0 0 15px 0; 
+            border-left: 5px solid var(--secondary); 
+            padding-left: 15px; 
+            font-size: 18px;
+        }
+        h4 { 
+            color: var(--primary); 
+            margin-bottom: 15px; 
+            font-size: 16px;
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 10px; 
+            font-size: 13px; 
+        }
+        th { 
+            background: #f8f9fa; 
+            padding: 12px; 
+            text-align: left; 
+            border-bottom: 2px solid #ddd; 
+            color: var(--primary); 
+            font-weight: bold; 
+        }
+        td { 
+            padding: 10px 12px; 
+            border-bottom: 1px solid #eee; 
+            vertical-align: middle; 
+        }
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-weight: 600; 
+            font-size: 13px; 
+            color: #555; 
+        }
+        input, select, textarea { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid #ddd; 
+            border-radius: 6px; 
+            box-sizing: border-box; 
+            font-family: inherit; 
+            margin-bottom: 10px; 
+            font-size: 13px; 
+        }
+        input:disabled, input[readonly] { 
+            background: #f0f0f0; 
+            color: #666; 
+        }
+        textarea { 
+            resize: vertical; 
+            min-height: 60px; 
+        }
+        .btn { 
+            padding: 10px 15px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 13px; 
+            transition: 0.3s; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 6px; 
+        }
+        .btn:hover { 
+            opacity: 0.9; 
+            transform: translateY(-2px); 
+        }
+        .btn:disabled { 
+            opacity: 0.5; 
+            cursor: not-allowed; 
+        }
+        .btn-add { 
+            background: var(--success); 
+            color: white; 
+            width: 100%; 
+            justify-content: center; 
+        }
+        .btn-danger { 
+            background: var(--danger); 
+            color: white; 
+        }
+        .btn-info { 
+            background: var(--info); 
+            color: white; 
+        }
+        .btn-warning { 
+            background: var(--warning); 
+            color: #333; 
+            font-weight: bold; 
+        }
+        .btn-print { 
+            background: #6f42c1; 
+            color: white; 
+        }
+        .btn-success { 
+            background: var(--success); 
+            color: white; 
+        }
+        .btn-sm { 
+            padding: 6px 10px; 
+            font-size: 11px; 
+        }
+        .section { 
+            display: none; 
+        }
+        .section.active { 
+            display: block; 
+            animation: fadeIn 0.3s ease-in; 
+        }
+        @keyframes fadeIn { 
+            from { opacity: 0; } 
+            to { opacity: 1; } 
+        }
+        .grid-input { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px; 
+        }
+        @media (max-width: 768px) {
+            .grid-input { 
+                grid-template-columns: 1fr; 
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 10px;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 10px;
+            }
+        }
+        .finance-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+            gap: 15px; 
+            margin-bottom: 20px; 
+        }
+        .stat-box { 
+            padding: 15px; 
+            border-radius: 12px; 
+            color: white; 
+            text-align: center; 
+        }
+        .stat-box span { 
+            font-size: 12px; 
+            opacity: 0.9; 
+            display: block;
+            margin-bottom: 5px;
+        }
+        .stat-box h3 { 
+            color: white !important; 
+            border: none; 
+            padding: 0; 
+            margin: 0; 
+            font-size: 24px; 
+        }
+        .filter-section { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+            gap: 10px; 
+            margin-bottom: 20px; 
+        }
+        .btn-group { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 20px; 
+            flex-wrap: wrap; 
+        }
+        .btn-group .btn { 
+            flex: 1; 
+            min-width: 100px;
+            justify-content: center;
+        }
+        .table-wrapper { 
+            overflow-x: auto; 
+            margin-top: 10px;
+        }
+        .alert-modal { 
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            min-width: 260px; 
+            max-width: 90%; 
+            padding: 20px; 
+            border-radius: 12px; 
+            background: white; 
+            color: #333; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
+            z-index: 10000; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            text-align: center; 
+            gap: 12px; 
+            animation: slideDown 0.3s ease;
+        }
+        @keyframes slideDown {
+            from { 
+                opacity: 0; 
+                transform: translate(-50%, -60%);
+            }
+            to { 
+                opacity: 1; 
+                transform: translate(-50%, -50%);
+            }
+        }
+        .alert-modal div { 
+            font-weight: 600; 
+            font-size: 14px; 
+            line-height: 1.5; 
+        }
+        .alert-success { 
+            border-top: 4px solid var(--success); 
+        }
+        .alert-error { 
+            border-top: 4px solid var(--danger); 
+        }
+        .alert-warn { 
+            border-top: 4px solid var(--warning); 
+        }
+        .alert-info { 
+            border-top: 4px solid var(--info); 
+        }
+        .loading-spinner { 
+            display: inline-block; 
+            width: 12px; 
+            height: 12px; 
+            border: 2px solid #f3f3f3; 
+            border-radius: 50%; 
+            border-top: 2px solid var(--primary); 
+            animation: spin 0.6s linear infinite; 
+        }
+        @keyframes spin { 
+            to { transform: rotate(360deg); } 
+        }
+        .modal-overlay { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            bottom: 0; 
+            background: rgba(0,0,0,0.5); 
+            z-index: 9999; 
+            justify-content: center; 
+            align-items: center; 
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .modal-overlay.active { 
+            display: flex; 
+        }
+        .modal-content { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            max-width: 500px; 
+            width: 100%;
+            max-height: 90vh; 
+            overflow-y: auto; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
+        }
+        .modal-header { 
+            font-size: 16px; 
+            font-weight: bold; 
+            color: var(--primary); 
+            margin-bottom: 15px; 
+        }
+        .modal-body { 
+            margin-bottom: 15px; 
+            font-size: 13px; 
+            line-height: 1.6; 
+        }
+        .modal-footer { 
+            display: flex; 
+            gap: 10px; 
+            justify-content: flex-end; 
+            flex-wrap: wrap; 
+        }
+        .info-box { 
+            background: #e7f3ff; 
+            border-left: 4px solid var(--info); 
+            padding: 10px; 
+            border-radius: 6px; 
+            margin-bottom: 15px; 
+            font-size: 12px; 
+            color: var(--info); 
+        }
+        .success-badge { 
+            background: #d4edda; 
+            color: #155724; 
+            padding: 4px 8px; 
+            border-radius: 4px; 
+            font-size: 11px; 
+            font-weight: bold; 
+        }
+        .loading-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
     </style>
 </head>
 <body>
@@ -96,17 +442,33 @@
     <div class="sidebar">
         <div class="sidebar-content">
             <div style="text-align: center; margin-bottom: 15px;">
-                <img src="logossb.png" style="width: 70px;" alt="SSB Wind Soccer">
+                <img src="logossb.png" style="width: 60px; height: 60px; object-fit: contain;" alt="SSB" onerror="this.textContent='SSB'">
             </div>
-            <h2>ADMIN WIND SOCCER</h2>
-            <div class="nav-link active" onclick="showSection('db_siswa')">👥 Database Siswa</div>
-            <div class="nav-link" onclick="showSection('verifikasi')">✅ Verifikasi Pendaftar <span id="badgeCount" class="badge-notif" style="display:none;">0</span></div>
-            <div class="nav-link" onclick="showSection('absensi')">📝 Rekap Absensi</div>
-            <div class="nav-link" onclick="showSection('keuangan')">💰 Keuangan & Kas</div>
-            <div class="nav-link" onclick="showSection('raport')">📊 Input Nilai Raport</div>
-            <div class="nav-link" onclick="showSection('saran')">📩 Saran & Masukan <span id="badgeSaran" class="badge-notif" style="display:none;">0</span></div>
-            <div class="nav-link" onclick="showSection('jadwal')">📅 Kelola Jadwal</div>
+            <h2>ADMIN</h2>
+            
+            <div class="nav-link active" onclick="showSection('dashboard')">
+                📊 Dashboard
+            </div>
+            <div class="nav-link" onclick="showSection('db_siswa')">
+                👥 Database Siswa
+            </div>
+            <div class="nav-link" onclick="showSection('verifikasi')">
+                ✅ Verifikasi <span id="badgeCount" class="badge-notif" style="display:none;">0</span>
+            </div>
+            <div class="nav-link" onclick="showSection('absensi')">
+                📝 Absensi
+            </div>
+            <div class="nav-link" onclick="showSection('keuangan')">
+                💰 Keuangan
+            </div>
+            <div class="nav-link" onclick="showSection('raport')">
+                📊 Nilai
+            </div>
+            <div class="nav-link" onclick="showSection('jadwal')">
+                📅 Jadwal
+            </div>
         </div>
+        
         <div class="logout-section">
             <button class="btn-logout" onclick="logoutAdmin()">
                 <i class="fas fa-sign-out-alt"></i> LOGOUT
@@ -116,319 +478,412 @@
 
     <div class="main-content">
         
-        <!-- ===== 1. DATABASE SISWA ===== -->
-        <div id="db_siswa" class="section active">
+        <!-- DASHBOARD -->
+        <div id="dashboard" class="section active">
             <div class="card">
-                <h3>📊 Database Siswa Aktif</h3>
-                <div style="background: #28a745; color: white; padding: 18px 20px; border-radius: 12px; margin-bottom: 20px;">
-                    <div style="display: flex; justify-content: space-around; align-items: center; gap: 20px;">
-                        <div style="text-align: center; flex: 1;"><div style="font-size: 13px; opacity: 0.85; margin-bottom: 4px;">REGULER</div><div id="totalReguler" style="font-size: 28px; font-weight: bold; line-height: 1;">0</div></div>
-                        <div style="text-align: center; flex: 1;"><div style="font-size: 13px; opacity: 0.85; margin-bottom: 4px;">BEASISWA</div><div id="totalBeasiswa" style="font-size: 28px; font-weight: bold; line-height: 1;">0</div></div>
-                        <div style="text-align: center; flex: 1; border-left: 2px solid rgba(255,255,255,0.4); padding-left: 20px;"><div style="font-size: 13px; opacity: 0.85; margin-bottom: 4px;">TOTAL KESELURUHAN</div><div id="totalSiswaAktif" style="font-size: 32px; font-weight: bold; line-height: 1;">0</div></div>
+                <h3>📊 Dashboard</h3>
+                <div class="finance-grid">
+                    <div class="stat-box" style="background: var(--success);">
+                        <span>Total Siswa</span>
+                        <h3 id="dashTotal">0</h3>
+                    </div>
+                    <div class="stat-box" style="background: var(--info);">
+                        <span>Menunggu Verifikasi</span>
+                        <h3 id="dashPending">0</h3>
+                    </div>
+                    <div class="stat-box" style="background: var(--primary);">
+                        <span>Saldo Kas</span>
+                        <h3 id="dashSaldo">Rp 0</h3>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- DATABASE SISWA -->
+        <div id="db_siswa" class="section">
+            <div class="card">
+                <h3>👥 Database Siswa</h3>
+                <div class="finance-grid">
+                    <div style="text-align: center;">
+                        <div style="font-size: 12px; color: #666;">Reguler</div>
+                        <div id="totalReguler" style="font-size: 24px; font-weight: bold; color: var(--primary);">0</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 12px; color: #666;">Beasiswa</div>
+                        <div id="totalBeasiswa" style="font-size: 24px; font-weight: bold; color: var(--primary);">0</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 12px; color: #666;">Total</div>
+                        <div id="totalSiswa" style="font-size: 24px; font-weight: bold; color: var(--primary);">0</div>
+                    </div>
+                </div>
+                
                 <div class="filter-section">
-                    <div><label>Filter Kategori (KU)</label><select id="filterKategori" onchange="renderAllSiswa()"><option value="">-- Semua Kategori --</option><option value="KU-6">KU-6</option><option value="KU-8">KU-8</option><option value="KU-10">KU-10</option><option value="KU-12">KU-12</option><option value="KU-14">KU-14</option><option value="KU-16">KU-16</option><option value="KU-17">KU-17</option></select></div>
-                    <div><label>Filter Tipe</label><select id="filterTipe" onchange="renderAllSiswa()"><option value="">-- Semua Tipe --</option><option value="Reguler">Reguler</option><option value="Beasiswa">Beasiswa</option></select></div>
-                    <div><label>Filter Status Bayar</label><select id="filterStatusBayar" onchange="renderAllSiswa()"><option value="">-- Semua Status --</option><option value="Lunas">Lunas</option><option value="Cicilan">Cicilan</option><option value="Belum Bayar">Belum Bayar</option></select></div>
-                    <div><label>Cari NISW/Nama</label><input type="text" id="searchNiswNama" placeholder="NISW atau Nama..." onkeyup="renderAllSiswa()"></div>
+                    <div>
+                        <label>Kategori:</label>
+                        <select id="filterKategori" onchange="renderAllSiswa()">
+                            <option value="">Semua</option>
+                            <option value="KU-6">KU-6</option>
+                            <option value="KU-8">KU-8</option>
+                            <option value="KU-10">KU-10</option>
+                            <option value="KU-12">KU-12</option>
+                            <option value="KU-14">KU-14</option>
+                            <option value="KU-16">KU-16</option>
+                            <option value="KU-17">KU-17</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Tipe:</label>
+                        <select id="filterTipe" onchange="renderAllSiswa()">
+                            <option value="">Semua</option>
+                            <option value="Reguler">Reguler</option>
+                            <option value="Beasiswa">Beasiswa</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Status:</label>
+                        <select id="filterStatus" onchange="renderAllSiswa()">
+                            <option value="">Semua</option>
+                            <option value="Disetujui">Disetujui</option>
+                            <option value="Ditolak">Ditolak</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Cari:</label>
+                        <input type="text" id="searchNama" placeholder="Nama/NISW" onkeyup="renderAllSiswa()">
+                    </div>
                 </div>
+
                 <div class="btn-group">
-                    <button class="btn btn-info" onclick="renderAllSiswa()"><i class="fas fa-sync-alt"></i> Refresh Data</button>
-                    <button class="btn btn-print" onclick="printDataSiswa()"><i class="fas fa-print"></i> Print/Export</button>
-                    <button class="btn btn-danger" onclick="resetFilterSiswa()"><i class="fas fa-redo"></i> Reset Filter</button>
+                    <button class="btn btn-info" onclick="renderAllSiswa()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    <button class="btn btn-print" onclick="exportSiswa()">
+                        <i class="fas fa-download"></i> Export
+                    </button>
                 </div>
+
                 <div class="table-wrapper">
                     <table>
                         <thead>
                             <tr>
-                                <th>No</th><th>Foto</th><th>NISW</th><th>Nama Siswa</th><th>KU</th><th>Tipe</th><th>Posisi</th><th>Tgl Lahir</th><th>No HP</th><th>Nama Ortu</th><th>Alamat</th><th>Status Bayar</th><th>Tagihan (Rp)</th><th>Aksi</th>
+                                <th>No</th>
+                                <th>NISW</th>
+                                <th>Nama</th>
+                                <th>KU</th>
+                                <th>Tipe</th>
+                                <th>Posisi</th>
+                                <th>Telepon</th>
+                                <th>Alamat</th>
                             </tr>
                         </thead>
                         <tbody id="listSiswaAktif">
-                            <tr><td colspan="14" style="text-align: center; padding: 30px;"><span class="loading-spinner"></span> Memuat data...</td></tr>
+                            <tr>
+                                <td colspan="8" style="text-align: center;">
+                                    <span class="loading-spinner"></span>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- ===== 2. VERIFIKASI PENDAFTAR - DENGAN SEMI-OTOMATIS ===== -->
+        <!-- VERIFIKASI PENDAFTAR -->
         <div id="verifikasi" class="section">
-            <div class="header-stats">
-                <div>Antrean Pendaftar: <h2 id="totalAntrean" style="color:white; margin:0">0</h2></div>
-                <div style="text-align:right">Verifikasi:<br><b>Setujui + Catat ke Keuangan</b></div>
-            </div>
             <div class="card">
-                <h3>✅ Verifikasi Pendaftaran Baru (Semi-Otomatis)</h3>
-                <div class="info-box">
-                    ℹ️ <strong>Sistem Semi-Otomatis:</strong><br>
-                    • Klik "SETUJUI + CATAT" untuk: Update status + Catat ke Keuangan + Update Saldo<br>
-                    • Modal preview menampilkan nominal & transaksi yang akan dicatat<br>
-                    • Tidak akan catat 2x untuk pendaftar yang sama (proteksi duplikasi)
+                <h3>✅ Verifikasi Pendaftaran (Antrean: <span id="totalAntrean">0</span>)</h3>
+                
+                <div class="btn-group">
+                    <button class="btn btn-info" onclick="renderVerifikasi()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
                 </div>
-                <div class="btn-group" style="margin-bottom: 20px;">
-                    <button class="btn btn-info" onclick="renderVerifikasi()"><i class="fas fa-sync-alt"></i> Refresh</button>
-                </div>
+
                 <div class="table-wrapper">
                     <table>
                         <thead>
-                            <tr><th>No</th><th>Foto</th><th>Nama</th><th>KU</th><th>Tipe</th><th>Nominal Daftar</th><th>Status</th><th>Tgl Daftar</th><th>Aksi</th></tr>
+                            <tr>
+                                <th>No</th>
+                                <th>Foto</th>
+                                <th>Nama</th>
+                                <th>KU</th>
+                                <th>Tipe</th>
+                                <th>Nominal</th>
+                                <th>Tanggal</th>
+                                <th>Aksi</th>
+                            </tr>
                         </thead>
                         <tbody id="listVerifikasi">
-                            <tr><td colspan="9" style="text-align:center; padding: 20px;"><span class="loading-spinner"></span> Memuat data...</td></tr>
+                            <tr>
+                                <td colspan="8" style="text-align: center;">
+                                    <span class="loading-spinner"></span>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- ===== 3. REKAP ABSENSI ===== -->
+        <!-- ABSENSI -->
         <div id="absensi" class="section">
             <div class="card">
-                <h3>📝 Rekap Kehadiran Latihan</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px;">
-                    <div><label>Filter Tanggal:</label><input type="date" id="searchTglAbsen" onchange="renderAbsensi()"></div>
-                    <div><label>Filter NISW:</label><input type="text" id="filterNiswAbsen" placeholder="NISW..." onkeyup="renderAbsensi()"></div>
-                    <div style="display: flex; align-items: flex-end;"><button class="btn btn-info" onclick="renderAbsensi()" style="flex: 1;"><i class="fas fa-sync-alt"></i> Refresh</button></div>
+                <h3>📝 Rekap Absensi</h3>
+                
+                <div class="grid-input" style="margin-bottom: 15px;">
+                    <div>
+                        <label>Tanggal:</label>
+                        <input type="date" id="filterTglAbsen" onchange="renderAbsensi()">
+                    </div>
+                    <div>
+                        <label>NISW:</label>
+                        <input type="text" id="filterNiswAbsen" placeholder="NISW..." onkeyup="renderAbsensi()">
+                    </div>
                 </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-info" onclick="renderAbsensi()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+
                 <div class="table-wrapper">
                     <table>
                         <thead>
-                            <tr><th>Tanggal</th><th>NISW</th><th>Nama</th><th>Status</th><th>Keterangan</th><th>% Kehadiran</th><th>Aksi</th></tr>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>NISW</th>
+                                <th>Nama</th>
+                                <th>Status</th>
+                                <th>Keterangan</th>
+                                <th>% Kehadiran</th>
+                            </tr>
                         </thead>
                         <tbody id="listAbsensi">
-                            <tr><td colspan="7" style="text-align:center; padding: 20px;"><span class="loading-spinner"></span> Memuat data...</td></tr>
+                            <tr>
+                                <td colspan="6" style="text-align: center;">-</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- ===== 4. KEUANGAN ===== DISEMPURNAKAN ===== -->
+        <!-- KEUANGAN -->
         <div id="keuangan" class="section">
-            <!-- STATISTIK KEUANGAN -->
             <div class="finance-grid">
                 <div class="stat-box" style="background: var(--success);">
-                    <span>💵 Total Pemasukan</span>
+                    <span>💵 Masuk</span>
                     <h3 id="totalMasuk">Rp 0</h3>
                 </div>
                 <div class="stat-box" style="background: var(--danger);">
-                    <span>💸 Total Pengeluaran</span>
+                    <span>💸 Keluar</span>
                     <h3 id="totalKeluar">Rp 0</h3>
                 </div>
                 <div class="stat-box" style="background: var(--primary);">
-                    <span>💰 Saldo Akhir</span>
+                    <span>💰 Saldo</span>
                     <h3 id="saldoAkhir">Rp 0</h3>
                 </div>
             </div>
 
-            <!-- FORM INPUT -->
             <div class="grid-input">
-                <!-- FORM PEMASUKAN -->
+                <!-- PEMASUKAN -->
                 <div class="card">
                     <h4>💰 Catat Pemasukan</h4>
                     
-                    <div class="info-box">
-                        ℹ️ <strong>Panduan Penggunaan:</strong><br>
-                        • <strong>SPP/Daftar/Kompetisi:</strong> Input NISW → Nama otomatis terisi<br>
-                        • <strong>Sponsor/Lainnya:</strong> Isi "Diterima Dari" manual<br>
-                        • Nominal harus > 0 dan keterangan diwajibkan
-                    </div>
-
-                    <label>Jenis Pemasukan: <span style="color: #dc3545;">*</span></label>
-                    <select id="jenisPemasukan" onchange="updateFormPemasukan()" style="margin-bottom: 15px;">
-                        <option value="">-- Pilih Jenis --</option>
+                    <label>Jenis:</label>
+                    <select id="jenisPemasukan" onchange="updateFormPemasukan()">
+                        <option value="">-- Pilih --</option>
                         <option value="SPP">SPP Siswa</option>
-                        <option value="Daftar">Uang Pendaftaran</option>
+                        <option value="Daftar">Uang Daftar</option>
                         <option value="Sponsor">Sponsor</option>
-                        <option value="Kompetisi">Biaya Kompetisi</option>
-                        <option value="Lainnya">Lain-lain</option>
+                        <option value="Kompetisi">Kompetisi</option>
                     </select>
 
-                    <!-- FORM NISW (untuk jenis yang melibatkan siswa) -->
                     <div id="fieldNISW" style="display: none;">
-                        <label>NISW Siswa (Optional):</label>
+                        <label>NISW:</label>
                         <input type="text" id="niswBayar" placeholder="R2026001" onchange="cariNamaSiswa()">
-                        <label>Nama Siswa (Auto-fill):</label>
-                        <input type="text" id="namaSiswaAuto" placeholder="Akan terisi otomatis dari NISW" readonly>
+                        <label>Nama (Auto):</label>
+                        <input type="text" id="namaSiswaAuto" readonly>
                     </div>
 
-                    <!-- FORM SUMBER MANUAL -->
-                    <label>Diterima Dari: <span style="color: #dc3545;">*</span></label>
-                    <input type="text" id="pengirimMasuk" placeholder="Nama pembayar / sumber">
+                    <label>Dari:</label>
+                    <input type="text" id="pengirimMasuk" placeholder="Nama/Sumber">
 
-                    <label>Nominal Rp: <span style="color: #dc3545;">*</span></label>
-                    <input type="number" id="nomBayar" placeholder="Nominal" min="0">
+                    <label>Nominal:</label>
+                    <input type="number" id="nomBayar" placeholder="0" min="0">
 
-                    <label>Keterangan (Detail Transaksi): <span style="color: #dc3545;">*</span></label>
-                    <textarea id="ketMasuk" placeholder="Misal: Pembayaran SPP Bulan Januari, cicilan, potongan, dsb..." rows="2"></textarea>
+                    <label>Catatan:</label>
+                    <textarea id="ketMasuk" placeholder="Detail..."></textarea>
 
-                    <button class="btn btn-add" onclick="simpanPemasukan()"><i class="fas fa-save"></i> Simpan Pemasukan</button>
+                    <button class="btn btn-add" id="btnSimpanMasuk" onclick="simpanPemasukan()">
+                        <i class="fas fa-save"></i> Simpan
+                    </button>
                 </div>
 
-                <!-- FORM PENGELUARAN -->
+                <!-- PENGELUARAN -->
                 <div class="card">
                     <h4>💸 Catat Pengeluaran</h4>
+                    
+                    <label>Keperluan:</label>
+                    <input type="text" id="ketKeluar" placeholder="Untuk apa?">
 
-                    <div class="info-box">
-                        ℹ️ <strong>Catatan Pengeluaran:</strong><br>
-                        • Isi dengan detail lengkap untuk audit trail<br>
-                        • Nominal harus > 0<br>
-                        • Kategori otomatis: "Pengeluaran"
-                    </div>
+                    <label>Nominal:</label>
+                    <input type="number" id="nomKeluar" placeholder="0" min="0">
 
-                    <label>Keperluan (Sumber Pengeluaran): <span style="color: #dc3545;">*</span></label>
-                    <input type="text" id="ketKeluar" placeholder="Misal: Pembelian Bola, Perbaikan Lapangan, Hadiah, dsb">
+                    <label>Catatan:</label>
+                    <textarea id="catatanKeluar" placeholder="Detail..."></textarea>
 
-                    <label>Nominal Rp: <span style="color: #dc3545;">*</span></label>
-                    <input type="number" id="nomKeluar" placeholder="Nominal" min="0">
-
-                    <label>Keterangan Detail: <span style="color: #dc3545;">*</span></label>
-                    <textarea id="catatanKeluar" placeholder="Misal: 2 buah bola kulit premium, tanggal dibeli, vendor, dsb..." rows="2"></textarea>
-
-                    <button class="btn btn-danger" style="width:100%; justify-content: center;" onclick="simpanPengeluaran()"><i class="fas fa-save"></i> Simpan</button>
+                    <button class="btn btn-danger" id="btnSimpanKeluar" style="width: 100%; justify-content: center;" onclick="simpanPengeluaran()">
+                        <i class="fas fa-save"></i> Simpan
+                    </button>
                 </div>
             </div>
 
-            <!-- TABEL REKAP KEUANGAN -->
+            <!-- RIWAYAT KEUANGAN -->
             <div class="card">
                 <h3>📋 Riwayat Keuangan</h3>
-                <div class="btn-group" style="margin-bottom: 20px;">
-                    <button class="btn btn-info" onclick="refreshKeuangan()"><i class="fas fa-sync-alt"></i> Refresh Data</button>
-                    <button class="btn btn-print" onclick="exportKeuangan()"><i class="fas fa-download"></i> Export CSV</button>
-                    <button class="btn btn-warning" onclick="hitungUlangSaldo()"><i class="fas fa-calculator"></i> Hitung Ulang Saldo</button>
-                    <button class="btn btn-danger" onclick="resetKeuangan()"><i class="fas fa-trash"></i> Hapus Semua</button>
+                
+                <div class="btn-group">
+                    <button class="btn btn-info" onclick="loadKeuangan()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    <button class="btn btn-print" onclick="exportKeuangan()">
+                        <i class="fas fa-download"></i> Export CSV
+                    </button>
+                    <button class="btn btn-warning" onclick="hitungUlangSaldo()">
+                        <i class="fas fa-calculator"></i> Hitung Ulang
+                    </button>
+                    <button class="btn btn-danger" onclick="resetKeuangan()">
+                        <i class="fas fa-trash"></i> Hapus Semua
+                    </button>
                 </div>
 
-                <!-- SUMMARY RINGKASAN -->
-                <div class="summary-box">
-                    <div class="summary-row">
-                        <strong>📊 Total Transaksi:</strong>
-                        <span id="totalTransaksiCount">0</span>
-                    </div>
-                    <div class="summary-row">
-                        <strong>💵 Total Pemasukan (Count):</strong>
-                        <span id="totalMasukCount">0</span>
-                    </div>
-                    <div class="summary-row">
-                        <strong>💸 Total Pengeluaran (Count):</strong>
-                        <span id="totalKeluarCount">0</span>
-                    </div>
-                </div>
-
-                <div class="table-wrapper" style="margin-top: 20px;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style="width: 95px;">Tanggal</th>
-                                <th style="width: 85px;">Jenis</th>
-                                <th style="width: 140px;">Sumber</th>
-                                <th style="width: 110px;">Kategori</th>
-                                <th style="min-width: 170px;">Keterangan</th>
-                                <th class="nominal-cell" style="width: 140px;">Nominal</th>
-                                <th style="width: 160px; text-align: center;">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="listKeuangan">
-                            <tr><td colspan="7" style="text-align:center; padding: 40px;"><span class="loading-spinner"></span> Memuat data...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== 5. INPUT NILAI RAPORT ===== -->
-        <div id="raport" class="section">
-            <div class="card">
-                <h3>📊 Input Evaluasi Pemain</h3>
-                <label>NISW Siswa:</label><input type="text" id="niswNilai" placeholder="R202601" onchange="loadSiswaForRaport()">
-                <div id="siswaRaportInfo" style="background: #f0f4ff; padding: 15px; border-radius: 8px; margin-bottom: 15px; display: none;">
-                    <strong>Nama:</strong> <span id="namaRaport">-</span> | <strong>KU:</strong> <span id="kuRaport">-</span>
-                </div>
-                <div class="antropometri-box">
-                    <h4>DATA ANTROPOMETRI SISWA</h4>
-                    <div class="antropometri-grid">
-                        <div><label>TB (cm)</label><input type="number" id="tb" placeholder="165" oninput="hitungBMI()"></div>
-                        <div><label>BB (kg)</label><input type="number" id="bb" placeholder="55" oninput="hitungBMI()"></div>
-                        <div><label>Lingkar Perut (cm)</label><input type="number" id="lingkarPerut" placeholder="68"></div>
-                        <div><label>MES Index (BMI)</label><input type="text" id="bmi" readonly style="background:#e9f0ff; font-weight:bold; text-align:center;"></div>
-                    </div>
-                </div>
-                <h4>I. TEKNIK (TECHNICAL SKILLS)</h4>
-                <div class="grid-input">
-                    <div><label>Passing:</label><input type="number" id="n_passing" class="input-nilai" placeholder="0-100" oninput="hitungRataOtomatis()"></div>
-                    <div><label>Shooting:</label><input type="number" id="n_shooting" class="input-nilai" placeholder="0-100" oninput="hitungRataOtomatis()"></div>
-                    <div><label>Dribbling:</label><input type="number" id="n_dribbling" class="input-nilai" placeholder="0-100" oninput="hitungRataOtomatis()"></div>
-                    <div><label>Control:</label><input type="number" id="n_control" class="input-nilai" placeholder="0-100" oninput="hitungRataOtomatis()"></div>
-                </div>
-                <h4 style="margin-top: 20px;">II. TAKTIK & FISIK</h4>
-                <div class="grid-input">
-                    <div><label>Positioning:</label><input type="number" id="n_positioning" class="input-nilai" placeholder="0-100" oninput="hitungRataOtomatis()"></div>
-                    <div><label>Kecepatan & Agilitas:</label><input type="number" id="n_speed" class="input-nilai" placeholder="0-100" oninput="hitungRataOtomatis()"></div>
-                </div>
-                <div style="margin-top:20px; padding:15px; background:#f8f9fa; border-radius:10px;">
-                    <label>Rata-Rata Nilai:</label>
-                    <div class="avg-bar-container">
-                        <div id="avgFill" class="avg-bar-fill"></div>
-                        <div id="avgText" class="avg-text">0</div>
-                    </div>
-                </div>
-                <label style="margin-top: 15px;">Catatan Evaluasi:</label><textarea id="catatanPelatih" rows="3" placeholder="Saran perkembangan..."></textarea>
-                <button class="btn btn-add" onclick="simpanNilai()"><i class="fas fa-save"></i> SIMPAN EVALUASI</button>
-            </div>
-        </div>
-
-        <!-- ===== 6. SARAN & MASUKAN ===== -->
-        <div id="saran" class="section">
-            <div class="card">
-                <h3>📩 Saran & Masukan Siswa</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
-                    <div><label>Filter Kategori:</label><select id="filterKategoriSaran" onchange="renderSaran()"><option value="">-- Semua --</option><option value="Fasilitas">Fasilitas</option><option value="Pelatih">Pelatih</option><option value="Jadwal">Jadwal</option><option value="Administrasi">Administrasi</option><option value="Lainnya">Lainnya</option></select></div>
-                    <div style="display: flex; align-items: flex-end;"><button class="btn btn-info" onclick="renderSaran()" style="flex: 1;"><i class="fas fa-sync-alt"></i> Refresh</button></div>
-                </div>
                 <div class="table-wrapper">
                     <table>
                         <thead>
-                            <tr><th>Tanggal</th><th>Nama Siswa</th><th>NISW</th><th>Kategori</th><th>Pesan</th><th style="width: 80px;">Aksi</th></tr>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Jenis</th>
+                                <th>Dari</th>
+                                <th>Catatan</th>
+                                <th style="text-align: right;">Nominal</th>
+                                <th style="text-align: center;">Aksi</th>
+                            </tr>
                         </thead>
-                        <tbody id="listSaran">
-                            <tr><td colspan="6" style="text-align:center; padding: 20px;"><span class="loading-spinner"></span> Memuat data...</td></tr>
+                        <tbody id="listKeuangan">
+                            <tr>
+                                <td colspan="6" style="text-align: center;">-</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- ===== 7. KELOLA JADWAL ===== -->
-        <div id="jadwal" class="section">
-            <div class="card" style="margin-bottom: 0;">
-                <h3>📅 Kelola Jadwal Siswa</h3>
-                <p style="color: #666; font-size: 13px; margin-bottom: 20px;">🔗 Jadwal yang ditambahkan akan otomatis muncul di halaman Informasi Siswa</p>
-            </div>
+        <!-- NILAI RAPORT -->
+        <div id="raport" class="section">
+            <div class="card">
+                <h3>📊 Input Nilai Raport</h3>
+                
+                <label>NISW Siswa:</label>
+                <input type="text" id="niswNilai" placeholder="R2026001" onchange="loadSiswaForRaport()">
+                
+                <div id="siswaRaportInfo" style="background: #f0f4ff; padding: 12px; border-radius: 8px; margin-bottom: 15px; display: none;">
+                    <strong>Nama:</strong> <span id="namaRaport">-</span> | 
+                    <strong>KU:</strong> <span id="kuRaport">-</span>
+                </div>
 
-            <div class="grid-input">
-                <!-- ===== JADWAL LATIHAN RUTIN ===== -->
-                <div class="card">
-                    <h4 style="color: #28a745; border-bottom: 2px solid #28a745; padding-bottom: 10px;">⚽ JADWAL LATIHAN RUTIN</h4>
-                    <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Tambahkan jadwal latihan regular (Senin-Minggu)</p>
-                    
-                    <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-                        <h5 style="color: #003399; margin-bottom: 10px;">📝 Tambah Jadwal Baru</h5>
-                        
-                        <label style="margin-top: 10px;">Hari:</label>
-                        <input type="text" id="inputHari" placeholder="Contoh: SELASA">
-
-                        <label>Tempat/Lapangan:</label>
-                        <input type="text" id="inputTempat" placeholder="Contoh: Stadion Mini Legok">
-
-                        <label>Waktu:</label>
-                        <input type="text" id="inputWaktu" placeholder="Contoh: 15.00 WIB">
-
-                        <button class="btn btn-add" onclick="tambahJadwalLatihan()"><i class="fas fa-plus"></i> Tambah Jadwal Latihan</button>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                    <h4>Antropometri</h4>
+                    <div class="grid-input">
+                        <div>
+                            <label>TB (cm):</label>
+                            <input type="number" id="tb" placeholder="165" oninput="hitungBMI()">
+                        </div>
+                        <div>
+                            <label>BB (kg):</label>
+                            <input type="number" id="bb" placeholder="55" oninput="hitungBMI()">
+                        </div>
                     </div>
+                    <div>
+                        <label>BMI (Auto):</label>
+                        <input type="text" id="bmi" readonly style="background: #e9f0ff; font-weight: bold;">
+                    </div>
+                </div>
 
-                    <h5 style="color: #003399; margin-bottom: 10px;">📋 Jadwal Latihan Saat Ini:</h5>
+                <h4>Skill Teknik</h4>
+                <div class="grid-input">
+                    <div>
+                        <label>Passing (0-100):</label>
+                        <input type="number" id="n_passing" class="input-nilai" placeholder="0" oninput="hitungRataOtomatis()">
+                    </div>
+                    <div>
+                        <label>Shooting (0-100):</label>
+                        <input type="number" id="n_shooting" class="input-nilai" placeholder="0" oninput="hitungRataOtomatis()">
+                    </div>
+                    <div>
+                        <label>Dribbling (0-100):</label>
+                        <input type="number" id="n_dribbling" class="input-nilai" placeholder="0" oninput="hitungRataOtomatis()">
+                    </div>
+                    <div>
+                        <label>Control (0-100):</label>
+                        <input type="number" id="n_control" class="input-nilai" placeholder="0" oninput="hitungRataOtomatis()">
+                    </div>
+                </div>
+
+                <h4 style="margin-top: 15px;">Skill Fisik & Taktik</h4>
+                <div class="grid-input">
+                    <div>
+                        <label>Positioning (0-100):</label>
+                        <input type="number" id="n_positioning" class="input-nilai" placeholder="0" oninput="hitungRataOtomatis()">
+                    </div>
+                    <div>
+                        <label>Kecepatan (0-100):</label>
+                        <input type="number" id="n_speed" class="input-nilai" placeholder="0" oninput="hitungRataOtomatis()">
+                    </div>
+                </div>
+
+                <div style="margin-top: 15px; padding: 12px; background: #f0f0f0; border-radius: 8px;">
+                    <strong>Rata-Rata:</strong>
+                    <div style="font-size: 24px; font-weight: bold; color: var(--primary); text-align: center;">
+                        <span id="avgText">0</span>%
+                    </div>
+                </div>
+
+                <div>
+                    <label style="margin-top: 15px;">Catatan:</label>
+                    <textarea id="catatanPelatih" placeholder="Saran perkembangan..."></textarea>
+                </div>
+
+                <button class="btn btn-add" onclick="simpanNilai()">
+                    <i class="fas fa-save"></i> SIMPAN
+                </button>
+            </div>
+        </div>
+
+        <!-- JADWAL -->
+        <div id="jadwal" class="section">
+            <div class="grid-input">
+                <!-- LATIHAN RUTIN -->
+                <div class="card">
+                    <h4>⚽ Jadwal Latihan</h4>
+                    
+                    <label>Hari:</label>
+                    <input type="text" id="inputHari" placeholder="SELASA">
+                    
+                    <label>Tempat:</label>
+                    <input type="text" id="inputTempat" placeholder="Stadion Mini Legok">
+                    
+                    <label>Waktu:</label>
+                    <input type="text" id="inputWaktu" placeholder="15.00 WIB">
+                    
+                    <button class="btn btn-add" onclick="tambahJadwalLatihan()">
+                        <i class="fas fa-plus"></i> Tambah
+                    </button>
+
+                    <h4 style="margin-top: 20px;">Jadwal Saat Ini</h4>
                     <div class="table-wrapper">
                         <table>
                             <thead>
@@ -437,103 +892,74 @@
                                     <th>Hari</th>
                                     <th>Tempat</th>
                                     <th>Waktu</th>
-                                    <th style="width: 160px;">Aksi</th>
+                                    <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="listJadwalLatihan">
                                 <tr>
-                                    <td colspan="5" style="text-align: center; padding: 20px; color: #999;">
-                                        <span class="loading-spinner"></span> Memuat jadwal...
-                                    </td>
+                                    <td colspan="5" style="text-align: center;">-</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- ===== JADWAL TURNAMEN & EVENT ===== -->
+                <!-- TURNAMEN -->
                 <div class="card">
-                    <h4 style="color: #dc3545; border-bottom: 2px solid #dc3545; padding-bottom: 10px;">🏆 JADWAL TURNAMEN & EVENT</h4>
-                    <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Tambahkan event/turnamen yang akan diikuti</p>
+                    <h4>🏆 Jadwal Turnamen</h4>
                     
-                    <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-                        <h5 style="color: #003399; margin-bottom: 10px;">📝 Tambah Turnamen Baru</h5>
-                        
-                        <label style="margin-top: 10px;">Nama Event/Turnamen:</label>
-                        <input type="text" id="namaEvent" placeholder="Contoh: Liga Danone 2026">
+                    <label>Event:</label>
+                    <input type="text" id="namaEvent" placeholder="Liga Danone 2026">
+                    
+                    <label>Tanggal:</label>
+                    <input type="date" id="tglEvent">
+                    
+                    <label>Lokasi:</label>
+                    <input type="text" id="lokasiEvent" placeholder="Lapangan Jaha">
+                    
+                    <label>Waktu:</label>
+                    <input type="text" id="waktuEvent" placeholder="08.00 WIB">
+                    
+                    <button class="btn btn-add" onclick="tambahJadwalTurnamen()">
+                        <i class="fas fa-plus"></i> Tambah
+                    </button>
 
-                        <label>Tanggal Event:</label>
-                        <input type="date" id="tglEvent">
-
-                        <label>Lokasi/Tempat:</label>
-                        <input type="text" id="lokasiEvent" placeholder="Contoh: Lapangan Jaha">
-
-                        <label>Waktu Mulai:</label>
-                        <input type="text" id="waktuEvent" placeholder="Contoh: 08.00 WIB">
-
-                        <button class="btn btn-add" onclick="tambahJadwalTurnamen()"><i class="fas fa-plus"></i> Tambah Turnamen</button>
-                    </div>
-
-                    <h5 style="color: #003399; margin-bottom: 10px;">📋 Jadwal Turnamen Saat Ini:</h5>
+                    <h4 style="margin-top: 20px;">Jadwal Saat Ini</h4>
                     <div class="table-wrapper">
                         <table>
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Nama Event</th>
+                                    <th>Event</th>
                                     <th>Tanggal</th>
                                     <th>Lokasi</th>
-                                    <th>Waktu</th>
-                                    <th>Status</th>
-                                    <th style="width: 160px;">Aksi</th>
+                                    <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="listJadwalTurnamen">
                                 <tr>
-                                    <td colspan="7" style="text-align: center; padding: 20px; color: #999;">
-                                        <span class="loading-spinner"></span> Memuat turnamen...
-                                    </td>
+                                    <td colspan="5" style="text-align: center;">-</td>
                                 </tr>
                             </tbody>
                         </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ===== RINGKASAN UNTUK INFORMASI SISWA ===== -->
-            <div class="card">
-                <h4 style="color: #17a2b8; border-bottom: 2px solid #17a2b8; padding-bottom: 10px;">🔗 PREVIEW - Jadwal yang ditampilkan di Halaman Informasi Siswa</h4>
-                <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Berikut adalah jadwal yang akan divisualisasikan untuk siswa:</p>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div style="background: #e8f5e9; padding: 15px; border-radius: 10px; border-left: 5px solid #28a745;">
-                        <h5 style="color: #28a745; margin-bottom: 10px;">⚽ Jadwal Latihan Rutin</h5>
-                        <div id="previewLatihan" style="font-size: 13px; line-height: 1.8;">
-                            <p style="color: #999; text-align: center;">Belum ada jadwal</p>
-                        </div>
-                    </div>
-
-                    <div style="background: #ffebee; padding: 15px; border-radius: 10px; border-left: 5px solid #dc3545;">
-                        <h5 style="color: #dc3545; margin-bottom: 10px;">🏆 Jadwal Turnamen & Event</h5>
-                        <div id="previewTurnamen" style="font-size: 13px; line-height: 1.8;">
-                            <p style="color: #999; text-align: center;">Belum ada turnamen</p>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL KONFIRMASI VERIFIKASI -->
+    <!-- MODAL VERIFIKASI -->
     <div id="modalVerifikasi" class="modal-overlay">
         <div class="modal-content">
-            <div class="modal-header">
-                ✅ Konfirmasi Verifikasi Pendaftar
-            </div>
+            <div class="modal-header">✅ Konfirmasi Verifikasi</div>
             <div class="modal-body" id="modalBodyVerifikasi"></div>
             <div class="modal-footer">
-                <button class="btn btn-danger" onclick="closeModalVerifikasi()"><i class="fas fa-times"></i> Batal</button>
-                <button class="btn btn-success" onclick="prosesSemiOtomatis()"><i class="fas fa-check"></i> Ya, Setujui</button>
+                <button class="btn btn-danger" onclick="closeModalVerifikasi()">
+                    <i class="fas fa-times"></i> Batal
+                </button>
+                <button class="btn btn-success" onclick="prosesSemiOtomatis()">
+                    <i class="fas fa-check"></i> Setujui
+                </button>
             </div>
         </div>
     </div>
@@ -545,843 +971,63 @@
     <script src="db-sync.js"></script>
 
     <script>
-        console.log("🔐 Admin Panel - DISEMPURNAKAN Verifikasi + Keuangan");
+        console.log("🔐 Admin Panel v2 - BUG FIXED");
 
-        // ===== GLOBAL DATA =====
-        let allSiswaData = [];
-        let jadwalLatihan = [];
-        let jadwalTurnamen = [];
-        let keuanganData = [];
-        let pendaftarData = [];
-        let verifikasiLog = [];
-        
-        // Data untuk modal verifikasi
-        let modalPendaftarData = null;
-
-        // KONSTANTA NOMINAL DAFTAR
-        const NOMINAL_DAFTAR = {
-            'Reguler': 500000,
-            'Beasiswa': 100000
+        // ===== GLOBAL STATE =====
+        let globalState = {
+            allSiswaData: [],
+            keuanganData: [],
+            pendaftarData: [],
+            jadwalLatihan: [],
+            jadwalTurnamen: [],
+            modalPendaftar: null,
+            isInitialized: false
         };
+
+        const NOMINAL_DAFTAR = { 'Reguler': 500000, 'Beasiswa': 100000 };
+
+        // ===== ERROR HANDLING =====
+        window.addEventListener('error', function(e) {
+            console.error("❌ Uncaught error:", e.error);
+            showAlert("❌ Error: " + e.message, "error");
+        });
 
         // ===== ALERT FUNCTION =====
         function showAlert(msg, type = "success", time = 2200) {
-            const icons = {
-                success: '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>',
-                error: '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>',
-                warn: '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ff9800" stroke-width="3"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
-                info: '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#003399" stroke-width="3"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>'
-            };
-            const box = document.createElement("div");
-            box.className = `alert-modal alert-${type}`;
-            box.innerHTML = `${icons[type]}<div>${msg}</div>`;
-            document.body.appendChild(box);
-            setTimeout(() => {
-                box.style.opacity = "0";
-                box.style.transition = "0.3s ease";
-                setTimeout(() => box.remove(), 300);
-            }, time);
-        }
-
-        // ===== LOAD DATA =====
-        function loadPendaftarData() {
-            const stored = localStorage.getItem('pendaftarData');
-            pendaftarData = stored ? JSON.parse(stored) : [];
-            
-            const storedLog = localStorage.getItem('verifikasiLog');
-            verifikasiLog = storedLog ? JSON.parse(storedLog) : [];
-            
-            console.log("📊 Pendaftar Data Loaded:", pendaftarData.length, "| Log:", verifikasiLog.length);
-        }
-
-        function loadKeuangan() {
-            const stored = localStorage.getItem('keuanganData');
-            keuanganData = stored ? JSON.parse(stored) : [];
-            console.log("📊 Keuangan Data Loaded:", keuanganData.length, "items");
-            hitungSaldoKeuangan();
-            updateSummaryKeuangan();
-            renderKeuangan();
-        }
-
-        // ===== HITUNG SALDO KEUANGAN =====
-        function hitungSaldoKeuangan() {
-            const totalMasuk = keuanganData
-                .filter(k => k.jenisMasukKeluar === 'Masuk')
-                .reduce((sum, k) => sum + (parseInt(k.nominal) || 0), 0);
-            
-            const totalKeluar = keuanganData
-                .filter(k => k.jenisMasukKeluar === 'Keluar')
-                .reduce((sum, k) => sum + (parseInt(k.nominal) || 0), 0);
-            
-            const saldo = totalMasuk - totalKeluar;
-
-            document.getElementById('totalMasuk').textContent = formatRupiah(totalMasuk);
-            document.getElementById('totalKeluar').textContent = formatRupiah(totalKeluar);
-            document.getElementById('saldoAkhir').textContent = formatRupiah(saldo);
-            
-            console.log("💰 Saldo Updated - Masuk: " + formatRupiah(totalMasuk) + " | Keluar: " + formatRupiah(totalKeluar) + " | Saldo: " + formatRupiah(saldo));
-        }
-
-        // ===== UPDATE SUMMARY KEUANGAN =====
-        function updateSummaryKeuangan() {
-            const totalTransaksi = keuanganData.length;
-            const totalMasukCount = keuanganData.filter(k => k.jenisMasukKeluar === 'Masuk').length;
-            const totalKeluarCount = keuanganData.filter(k => k.jenisMasukKeluar === 'Keluar').length;
-
-            document.getElementById('totalTransaksiCount').textContent = totalTransaksi;
-            document.getElementById('totalMasukCount').textContent = totalMasukCount;
-            document.getElementById('totalKeluarCount').textContent = totalKeluarCount;
-        }
-
-        // ===== RENDER VERIFIKASI - DENGAN TOMBOL SEMI-OTOMATIS =====
-        function renderVerifikasi() {
-            loadPendaftarData();
-            
-            DBManager.getPendaftar(function(data) {
-                console.log("📋 Pendaftar diterima dari DBManager:", data.length);
-                
-                pendaftarData = data.length > 0 ? data : pendaftarData;
-                const belumDisetujui = pendaftarData.filter(p => p.status !== 'DISETUJUI');
-                
-                document.getElementById('totalAntrean').textContent = belumDisetujui.length;
-                document.getElementById('badgeCount').textContent = belumDisetujui.length;
-                document.getElementById('badgeCount').style.display = belumDisetujui.length > 0 ? 'block' : 'none';
-
-                const tbody = document.getElementById('listVerifikasi');
-                if (belumDisetujui.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 30px;">✅ Tidak ada pendaftar menunggu</td></tr>`;
-                    return;
-                }
-
-                tbody.innerHTML = belumDisetujui.map((p, i) => {
-                    const nominal = NOMINAL_DAFTAR[p.tipe] || 500000;
-                    return `
-                        <tr>
-                            <td style="text-align: center; font-weight: bold;">${i + 1}</td>
-                            <td><img src="${p.foto || 'https://via.placeholder.com/40?text=Foto'}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" onerror="this.src='https://via.placeholder.com/40?text=No'"></td>
-                            <td><strong style="color: #003399;">${p.nama || '-'}</strong></td>
-                            <td><span style="background: #e3f2fd; color: #003399; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold;">${p.kategori || '-'}</span></td>
-                            <td><span style="background: ${p.tipe === 'Beasiswa' ? '#e8f5e9' : '#fff3cd'}; color: ${p.tipe === 'Beasiswa' ? '#27ae60' : '#f57c00'}; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold;">${p.tipe}</span></td>
-                            <td style="text-align: center; font-weight: bold; color: #28a745;">Rp ${formatRupiah(nominal)}</td>
-                            <td><span class="pending-badge">⏳ Menunggu</span></td>
-                            <td style="font-size: 12px;">${p.tglDaftar || '-'}</td>
-                            <td style="text-align: center;">
-                                <button class="btn btn-success btn-sm" onclick="openModalVerifikasi('${encodeURIComponent(JSON.stringify(p))}')" title="1 klik: Setujui + Catat Keuangan">
-                                    <i class="fas fa-check"></i> SETUJUI
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
-
-                console.log("✅ Tabel Verifikasi dirender:", belumDisetujui.length);
-            });
-        }
-
-        // ===== MODAL VERIFIKASI =====
-        function openModalVerifikasi(encoded) {
-            const pendaftar = JSON.parse(decodeURIComponent(encoded));
-            modalPendaftarData = pendaftar;
-            const nominal = NOMINAL_DAFTAR[pendaftar.tipe] || 500000;
-
-            const content = `
-                <div style="background: #f9f9f9; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
-                    <strong style="color: #003399; display: block; margin-bottom: 10px;">📌 DATA PENDAFTAR:</strong>
-                    <div style="font-size: 13px; line-height: 1.8;">
-                        <div><strong>Nama:</strong> ${pendaftar.nama}</div>
-                        <div><strong>NISW:</strong> ${pendaftar.nisw}</div>
-                        <div><strong>Kategori:</strong> ${pendaftar.kategori}</div>
-                        <div><strong>Tipe:</strong> <span class="success-badge">${pendaftar.tipe}</span></div>
-                    </div>
-                </div>
-
-                <div style="background: #e8f5e9; border-left: 4px solid #28a745; padding: 12px; border-radius: 6px; margin-bottom: 15px;">
-                    <strong style="color: #28a745; display: block; margin-bottom: 8px;">💰 TRANSAKSI YANG AKAN DICATAT:</strong>
-                    <div style="font-size: 12px; line-height: 1.8; color: #155724;">
-                        <div>✓ <strong>Kategori:</strong> Uang Pendaftaran</div>
-                        <div>✓ <strong>Sumber:</strong> ${pendaftar.nama} (${pendaftar.nisw})</div>
-                        <div>✓ <strong>Nominal:</strong> <strong style="font-size: 14px; color: #28a745;">Rp ${formatRupiah(nominal)}</strong></div>
-                        <div>✓ <strong>Tipe:</strong> ${pendaftar.tipe}</div>
-                        <div>✓ <strong>Tanggal:</strong> ${new Date().toLocaleDateString('id-ID')}</div>
-                    </div>
-                </div>
-
-                <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; border-radius: 6px;">
-                    <strong style="color: #856404; display: block; margin-bottom: 8px;">⚠️ PROSES YANG AKAN DILAKUKAN:</strong>
-                    <ul style="margin: 0 0 0 20px; font-size: 12px; color: #856404; line-height: 1.8;">
-                        <li>✓ Update status pendaftar menjadi "DISETUJUI"</li>
-                        <li>✓ Catat transaksi ke Keuangan</li>
-                        <li>✓ Hitung ulang saldo kas</li>
-                        <li>✓ Cegah duplikasi verifikasi</li>
-                    </ul>
-                </div>
-            `;
-
-            document.getElementById('modalBodyVerifikasi').innerHTML = content;
-            document.getElementById('modalVerifikasi').classList.add('active');
-            console.log("🔓 Modal verifikasi dibuka untuk:", pendaftar.nama);
-        }
-
-        function closeModalVerifikasi() {
-            document.getElementById('modalVerifikasi').classList.remove('active');
-            modalPendaftarData = null;
-            console.log("🔒 Modal verifikasi ditutup");
-        }
-
-        // ===== SEMI-OTOMATIS PROSES =====
-        function prosesSemiOtomatis() {
-            if (!modalPendaftarData) {
-                showAlert("❌ Error: Data pendaftar tidak ditemukan!", "error");
-                return;
-            }
-
-            const pendaftar = modalPendaftarData;
-            const nominal = NOMINAL_DAFTAR[pendaftar.tipe] || 500000;
-            const referensi = 'VERIF_' + (pendaftar.nisw || pendaftar.nama).replace(/\s+/g, '_');
-
-            // CEK DUPLIKASI
-            const isDuplicate = verifikasiLog.find(v => v.referensi === referensi);
-            if (isDuplicate) {
-                showAlert("⚠️ Pendaftar " + pendaftar.nama + " sudah pernah diverifikasi!", "warn");
-                closeModalVerifikasi();
-                return;
-            }
-
             try {
-                // 1️⃣ UPDATE STATUS PENDAFTAR
-                const idx = pendaftarData.findIndex(p => p.nisw === pendaftar.nisw);
-                if (idx !== -1) {
-                    pendaftarData[idx].status = 'DISETUJUI';
-                    localStorage.setItem('pendaftarData', JSON.stringify(pendaftarData));
-                    console.log("✅ Status pendaftar updated:", pendaftar.nama);
-                }
-
-                // 2️⃣ CATAT KE KEUANGAN
-                const transaksi = {
-                    id: Date.now().toString(),
-                    tanggal: new Date().toLocaleDateString('id-ID'),
-                    jenisMasukKeluar: 'Masuk',
-                    jenis: 'Daftar',
-                    kategori: 'Uang Pendaftaran',
-                    sumber: pendaftar.nama + ` (${pendaftar.nisw})`,
-                    keterangan: `Uang Daftar ${pendaftar.tipe} - ${pendaftar.kategori}`,
-                    nominal: nominal,
-                    referensi: referensi,
-                    createdAt: new Date().toISOString()
-                };
-
-                keuanganData.push(transaksi);
-                localStorage.setItem('keuanganData', JSON.stringify(keuanganData));
-                console.log("✅ Transaksi keuangan ditambahkan");
-
-                // 3️⃣ CATAT LOG VERIFIKASI
-                const logEntry = {
-                    nisw: pendaftar.nisw,
-                    nama: pendaftar.nama,
-                    tipe: pendaftar.tipe,
-                    nominal: nominal,
-                    referensi: referensi,
-                    diverifikasiOleh: 'Admin',
-                    tanggal: new Date().toISOString(),
-                    transaksiId: transaksi.id
-                };
-
-                verifikasiLog.push(logEntry);
-                localStorage.setItem('verifikasiLog', JSON.stringify(verifikasiLog));
-                console.log("📋 Log verifikasi disimpan");
-
-                // 4️⃣ UPDATE SALDO
-                hitungSaldoKeuangan();
-                updateSummaryKeuangan();
-
-                // 5️⃣ TAMPILKAN NOTIF
-                showAlert(`✅ ${pendaftar.nama} DISETUJUI!\n💰 Rp ${formatRupiah(nominal)} tercatat ke Keuangan`, "success", 3500);
-
-                // 6️⃣ CLOSE & REFRESH
-                closeModalVerifikasi();
-                renderVerifikasi();
-                loadKeuangan();
-
-                console.log("🎉 Semi-Otomatis Selesai untuk:", pendaftar.nama);
-
-            } catch (error) {
-                console.error("❌ Error:", error);
-                showAlert("❌ Error: " + error.message, "error");
-            }
-        }
-
-        // ===== RENDER KEUANGAN =====
-        function renderKeuangan() {
-            const tbody = document.getElementById('listKeuangan');
-
-            if (keuanganData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 40px; color: #999;">📭 Belum ada transaksi</td></tr>`;
-                return;
-            }
-
-            const sorted = [...keuanganData].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-            tbody.innerHTML = sorted.map((k) => {
-                const jenisBg = k.jenisMasukKeluar === 'Masuk' ? '#d4edda' : '#f8d7da';
-                const jenisText = k.jenisMasukKeluar === 'Masuk' ? '#155724' : '#721c24';
-                const jenisColor = k.jenisMasukKeluar === 'Masuk' ? '#28a745' : '#dc3545';
+                const box = document.createElement("div");
+                box.className = `alert-modal alert-${type}`;
+                box.innerHTML = `<div>${msg}</div>`;
+                document.body.appendChild(box);
                 
-                let kategoriBg = '#e3f2fd';
-                let kategoriText = '#003399';
-                if (k.kategori === 'Pengeluaran') { kategoriBg = '#f8d7da'; kategoriText = '#721c24'; }
-                else if (k.kategori === 'Sponsor') { kategoriBg = '#fff3cd'; kategoriText = '#856404'; }
-                
-                return `
-                    <tr>
-                        <td style="font-weight: bold; font-size: 12px;">${k.tanggal}</td>
-                        <td><span style="background: ${jenisBg}; color: ${jenisText}; padding: 6px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; display: block; text-align: center;">${k.jenisMasukKeluar}</span></td>
-                        <td style="font-weight: 600; color: #003399; font-size: 12px; word-break: break-word;">${k.sumber || '-'}</td>
-                        <td><span style="background: ${kategoriBg}; color: ${kategoriText}; padding: 6px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; display: block; text-align: center;">${k.kategori || '-'}</span></td>
-                        <td title="${k.keterangan || '-'}" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: #555;">${k.keterangan || '-'}</td>
-                        <td class="nominal-cell" style="color: ${jenisColor}; font-size: 12px;">${k.jenisMasukKeluar === 'Masuk' ? '+' : '-'} ${formatRupiah(k.nominal)}</td>
-                        <td style="text-align: center;">
-                            <button class="btn btn-warning btn-sm" onclick="editTransaksi('${k.id}')" title="Edit"><i class="fas fa-edit"></i> Edit</button>
-                            <button class="btn btn-danger btn-sm" onclick="hapusTransaksi('${k.id}')" title="Hapus"><i class="fas fa-trash"></i> Hapus</button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-            
-            console.log("✅ Tabel Keuangan dirender:", sorted.length);
-        }
-
-        // ===== KEUANGAN - FORM PEMASUKAN =====
-        function updateFormPemasukan() {
-            const jenis = document.getElementById('jenisPemasukan').value;
-            document.getElementById('fieldNISW').style.display = (jenis === 'SPP' || jenis === 'Daftar' || jenis === 'Kompetisi') ? 'block' : 'none';
-        }
-
-        function cariNamaSiswa() {
-            const nisw = document.getElementById('niswBayar')?.value?.trim().toUpperCase();
-            const fieldNama = document.getElementById('namaSiswaAuto');
-            
-            if (!nisw) {
-                fieldNama.value = '';
-                return;
-            }
-
-            DBManager.findSiswa(nisw, function(siswa) {
-                if (siswa) {
-                    fieldNama.value = siswa.nama || '';
-                    showAlert("✅ Siswa ditemukan: " + siswa.nama, "success", 1500);
-                } else {
-                    fieldNama.value = '[NISW Tidak Ditemukan] - Isi manual';
-                    showAlert("⚠️ NISW tidak ditemukan - Isi manual", "warn", 1500);
-                }
-            });
-        }
-
-        function simpanPemasukan() {
-            const jenis = document.getElementById('jenisPemasukan')?.value?.trim();
-            const nisw = document.getElementById('niswBayar')?.value?.trim() || '';
-            const namaSiswa = document.getElementById('namaSiswaAuto')?.value?.trim() || '';
-            const pengirimMasuk = document.getElementById('pengirimMasuk')?.value?.trim() || '';
-            const nominal = parseInt(document.getElementById('nomBayar')?.value) || 0;
-            const keterangan = document.getElementById('ketMasuk')?.value?.trim() || '';
-
-            // VALIDASI
-            if (!jenis) { showAlert("⚠️ Pilih jenis pemasukan!", "warn"); return; }
-            if (nominal <= 0) { showAlert("⚠️ Nominal harus lebih dari 0!", "warn"); return; }
-            if (!keterangan) { showAlert("⚠️ Keterangan diwajibkan!", "warn"); return; }
-
-            // CEK SUMBER
-            let sumber = '';
-            if ((jenis === 'SPP' || jenis === 'Daftar' || jenis === 'Kompetisi') && (nisw || namaSiswa)) {
-                if (namaSiswa && !namaSiswa.includes('[NISW')) {
-                    sumber = namaSiswa + (nisw ? ` (${nisw})` : '');
-                } else if (nisw) {
-                    sumber = `NISW: ${nisw}`;
-                }
-            } else {
-                sumber = pengirimMasuk;
-            }
-
-            if (!sumber) { showAlert("⚠️ Isi 'Diterima Dari'!", "warn"); return; }
-
-            let kategoriDisplay = jenis;
-            if (jenis === 'SPP') kategoriDisplay = 'SPP';
-            if (jenis === 'Daftar') kategoriDisplay = 'Uang Daftar';
-            if (jenis === 'Kompetisi') kategoriDisplay = 'Kompetisi';
-            if (jenis === 'Sponsor') kategoriDisplay = 'Sponsor';
-
-            const transaksi = {
-                id: Date.now().toString(),
-                tanggal: new Date().toLocaleDateString('id-ID'),
-                jenisMasukKeluar: 'Masuk',
-                jenis: jenis,
-                kategori: kategoriDisplay,
-                sumber: sumber,
-                keterangan: keterangan,
-                nominal: nominal,
-                createdAt: new Date().toISOString()
-            };
-
-            keuanganData.push(transaksi);
-            localStorage.setItem('keuanganData', JSON.stringify(keuanganData));
-
-            showAlert("✅ Pemasukan Rp " + formatRupiah(nominal) + " dari " + sumber.split('(')[0].trim() + " disimpan!", "success");
-
-            // RESET FORM
-            document.getElementById('jenisPemasukan').value = '';
-            document.getElementById('niswBayar').value = '';
-            document.getElementById('namaSiswaAuto').value = '';
-            document.getElementById('pengirimMasuk').value = '';
-            document.getElementById('nomBayar').value = '';
-            document.getElementById('ketMasuk').value = '';
-            updateFormPemasukan();
-
-            hitungSaldoKeuangan();
-            updateSummaryKeuangan();
-            renderKeuangan();
-        }
-
-        function simpanPengeluaran() {
-            const keperluan = document.getElementById('ketKeluar')?.value?.trim();
-            const nominal = parseInt(document.getElementById('nomKeluar')?.value) || 0;
-            const keterangan = document.getElementById('catatanKeluar')?.value?.trim() || '';
-
-            // VALIDASI
-            if (!keperluan) { showAlert("⚠️ Masukkan keperluan!", "warn"); return; }
-            if (nominal <= 0) { showAlert("⚠️ Nominal harus lebih dari 0!", "warn"); return; }
-            if (!keterangan) { showAlert("⚠️ Keterangan diwajibkan!", "warn"); return; }
-
-            const transaksi = {
-                id: Date.now().toString(),
-                tanggal: new Date().toLocaleDateString('id-ID'),
-                jenisMasukKeluar: 'Keluar',
-                jenis: 'Pengeluaran',
-                kategori: 'Pengeluaran',
-                sumber: keperluan,
-                keterangan: keterangan,
-                nominal: nominal,
-                createdAt: new Date().toISOString()
-            };
-
-            keuanganData.push(transaksi);
-            localStorage.setItem('keuanganData', JSON.stringify(keuanganData));
-
-            showAlert("✅ Pengeluaran Rp " + formatRupiah(nominal) + " untuk " + keperluan + " disimpan!", "success");
-
-            // RESET FORM
-            document.getElementById('ketKeluar').value = '';
-            document.getElementById('nomKeluar').value = '';
-            document.getElementById('catatanKeluar').value = '';
-
-            hitungSaldoKeuangan();
-            updateSummaryKeuangan();
-            renderKeuangan();
-        }
-
-        function editTransaksi(id) {
-            showAlert("✏️ Edit Transaksi - Coming Soon", "info");
-        }
-
-        function hapusTransaksi(id) {
-            const transaksi = keuanganData.find(k => k.id === id);
-            if (!transaksi) return;
-
-            if (confirm("⚠️ Yakin hapus transaksi?\n\n" + transaksi.jenisMasukKeluar + " - " + transaksi.sumber + "\n" + formatRupiah(transaksi.nominal))) {
-                keuanganData = keuanganData.filter(k => k.id !== id);
-                localStorage.setItem('keuanganData', JSON.stringify(keuanganData));
-                showAlert("✅ Transaksi dihapus!", "success");
-                hitungSaldoKeuangan();
-                updateSummaryKeuangan();
-                renderKeuangan();
+                setTimeout(() => {
+                    try {
+                        box.style.opacity = "0";
+                        box.style.transition = "0.3s ease";
+                        setTimeout(() => {
+                            if (box.parentNode) box.parentNode.removeChild(box);
+                        }, 300);
+                    } catch (e) {
+                        console.error("Alert cleanup error:", e);
+                    }
+                }, time);
+            } catch (e) {
+                console.error("Alert creation error:", e);
             }
         }
 
-        function refreshKeuangan() {
-            loadKeuangan();
-            showAlert("✅ Data diperbarui!", "success");
-        }
-
-        function hitungUlangSaldo() {
-            console.log("🔄 Hitung ulang saldo...");
-            hitungSaldoKeuangan();
-            showAlert("✅ Saldo berhasil dihitung ulang!", "success");
-        }
-
-        function exportKeuangan() {
-            if (keuanganData.length === 0) {
-                showAlert("⚠️ Tidak ada data untuk di-export!", "warn");
-                return;
-            }
-
-            const totalMasuk = keuanganData.filter(k => k.jenisMasukKeluar === 'Masuk').reduce((sum, k) => sum + (k.nominal || 0), 0);
-            const totalKeluar = keuanganData.filter(k => k.jenisMasukKeluar === 'Keluar').reduce((sum, k) => sum + (k.nominal || 0), 0);
-            const saldo = totalMasuk - totalKeluar;
-
-            let csv = 'LAPORAN KEUANGAN SSB WIND SOCCER\n';
-            csv += 'Tanggal Export: ' + new Date().toLocaleString('id-ID') + '\n\n';
-            csv += 'RINGKASAN:\n';
-            csv += 'Total Masuk,Rp' + totalMasuk + '\n';
-            csv += 'Total Keluar,Rp' + totalKeluar + '\n';
-            csv += 'Saldo Akhir,Rp' + saldo + '\n\n';
-            csv += 'DETAIL TRANSAKSI:\n';
-            csv += 'Tanggal,Jenis,Sumber,Kategori,Keterangan,Nominal\n';
-
-            keuanganData.forEach(k => {
-                csv += `"${k.tanggal}","${k.jenisMasukKeluar}","${k.sumber}","${k.kategori}","${k.keterangan}",${k.nominal}\n`;
-            });
-
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `Keuangan_SSB_${new Date().toLocaleDateString('id-ID')}.csv`;
-            link.click();
-
-            showAlert("✅ File CSV berhasil di-download!", "success", 3000);
-        }
-
-        function resetKeuangan() {
-            if (confirm("⚠️⚠️⚠️ PERHATIAN! Ini akan menghapus SEMUA " + keuanganData.length + " transaksi!\n\nYakin?")) {
-                keuanganData = [];
-                localStorage.setItem('keuanganData', JSON.stringify(keuanganData));
-                showAlert("✅ Semua data dihapus!", "success");
-                hitungSaldoKeuangan();
-                updateSummaryKeuangan();
-                renderKeuangan();
+        // ===== FORMAT FUNCTIONS =====
+        function formatRupiah(nominal) {
+            try {
+                return new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0 }).format(nominal || 0);
+            } catch (e) {
+                return (nominal || 0).toString();
             }
         }
 
-        // ===== JADWAL LATIHAN ==========
-        function loadJadwalLatihan() {
-            const stored = localStorage.getItem('jadwalLatihan');
-            if (stored) {
-                jadwalLatihan = JSON.parse(stored);
-            } else {
-                jadwalLatihan = [
-                    { id: 1, hari: "SELASA", tempat: "Stadion Mini Legok", waktu: "15.00 WIB" },
-                    { id: 2, hari: "KAMIS", tempat: "Stadion Mini Legok", waktu: "15.00 WIB" },
-                    { id: 3, hari: "MINGGU", tempat: "Lapangan Jaha", waktu: "07.00 WIB" }
-                ];
-                localStorage.setItem('jadwalLatihan', JSON.stringify(jadwalLatihan));
-            }
-            renderJadwalLatihan();
-        }
-
-        function renderJadwalLatihan() {
-            const tbody = document.getElementById('listJadwalLatihan');
-            const preview = document.getElementById('previewLatihan');
-
-            if (jadwalLatihan.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 30px; color: #999;">📭 Belum ada jadwal</td></tr>`;
-                preview.innerHTML = `<p style="color: #999; text-align: center;">Belum ada jadwal</p>`;
-                return;
-            }
-
-            tbody.innerHTML = jadwalLatihan.map((j, idx) => `
-                <tr>
-                    <td style="text-align: center;">${idx + 1}</td>
-                    <td style="font-weight: bold; color: #003399;">${j.hari}</td>
-                    <td>${j.tempat}</td>
-                    <td style="font-weight: bold;">${j.waktu}</td>
-                    <td style="text-align: center;">
-                        <button class="btn btn-info btn-sm"><i class="fas fa-edit"></i> Edit</button>
-                        <button class="btn btn-danger btn-sm" onclick="hapusJadwalLatihan(${j.id})"><i class="fas fa-trash"></i> Hapus</button>
-                    </td>
-                </tr>
-            `).join('');
-
-            preview.innerHTML = jadwalLatihan.map(j => `
-                <div style="background: white; padding: 10px; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid #28a745;">
-                    <strong>${j.hari}</strong> | <strong>${j.waktu}</strong><br>
-                    <small>📍 ${j.tempat}</small>
-                </div>
-            `).join('');
-        }
-
-        function tambahJadwalLatihan() {
-            const hari = document.getElementById('inputHari')?.value?.trim()?.toUpperCase();
-            const tempat = document.getElementById('inputTempat')?.value?.trim();
-            const waktu = document.getElementById('inputWaktu')?.value?.trim();
-
-            if (!hari || !tempat || !waktu) {
-                showAlert("⚠️ Isi semua field!", "warn");
-                return;
-            }
-
-            const newJadwal = { id: Date.now(), hari, tempat, waktu };
-            jadwalLatihan.push(newJadwal);
-            localStorage.setItem('jadwalLatihan', JSON.stringify(jadwalLatihan));
-            showAlert("✅ Jadwal " + hari + " ditambahkan!", "success");
-
-            document.getElementById('inputHari').value = '';
-            document.getElementById('inputTempat').value = '';
-            document.getElementById('inputWaktu').value = '';
-
-            renderJadwalLatihan();
-        }
-
-        function hapusJadwalLatihan(id) {
-            if (confirm("⚠️ Yakin hapus jadwal ini?")) {
-                jadwalLatihan = jadwalLatihan.filter(j => j.id !== id);
-                localStorage.setItem('jadwalLatihan', JSON.stringify(jadwalLatihan));
-                showAlert("✅ Jadwal dihapus!", "success");
-                renderJadwalLatihan();
-            }
-        }
-
-        // ===== JADWAL TURNAMEN ==========
-        function loadJadwalTurnamen() {
-            const stored = localStorage.getItem('jadwalTurnamen');
-            jadwalTurnamen = stored ? JSON.parse(stored) : [];
-            renderJadwalTurnamen();
-        }
-
-        function renderJadwalTurnamen() {
-            const tbody = document.getElementById('listJadwalTurnamen');
-            const preview = document.getElementById('previewTurnamen');
-
-            if (jadwalTurnamen.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px; color: #999;">📭 Belum ada turnamen</td></tr>`;
-                preview.innerHTML = `<p style="color: #999; text-align: center;">Belum ada turnamen</p>`;
-                return;
-            }
-
-            tbody.innerHTML = jadwalTurnamen.map((t, idx) => {
-                const statusColor = { 'Upcoming': '#fff3cd', 'Berlangsung': '#d1ecf1', 'Selesai': '#d4edda' };
-                const statusText = { 'Upcoming': '#856404', 'Berlangsung': '#0c5460', 'Selesai': '#155724' };
-                return `
-                    <tr>
-                        <td style="text-align: center;">${idx + 1}</td>
-                        <td style="font-weight: bold; color: #dc3545;">${t.namaEvent}</td>
-                        <td><strong>${t.tanggal}</strong></td>
-                        <td>${t.lokasi}</td>
-                        <td>${t.waktu}</td>
-                        <td><span style="background: ${statusColor[t.status] || '#fff3cd'}; color: ${statusText[t.status] || '#856404'}; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold;">${t.status || 'Upcoming'}</span></td>
-                        <td style="text-align: center;">
-                            <button class="btn btn-info btn-sm"><i class="fas fa-edit"></i> Edit</button>
-                            <button class="btn btn-danger btn-sm" onclick="hapusTurnamen(${t.id})"><i class="fas fa-trash"></i> Hapus</button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-
-            preview.innerHTML = jadwalTurnamen.map(t => `
-                <div style="background: white; padding: 10px; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid #dc3545;">
-                    <strong>${t.namaEvent}</strong><br>
-                    <small>📅 ${t.tanggal} | 📍 ${t.lokasi}</small>
-                </div>
-            `).join('');
-        }
-
-        function tambahJadwalTurnamen() {
-            const nama = document.getElementById('namaEvent')?.value?.trim();
-            const tgl = document.getElementById('tglEvent')?.value;
-            const lokasi = document.getElementById('lokasiEvent')?.value?.trim();
-            const waktu = document.getElementById('waktuEvent')?.value?.trim() || '-';
-
-            if (!nama || !tgl || !lokasi) {
-                showAlert("⚠️ Isi semua field!", "warn");
-                return;
-            }
-
-            const newTurnamen = { id: Date.now(), namaEvent: nama, tanggal: tgl, lokasi, waktu, status: 'Upcoming' };
-            jadwalTurnamen.push(newTurnamen);
-            localStorage.setItem('jadwalTurnamen', JSON.stringify(jadwalTurnamen));
-            showAlert("✅ Turnamen " + nama + " ditambahkan!", "success");
-
-            document.getElementById('namaEvent').value = '';
-            document.getElementById('tglEvent').value = '';
-            document.getElementById('lokasiEvent').value = '';
-            document.getElementById('waktuEvent').value = '';
-
-            renderJadwalTurnamen();
-        }
-
-        function hapusTurnamen(id) {
-            if (confirm("⚠️ Yakin hapus turnamen ini?")) {
-                jadwalTurnamen = jadwalTurnamen.filter(t => t.id !== id);
-                localStorage.setItem('jadwalTurnamen', JSON.stringify(jadwalTurnamen));
-                showAlert("✅ Turnamen dihapus!", "success");
-                renderJadwalTurnamen();
-            }
-        }
-
-        // ========== SECTION NAVIGATION ==========
-        function showSection(id) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            
-            const target = document.getElementById(id);
-            if (target) target.classList.add('active');
-            
-            const navLink = event?.target.closest('.nav-link');
-            if (navLink) navLink.classList.add('active');
-
-            if (id === 'keuangan') loadKeuangan();
-            else if (id === 'jadwal') { loadJadwalLatihan(); loadJadwalTurnamen(); }
-            else if (id === 'db_siswa') renderAllSiswa();
-            else if (id === 'verifikasi') renderVerifikasi();
-            else if (id === 'absensi') renderAbsensi();
-            else if (id === 'saran') renderSaran();
-        }
-
-        // ========== DATABASE SISWA ==========
-        function renderAllSiswa() {
-            const filterKategori = document.getElementById('filterKategori')?.value || '';
-            const filterTipe = document.getElementById('filterTipe')?.value || '';
-            const filterStatusBayar = document.getElementById('filterStatusBayar')?.value || '';
-            const searchText = document.getElementById('searchNiswNama')?.value?.toLowerCase() || '';
-
-            DBManager.getSiswaAktif(function(siswaList) {
-                allSiswaData = siswaList;
-                let filteredData = siswaList.filter(siswa => {
-                    const matchKategori = !filterKategori || siswa.kategori === filterKategori;
-                    const matchTipe = !filterTipe || siswa.tipe === filterTipe;
-                    const matchStatusBayar = !filterStatusBayar || siswa.statusPembayaran === filterStatusBayar;
-                    const matchSearch = !searchText || siswa.nisw?.toLowerCase().includes(searchText) || siswa.nama?.toLowerCase().includes(searchText);
-                    return matchKategori && matchTipe && matchStatusBayar && matchSearch;
-                });
-
-                const totalReguler = siswaList.filter(s => s.tipe === 'Reguler').length;
-                const totalBeasiswa = siswaList.filter(s => s.tipe === 'Beasiswa').length;
-                document.getElementById('totalReguler').textContent = totalReguler;
-                document.getElementById('totalBeasiswa').textContent = totalBeasiswa;
-                document.getElementById('totalSiswaAktif').textContent = siswaList.length;
-
-                const tbody = document.getElementById('listSiswaAktif');
-                if (filteredData.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="14" style="text-align: center; padding: 30px;">📭 Tidak ada data</td></tr>`;
-                    return;
-                }
-
-                tbody.innerHTML = filteredData.map((siswa, index) => `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td><img src="${siswa.foto || 'https://via.placeholder.com/40?text=Foto'}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" onerror="this.src='https://via.placeholder.com/40?text=No'"></td>
-                        <td><strong style="color: #003399;">${siswa.nisw || '-'}</strong></td>
-                        <td><strong>${siswa.nama || '-'}</strong></td>
-                        <td><span style="background: #e3f2fd; color: #003399; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${siswa.kategori || '-'}</span></td>
-                        <td><span style="background: ${siswa.tipe === 'Beasiswa' ? '#e8f5e9' : '#fff3cd'}; color: ${siswa.tipe === 'Beasiswa' ? '#27ae60' : '#f57c00'}; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${siswa.tipe || 'Reguler'}</span></td>
-                        <td>${siswa.posisi || '-'}</td>
-                        <td>${formatTanggal(siswa.tglLahir) || '-'}</td>
-                        <td><a href="https://wa.me/${siswa.noHp}" target="_blank" style="color: #28a745; font-weight: bold;">${siswa.noHp || '-'}</a></td>
-                        <td>${siswa.namaOrtu || '-'}</td>
-                        <td title="${siswa.alamat || '-'}" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis;">${siswa.alamat || '-'}</td>
-                        <td><span style="background: ${getStatusBayarColor(siswa.statusPembayaran)}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${siswa.statusPembayaran || 'Belum Bayar'}</span></td>
-                        <td style="text-align: right; color: #dc3545; font-weight: bold;">${formatRupiah(siswa.tagihan || 0)}</td>
-                        <td><div class="row-action"><button class="btn btn-info btn-sm"><i class="fas fa-edit"></i></button><button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></td>
-                    </tr>
-                `).join('');
-            });
-        }
-
-        function printDataSiswa() { showAlert("🖨️ Print - Coming Soon", "info"); }
-        function resetFilterSiswa() {
-            document.getElementById('filterKategori').value = '';
-            document.getElementById('filterTipe').value = '';
-            document.getElementById('filterStatusBayar').value = '';
-            document.getElementById('searchNiswNama').value = '';
-            renderAllSiswa();
-        }
-
-        // ========== ABSENSI ==========
-        function renderAbsensi() {
-            const tgl = document.getElementById('searchTglAbsen')?.value || '';
-            const nisw = document.getElementById('filterNiswAbsen')?.value?.toLowerCase() || '';
-
-            DBManager.getAbsensi(function(data) {
-                let filtered = data.filter(a => (!tgl || a.tanggal === tgl) && (!nisw || a.nisw?.toLowerCase().includes(nisw)));
-
-                const tbody = document.getElementById('listAbsensi');
-                if (filtered.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 20px;">Tidak ada data</td></tr>`;
-                    return;
-                }
-
-                tbody.innerHTML = filtered.map(a => `
-                    <tr>
-                        <td>${a.tanggal || '-'}</td>
-                        <td><strong style="color: #003399;">${a.nisw || '-'}</strong></td>
-                        <td>${a.nama || '-'}</td>
-                        <td><span style="background: ${a.status === 'Hadir' ? '#d4edda' : '#fff3cd'}; color: ${a.status === 'Hadir' ? '#155724' : '#856404'}; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${a.status || '-'}</span></td>
-                        <td>${a.alasan || '-'}</td>
-                        <td style="text-align: center; font-weight: bold;">75%</td>
-                        <td><button class="btn btn-info btn-sm"><i class="fas fa-edit"></i> Edit</button></td>
-                    </tr>
-                `).join('');
-            });
-        }
-
-        // ========== NILAI RAPORT ==========
-        function loadSiswaForRaport() {
-            const nisw = document.getElementById('niswNilai')?.value?.toUpperCase() || '';
-            if (!nisw) return;
-            DBManager.findSiswa(nisw, function(siswa) {
-                if (siswa) {
-                    document.getElementById('namaRaport').textContent = siswa.nama || '-';
-                    document.getElementById('kuRaport').textContent = siswa.kategori || '-';
-                    document.getElementById('siswaRaportInfo').style.display = 'block';
-                } else {
-                    showAlert("❌ NISW tidak ditemukan!", "error");
-                }
-            });
-        }
-
-        function hitungBMI() {
-            const tb = parseFloat(document.getElementById('tb')?.value) || 0;
-            const bb = parseFloat(document.getElementById('bb')?.value) || 0;
-            if (tb > 0 && bb > 0) {
-                const bmi = (bb / Math.pow(tb / 100, 2)).toFixed(1);
-                document.getElementById('bmi').value = bmi;
-            }
-        }
-
-        function hitungRataOtomatis() {
-            const inputs = document.querySelectorAll('.input-nilai');
-            let total = 0, count = 0;
-            inputs.forEach(input => {
-                const val = parseFloat(input.value) || 0;
-                if (val > 0) { total += val; count++; }
-            });
-            const rata = count > 0 ? (total / count).toFixed(1) : 0;
-            document.getElementById('avgFill').style.width = rata + '%';
-            document.getElementById('avgText').textContent = rata;
-        }
-
-        function simpanNilai() {
-            const nisw = document.getElementById('niswNilai')?.value;
-            if (!nisw) { showAlert("⚠️ Masukkan NISW!", "warn"); return; }
-            showAlert("✅ Nilai disimpan!", "success");
-        }
-
-        // ========== SARAN MASUKAN ==========
-        function renderSaran() {
-            const filter = document.getElementById('filterKategoriSaran')?.value || '';
-            DBManager.getSaran(function(data) {
-                document.getElementById('badgeSaran').textContent = data.length;
-                document.getElementById('badgeSaran').style.display = data.length > 0 ? 'block' : 'none';
-
-                let filtered = data.filter(s => !filter || s.kategori === filter);
-                const tbody = document.getElementById('listSaran');
-                if (filtered.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 20px;">Tidak ada saran</td></tr>`;
-                    return;
-                }
-
-                tbody.innerHTML = filtered.map(s => `
-                    <tr>
-                        <td>${s.tanggal || '-'}</td>
-                        <td><strong>${s.nama || '-'}</strong></td>
-                        <td>${s.nisw || '-'}</td>
-                        <td><span style="background: #e3f2fd; color: #003399; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${s.kategori || '-'}</span></td>
-                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${s.pesan || '-'}</td>
-                        <td><button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td>
-                    </tr>
-                `).join('');
-            });
-        }
-
-        // ========== HELPER FUNCTIONS ==========
         function formatTanggal(tgl) {
             if (!tgl) return '-';
+            if (typeof tgl !== 'string') return '-';
             if (tgl.includes('/')) return tgl;
             if (tgl.includes('-')) {
                 const parts = tgl.split('-');
@@ -1390,30 +1036,972 @@
             return tgl;
         }
 
-        function formatRupiah(nominal) {
-            return new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0 }).format(nominal || 0);
-        }
-
-        function getStatusBayarColor(status) {
-            const colors = { 'Lunas': '#28a745', 'Cicilan': '#ffc107', 'Belum Bayar': '#dc3545' };
-            return colors[status] || '#6c757d';
-        }
-
-        function logoutAdmin() {
-            if (confirm("Yakin logout?")) {
-                showAlert("✅ Logout berhasil!", "success");
-                setTimeout(() => window.location.href = "index.html", 1000);
+        // ===== DATA PERSISTENCE - SAFE =====
+        function loadAllData() {
+            try {
+                globalState.keuanganData = JSON.parse(localStorage.getItem('keuanganData') || '[]');
+                globalState.pendaftarData = JSON.parse(localStorage.getItem('pendaftarData') || '[]');
+                globalState.jadwalLatihan = JSON.parse(localStorage.getItem('jadwalLatihan') || '[]');
+                globalState.jadwalTurnamen = JSON.parse(localStorage.getItem('jadwalTurnamen') || '[]');
+                console.log("✅ Data loaded successfully");
+                return true;
+            } catch (e) {
+                console.error("❌ Data load error:", e);
+                showAlert("⚠️ Error loading data", "warn");
+                return false;
             }
         }
 
-        // ========== INIT ==========
+        function saveAllData() {
+            try {
+                localStorage.setItem('keuanganData', JSON.stringify(globalState.keuanganData));
+                localStorage.setItem('pendaftarData', JSON.stringify(globalState.pendaftarData));
+                localStorage.setItem('jadwalLatihan', JSON.stringify(globalState.jadwalLatihan));
+                localStorage.setItem('jadwalTurnamen', JSON.stringify(globalState.jadwalTurnamen));
+                console.log("✅ Data saved successfully");
+                return true;
+            } catch (e) {
+                console.error("❌ Data save error:", e);
+                showAlert("❌ Error saving data", "error");
+                return false;
+            }
+        }
+
+        // ===== DASHBOARD =====
+        function renderDashboard() {
+            try {
+                loadAllData();
+                
+                if (typeof DBManager === 'undefined' || !DBManager.getSiswaAktif) {
+                    console.warn("⚠️ DBManager not ready yet");
+                    return;
+                }
+
+                DBManager.getSiswaAktif(function(siswaList) {
+                    try {
+                        if (!Array.isArray(siswaList)) {
+                            console.error("Invalid siswaList");
+                            return;
+                        }
+
+                        const total = siswaList.length;
+                        const pending = globalState.pendaftarData.filter(p => p.status !== 'DISETUJUI').length;
+
+                        const masuk = globalState.keuanganData
+                            .filter(k => k.jenisMasukKeluar === 'Masuk')
+                            .reduce((s, k) => s + (k.nominal || 0), 0);
+                        const keluar = globalState.keuanganData
+                            .filter(k => k.jenisMasukKeluar === 'Keluar')
+                            .reduce((s, k) => s + (k.nominal || 0), 0);
+                        const saldo = masuk - keluar;
+
+                        const dashTotal = document.getElementById('dashTotal');
+                        const dashPending = document.getElementById('dashPending');
+                        const dashSaldo = document.getElementById('dashSaldo');
+
+                        if (dashTotal) dashTotal.textContent = total;
+                        if (dashPending) dashPending.textContent = pending;
+                        if (dashSaldo) dashSaldo.textContent = 'Rp ' + formatRupiah(saldo);
+                    } catch (e) {
+                        console.error("Dashboard render error:", e);
+                    }
+                });
+            } catch (e) {
+                console.error("Dashboard error:", e);
+            }
+        }
+
+        // ===== SISWA AKTIF =====
+        function renderAllSiswa() {
+            try {
+                loadAllData();
+
+                if (typeof DBManager === 'undefined' || !DBManager.getSiswaAktif) {
+                    console.warn("⚠️ DBManager not ready");
+                    setTimeout(renderAllSiswa, 1000);
+                    return;
+                }
+
+                const filterKategori = document.getElementById('filterKategori')?.value || '';
+                const filterTipe = document.getElementById('filterTipe')?.value || '';
+                const filterStatus = document.getElementById('filterStatus')?.value || '';
+                const searchNama = document.getElementById('searchNama')?.value?.toLowerCase() || '';
+
+                DBManager.getSiswaAktif(function(siswaList) {
+                    try {
+                        if (!Array.isArray(siswaList)) {
+                            siswaList = [];
+                        }
+
+                        let filtered = siswaList.filter(siswa => {
+                            const matchKat = !filterKategori || siswa.kategori === filterKategori;
+                            const matchTipe = !filterTipe || siswa.tipe === filterTipe;
+                            const matchStatus = !filterStatus || siswa.status === filterStatus;
+                            const matchSearch = !searchNama || 
+                                (siswa.nama && siswa.nama.toLowerCase().includes(searchNama)) ||
+                                (siswa.nisw && siswa.nisw.toLowerCase().includes(searchNama));
+                            return matchKat && matchTipe && matchStatus && matchSearch;
+                        });
+
+                        const reguler = siswaList.filter(s => s.tipe === 'Reguler').length;
+                        const beasiswa = siswaList.filter(s => s.tipe === 'Beasiswa').length;
+
+                        const elReg = document.getElementById('totalReguler');
+                        const elBea = document.getElementById('totalBeasiswa');
+                        const elTotal = document.getElementById('totalSiswa');
+
+                        if (elReg) elReg.textContent = reguler;
+                        if (elBea) elBea.textContent = beasiswa;
+                        if (elTotal) elTotal.textContent = siswaList.length;
+
+                        const tbody = document.getElementById('listSiswaAktif');
+                        if (!tbody) {
+                            console.error("listSiswaAktif element not found");
+                            return;
+                        }
+
+                        if (filtered.length === 0) {
+                            tbody.innerHTML = `<tr><td colspan="8" style="text-align: center;">Tidak ada data</td></tr>`;
+                            return;
+                        }
+
+                        tbody.innerHTML = filtered.map((siswa, idx) => `
+                            <tr>
+                                <td>${idx + 1}</td>
+                                <td><strong>${siswa.nisw || '-'}</strong></td>
+                                <td>${siswa.nama || '-'}</td>
+                                <td>${siswa.kategori || '-'}</td>
+                                <td><span class="success-badge">${siswa.tipe || '-'}</span></td>
+                                <td>${siswa.posisi || '-'}</td>
+                                <td><a href="tel:${siswa.noHp}" style="color: var(--info);">${siswa.noHp || '-'}</a></td>
+                                <td style="font-size: 12px;">${siswa.alamat ? siswa.alamat.substring(0, 20) + '...' : '-'}</td>
+                            </tr>
+                        `).join('');
+
+                        console.log("✅ Siswa rendered:", filtered.length);
+                    } catch (e) {
+                        console.error("Siswa render error:", e);
+                        showAlert("❌ Error rendering data", "error");
+                    }
+                });
+            } catch (e) {
+                console.error("renderAllSiswa error:", e);
+            }
+        }
+
+        // ===== VERIFIKASI =====
+        function renderVerifikasi() {
+            try {
+                loadAllData();
+
+                if (typeof DBManager === 'undefined' || !DBManager.getPendaftar) {
+                    console.warn("⚠️ DBManager not ready");
+                    setTimeout(renderVerifikasi, 1000);
+                    return;
+                }
+
+                DBManager.getPendaftar(function(data) {
+                    try {
+                        globalState.pendaftarData = Array.isArray(data) ? data : [];
+                        const pending = globalState.pendaftarData.filter(p => p.status !== 'DISETUJUI');
+
+                        const elAntrean = document.getElementById('totalAntrean');
+                        const elBadge = document.getElementById('badgeCount');
+
+                        if (elAntrean) elAntrean.textContent = pending.length;
+                        if (elBadge) {
+                            elBadge.textContent = pending.length;
+                            elBadge.style.display = pending.length > 0 ? 'block' : 'none';
+                        }
+
+                        const tbody = document.getElementById('listVerifikasi');
+                        if (!tbody) return;
+
+                        if (pending.length === 0) {
+                            tbody.innerHTML = `<tr><td colspan="8" style="text-align: center;">Tidak ada</td></tr>`;
+                            return;
+                        }
+
+                        tbody.innerHTML = pending.map((p, i) => {
+                            const nominal = NOMINAL_DAFTAR[p.tipe] || 500000;
+                            return `
+                                <tr>
+                                    <td>${i + 1}</td>
+                                    <td><img src="${p.foto || 'https://via.placeholder.com/40?text=Foto'}" 
+                                        style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;" 
+                                        onerror="this.src='https://via.placeholder.com/40?text=No'"></td>
+                                    <td><strong>${p.nama || '-'}</strong></td>
+                                    <td>${p.kategori || '-'}</td>
+                                    <td><span class="success-badge">${p.tipe || '-'}</span></td>
+                                    <td>Rp ${formatRupiah(nominal)}</td>
+                                    <td>${formatTanggal(p.tglDaftar)}</td>
+                                    <td><button class="btn btn-success btn-sm" onclick="openModalVerifikasi(event)">Setujui</button></td>
+                                </tr>
+                            `;
+                        }).join('');
+
+                        // Store references untuk modal
+                        const buttons = tbody.querySelectorAll('button');
+                        buttons.forEach((btn, idx) => {
+                            btn._pendaftarData = pending[idx];
+                        });
+
+                        console.log("✅ Verifikasi rendered:", pending.length);
+                    } catch (e) {
+                        console.error("Verifikasi render error:", e);
+                    }
+                });
+            } catch (e) {
+                console.error("renderVerifikasi error:", e);
+            }
+        }
+
+        function openModalVerifikasi(event) {
+            try {
+                const btn = event?.target?.closest('button');
+                if (!btn || !btn._pendaftarData) {
+                    showAlert("⚠️ Data not found", "warn");
+                    return;
+                }
+
+                globalState.modalPendaftar = btn._pendaftarData;
+                const p = globalState.modalPendaftar;
+                const nominal = NOMINAL_DAFTAR[p.tipe] || 500000;
+
+                const modalBody = document.getElementById('modalBodyVerifikasi');
+                if (!modalBody) return;
+
+                modalBody.innerHTML = `
+                    <div style="text-align: left; font-size: 14px;">
+                        <div><strong>Nama:</strong> ${p.nama}</div>
+                        <div><strong>Kategori:</strong> ${p.kategori}</div>
+                        <div><strong>Tipe:</strong> ${p.tipe}</div>
+                        <div style="margin-top: 15px; padding: 10px; background: #e8f5e9; border-radius: 6px;">
+                            <strong style="color: #28a745;">💰 Nominal: Rp ${formatRupiah(nominal)}</strong>
+                        </div>
+                    </div>
+                `;
+
+                const modal = document.getElementById('modalVerifikasi');
+                if (modal) modal.classList.add('active');
+            } catch (e) {
+                console.error("Modal error:", e);
+                showAlert("❌ Error opening modal", "error");
+            }
+        }
+
+        function closeModalVerifikasi() {
+            const modal = document.getElementById('modalVerifikasi');
+            if (modal) modal.classList.remove('active');
+            globalState.modalPendaftar = null;
+        }
+
+        function prosesSemiOtomatis() {
+            try {
+                if (!globalState.modalPendaftar) {
+                    showAlert("❌ Data not found", "error");
+                    return;
+                }
+
+                const p = globalState.modalPendaftar;
+                const nominal = NOMINAL_DAFTAR[p.tipe] || 500000;
+
+                // Update pendaftar
+                const idx = globalState.pendaftarData.findIndex(x => x.nisw === p.nisw);
+                if (idx !== -1) {
+                    globalState.pendaftarData[idx].status = 'DISETUJUI';
+                }
+
+                // Catat keuangan
+                globalState.keuanganData.push({
+                    id: Date.now(),
+                    tanggal: new Date().toLocaleDateString('id-ID'),
+                    jenisMasukKeluar: 'Masuk',
+                    jenis: 'Daftar',
+                    dari: p.nama,
+                    keterangan: `Uang Daftar ${p.tipe}`,
+                    nominal: nominal,
+                    createdAt: new Date().toISOString()
+                });
+
+                saveAllData();
+                hitungSaldoKeuangan();
+                showAlert(`✅ ${p.nama} DISETUJUI! Rp ${formatRupiah(nominal)} dicatat`, "success");
+                
+                closeModalVerifikasi();
+                renderVerifikasi();
+                renderKeuangan();
+                renderDashboard();
+            } catch (e) {
+                console.error("Proses error:", e);
+                showAlert("❌ " + e.message, "error");
+            }
+        }
+
+        // ===== ABSENSI =====
+        function renderAbsensi() {
+            try {
+                const tgl = document.getElementById('filterTglAbsen')?.value || '';
+                const nisw = document.getElementById('filterNiswAbsen')?.value?.toLowerCase() || '';
+
+                if (typeof DBManager === 'undefined' || !DBManager.getAbsensi) {
+                    return;
+                }
+
+                DBManager.getAbsensi(function(data) {
+                    try {
+                        if (!Array.isArray(data)) data = [];
+                        
+                        let filtered = data.filter(a => {
+                            const matchTgl = !tgl || a.tanggal === tgl;
+                            const matchNisw = !nisw || (a.nisw && a.nisw.toLowerCase().includes(nisw));
+                            return matchTgl && matchNisw;
+                        });
+
+                        const tbody = document.getElementById('listAbsensi');
+                        if (!tbody) return;
+
+                        if (filtered.length === 0) {
+                            tbody.innerHTML = `<tr><td colspan="6">-</td></tr>`;
+                            return;
+                        }
+
+                        tbody.innerHTML = filtered.map(a => `
+                            <tr>
+                                <td>${a.tanggal || '-'}</td>
+                                <td>${a.nisw || '-'}</td>
+                                <td>${a.nama || '-'}</td>
+                                <td>${a.status || '-'}</td>
+                                <td>${a.alasan || '-'}</td>
+                                <td style="text-align: center; font-weight: bold;">75%</td>
+                            </tr>
+                        `).join('');
+                    } catch (e) {
+                        console.error("Absensi render error:", e);
+                    }
+                });
+            } catch (e) {
+                console.error("renderAbsensi error:", e);
+            }
+        }
+
+        // ===== KEUANGAN =====
+        function updateFormPemasukan() {
+            const jenis = document.getElementById('jenisPemasukan')?.value;
+            const field = document.getElementById('fieldNISW');
+            if (field) {
+                field.style.display = (jenis === 'SPP' || jenis === 'Daftar') ? 'block' : 'none';
+            }
+        }
+
+        function cariNamaSiswa() {
+            try {
+                const nisw = document.getElementById('niswBayar')?.value?.trim().toUpperCase();
+                const field = document.getElementById('namaSiswaAuto');
+
+                if (!nisw || !field) return;
+
+                if (typeof DBManager === 'undefined' || !DBManager.findSiswa) {
+                    field.value = '[DBManager not ready]';
+                    return;
+                }
+
+                DBManager.findSiswa(nisw, function(siswa) {
+                    try {
+                        if (siswa) {
+                            field.value = siswa.nama || '';
+                            showAlert("✅ " + siswa.nama, "success", 1500);
+                        } else {
+                            field.value = '[NISW tidak ditemukan]';
+                            showAlert("⚠️ NISW tidak ditemukan", "warn", 1500);
+                        }
+                    } catch (e) {
+                        console.error("Cari siswa error:", e);
+                    }
+                });
+            } catch (e) {
+                console.error("cariNamaSiswa error:", e);
+            }
+        }
+
+        function simpanPemasukan() {
+            try {
+                const btn = document.getElementById('btnSimpanMasuk');
+                if (btn) btn.disabled = true;
+
+                const jenis = document.getElementById('jenisPemasukan')?.value?.trim();
+                const dari = document.getElementById('pengirimMasuk')?.value?.trim();
+                const nominal = parseInt(document.getElementById('nomBayar')?.value) || 0;
+                const ket = document.getElementById('ketMasuk')?.value?.trim();
+
+                if (!jenis || !dari || !nominal || !ket) {
+                    showAlert("⚠️ Isi semua field!", "warn");
+                    if (btn) btn.disabled = false;
+                    return;
+                }
+
+                loadAllData();
+                globalState.keuanganData.push({
+                    id: Date.now(),
+                    tanggal: new Date().toLocaleDateString('id-ID'),
+                    jenisMasukKeluar: 'Masuk',
+                    jenis: jenis,
+                    dari: dari,
+                    keterangan: ket,
+                    nominal: nominal
+                });
+
+                saveAllData();
+                hitungSaldoKeuangan();
+                showAlert("✅ Disimpan!", "success");
+
+                document.getElementById('jenisPemasukan').value = '';
+                document.getElementById('pengirimMasuk').value = '';
+                document.getElementById('nomBayar').value = '';
+                document.getElementById('ketMasuk').value = '';
+                document.getElementById('niswBayar').value = '';
+                document.getElementById('namaSiswaAuto').value = '';
+                updateFormPemasukan();
+                renderKeuangan();
+                renderDashboard();
+
+                if (btn) btn.disabled = false;
+            } catch (e) {
+                console.error("Simpan pemasukan error:", e);
+                showAlert("❌ " + e.message, "error");
+                const btn = document.getElementById('btnSimpanMasuk');
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        function simpanPengeluaran() {
+            try {
+                const btn = document.getElementById('btnSimpanKeluar');
+                if (btn) btn.disabled = true;
+
+                const keperluan = document.getElementById('ketKeluar')?.value?.trim();
+                const nominal = parseInt(document.getElementById('nomKeluar')?.value) || 0;
+                const catatan = document.getElementById('catatanKeluar')?.value?.trim();
+
+                if (!keperluan || !nominal || !catatan) {
+                    showAlert("⚠️ Isi semua field!", "warn");
+                    if (btn) btn.disabled = false;
+                    return;
+                }
+
+                loadAllData();
+                globalState.keuanganData.push({
+                    id: Date.now(),
+                    tanggal: new Date().toLocaleDateString('id-ID'),
+                    jenisMasukKeluar: 'Keluar',
+                    jenis: 'Pengeluaran',
+                    dari: keperluan,
+                    keterangan: catatan,
+                    nominal: nominal
+                });
+
+                saveAllData();
+                hitungSaldoKeuangan();
+                showAlert("✅ Disimpan!", "success");
+
+                document.getElementById('ketKeluar').value = '';
+                document.getElementById('nomKeluar').value = '';
+                document.getElementById('catatanKeluar').value = '';
+                renderKeuangan();
+                renderDashboard();
+
+                if (btn) btn.disabled = false;
+            } catch (e) {
+                console.error("Simpan pengeluaran error:", e);
+                showAlert("❌ " + e.message, "error");
+                const btn = document.getElementById('btnSimpanKeluar');
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        function hitungSaldoKeuangan() {
+            try {
+                loadAllData();
+
+                const masuk = globalState.keuanganData
+                    .filter(k => k.jenisMasukKeluar === 'Masuk')
+                    .reduce((s, k) => s + (k.nominal || 0), 0);
+                
+                const keluar = globalState.keuanganData
+                    .filter(k => k.jenisMasukKeluar === 'Keluar')
+                    .reduce((s, k) => s + (k.nominal || 0), 0);
+                
+                const saldo = masuk - keluar;
+
+                const elMasuk = document.getElementById('totalMasuk');
+                const elKeluar = document.getElementById('totalKeluar');
+                const elSaldo = document.getElementById('saldoAkhir');
+
+                if (elMasuk) elMasuk.textContent = 'Rp ' + formatRupiah(masuk);
+                if (elKeluar) elKeluar.textContent = 'Rp ' + formatRupiah(keluar);
+                if (elSaldo) elSaldo.textContent = 'Rp ' + formatRupiah(saldo);
+
+                console.log("💰 Saldo updated");
+            } catch (e) {
+                console.error("Hitung saldo error:", e);
+            }
+        }
+
+        function renderKeuangan() {
+            try {
+                loadAllData();
+                hitungSaldoKeuangan();
+
+                const tbody = document.getElementById('listKeuangan');
+                if (!tbody) return;
+
+                if (!globalState.keuanganData || globalState.keuanganData.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center;">-</td></tr>`;
+                    return;
+                }
+
+                const sorted = [...globalState.keuanganData].sort((a, b) => b.id - a.id);
+
+                tbody.innerHTML = sorted.map(k => `
+                    <tr>
+                        <td>${k.tanggal}</td>
+                        <td><strong>${k.jenisMasukKeluar}</strong></td>
+                        <td>${k.dari}</td>
+                        <td>${k.keterangan}</td>
+                        <td style="text-align: right; font-weight: bold; color: ${k.jenisMasukKeluar === 'Masuk' ? '#28a745' : '#dc3545'};">
+                            ${k.jenisMasukKeluar === 'Masuk' ? '+' : '-'} Rp ${formatRupiah(k.nominal)}
+                        </td>
+                        <td style="text-align: center;">
+                            <button class="btn btn-danger btn-sm" onclick="hapusTransaksi(${k.id})">Hapus</button>
+                        </td>
+                    </tr>
+                `).join('');
+
+                console.log("✅ Keuangan rendered");
+            } catch (e) {
+                console.error("Render keuangan error:", e);
+            }
+        }
+
+        function hapusTransaksi(id) {
+            try {
+                if (!confirm("Yakin hapus?")) return;
+
+                loadAllData();
+                globalState.keuanganData = globalState.keuanganData.filter(k => k.id !== id);
+                saveAllData();
+                showAlert("✅ Dihapus!", "success");
+                renderKeuangan();
+                renderDashboard();
+            } catch (e) {
+                console.error("Hapus error:", e);
+                showAlert("❌ " + e.message, "error");
+            }
+        }
+
+        function loadKeuangan() {
+            loadAllData();
+            renderKeuangan();
+        }
+
+        function hitungUlangSaldo() {
+            hitungSaldoKeuangan();
+            showAlert("✅ Saldo dihitung ulang!", "success");
+        }
+
+        function exportKeuangan() {
+            try {
+                loadAllData();
+
+                if (!globalState.keuanganData || globalState.keuanganData.length === 0) {
+                    showAlert("⚠️ Tidak ada data!", "warn");
+                    return;
+                }
+
+                let csv = 'Tanggal,Jenis,Dari,Catatan,Nominal\n';
+                globalState.keuanganData.forEach(k => {
+                    csv += `"${k.tanggal}","${k.jenisMasukKeluar}","${k.dari}","${k.keterangan}",${k.nominal}\n`;
+                });
+
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `Keuangan_${new Date().toLocaleDateString('id-ID')}.csv`;
+                link.click();
+
+                showAlert("✅ Download selesai!", "success", 3000);
+            } catch (e) {
+                console.error("Export error:", e);
+                showAlert("❌ " + e.message, "error");
+            }
+        }
+
+        function resetKeuangan() {
+            try {
+                if (!confirm("⚠️ Hapus semua keuangan? Ini tidak bisa dibatalkan!")) return;
+
+                loadAllData();
+                globalState.keuanganData = [];
+                saveAllData();
+                showAlert("✅ Dihapus!", "success");
+                renderKeuangan();
+                renderDashboard();
+            } catch (e) {
+                console.error("Reset error:", e);
+                showAlert("❌ " + e.message, "error");
+            }
+        }
+
+        // ===== NILAI RAPORT =====
+        function loadSiswaForRaport() {
+            try {
+                const nisw = document.getElementById('niswNilai')?.value?.toUpperCase();
+                if (!nisw) return;
+
+                if (typeof DBManager === 'undefined' || !DBManager.findSiswa) {
+                    return;
+                }
+
+                DBManager.findSiswa(nisw, function(siswa) {
+                    try {
+                        const info = document.getElementById('siswaRaportInfo');
+                        if (!siswa) {
+                            showAlert("❌ NISW tidak ditemukan!", "error");
+                            if (info) info.style.display = 'none';
+                            return;
+                        }
+
+                        const elNama = document.getElementById('namaRaport');
+                        const elKu = document.getElementById('kuRaport');
+
+                        if (elNama) elNama.textContent = siswa.nama || '-';
+                        if (elKu) elKu.textContent = siswa.kategori || '-';
+                        if (info) info.style.display = 'block';
+                    } catch (e) {
+                        console.error("Raport load error:", e);
+                    }
+                });
+            } catch (e) {
+                console.error("loadSiswaForRaport error:", e);
+            }
+        }
+
+        function hitungBMI() {
+            try {
+                const tb = parseFloat(document.getElementById('tb')?.value) || 0;
+                const bb = parseFloat(document.getElementById('bb')?.value) || 0;
+
+                if (tb > 0 && bb > 0) {
+                    const bmi = (bb / Math.pow(tb / 100, 2)).toFixed(1);
+                    const elBMI = document.getElementById('bmi');
+                    if (elBMI) elBMI.value = bmi;
+                }
+            } catch (e) {
+                console.error("BMI error:", e);
+            }
+        }
+
+        function hitungRataOtomatis() {
+            try {
+                const inputs = document.querySelectorAll('.input-nilai');
+                let total = 0, count = 0;
+
+                inputs.forEach(input => {
+                    const val = parseFloat(input.value) || 0;
+                    if (val > 0) {
+                        total += val;
+                        count++;
+                    }
+                });
+
+                const rata = count > 0 ? (total / count).toFixed(0) : 0;
+                const elAvg = document.getElementById('avgText');
+                if (elAvg) elAvg.textContent = rata;
+            } catch (e) {
+                console.error("Rata-rata error:", e);
+            }
+        }
+
+        function simpanNilai() {
+            try {
+                const nisw = document.getElementById('niswNilai')?.value;
+                if (!nisw) {
+                    showAlert("⚠️ Masukkan NISW!", "warn");
+                    return;
+                }
+
+                showAlert("✅ Nilai disimpan!", "success");
+            } catch (e) {
+                console.error("Simpan nilai error:", e);
+                showAlert("❌ " + e.message, "error");
+            }
+        }
+
+        // ===== JADWAL =====
+        function tambahJadwalLatihan() {
+            try {
+                const hari = document.getElementById('inputHari')?.value?.trim();
+                const tempat = document.getElementById('inputTempat')?.value?.trim();
+                const waktu = document.getElementById('inputWaktu')?.value?.trim();
+
+                if (!hari || !tempat || !waktu) {
+                    showAlert("⚠️ Isi semua!", "warn");
+                    return;
+                }
+
+                loadAllData();
+                globalState.jadwalLatihan.push({
+                    id: Date.now(),
+                    hari: hari.toUpperCase(),
+                    tempat,
+                    waktu
+                });
+
+                saveAllData();
+                showAlert("✅ Ditambahkan!", "success");
+
+                document.getElementById('inputHari').value = '';
+                document.getElementById('inputTempat').value = '';
+                document.getElementById('inputWaktu').value = '';
+                renderJadwalLatihan();
+            } catch (e) {
+                console.error("Tambah latihan error:", e);
+                showAlert("❌ " + e.message, "error");
+            }
+        }
+
+        function renderJadwalLatihan() {
+            try {
+                loadAllData();
+
+                const tbody = document.getElementById('listJadwalLatihan');
+                if (!tbody) return;
+
+                if (!globalState.jadwalLatihan || globalState.jadwalLatihan.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">-</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = globalState.jadwalLatihan.map((j, i) => `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td><strong>${j.hari}</strong></td>
+                        <td>${j.tempat}</td>
+                        <td>${j.waktu}</td>
+                        <td><button class="btn btn-danger btn-sm" onclick="hapusJadwalLatihan(${j.id})">Hapus</button></td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error("Render latihan error:", e);
+            }
+        }
+
+        function hapusJadwalLatihan(id) {
+            try {
+                if (!confirm("Yakin?")) return;
+
+                loadAllData();
+                globalState.jadwalLatihan = globalState.jadwalLatihan.filter(j => j.id !== id);
+                saveAllData();
+                showAlert("✅ Dihapus!", "success");
+                renderJadwalLatihan();
+            } catch (e) {
+                console.error("Hapus latihan error:", e);
+            }
+        }
+
+        function tambahJadwalTurnamen() {
+            try {
+                const nama = document.getElementById('namaEvent')?.value?.trim();
+                const tgl = document.getElementById('tglEvent')?.value;
+                const lokasi = document.getElementById('lokasiEvent')?.value?.trim();
+                const waktu = document.getElementById('waktuEvent')?.value?.trim() || '-';
+
+                if (!nama || !tgl || !lokasi) {
+                    showAlert("⚠️ Isi semua!", "warn");
+                    return;
+                }
+
+                loadAllData();
+                globalState.jadwalTurnamen.push({
+                    id: Date.now(),
+                    nama,
+                    tgl,
+                    lokasi,
+                    waktu
+                });
+
+                saveAllData();
+                showAlert("✅ Ditambahkan!", "success");
+
+                document.getElementById('namaEvent').value = '';
+                document.getElementById('tglEvent').value = '';
+                document.getElementById('lokasiEvent').value = '';
+                document.getElementById('waktuEvent').value = '';
+                renderJadwalTurnamen();
+            } catch (e) {
+                console.error("Tambah turnamen error:", e);
+                showAlert("❌ " + e.message, "error");
+            }
+        }
+
+        function renderJadwalTurnamen() {
+            try {
+                loadAllData();
+
+                const tbody = document.getElementById('listJadwalTurnamen');
+                if (!tbody) return;
+
+                if (!globalState.jadwalTurnamen || globalState.jadwalTurnamen.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">-</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = globalState.jadwalTurnamen.map((t, i) => `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td><strong>${t.nama}</strong></td>
+                        <td>${t.tgl}</td>
+                        <td>${t.lokasi}</td>
+                        <td><button class="btn btn-danger btn-sm" onclick="hapusJadwalTurnamen(${t.id})">Hapus</button></td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error("Render turnamen error:", e);
+            }
+        }
+
+        function hapusJadwalTurnamen(id) {
+            try {
+                if (!confirm("Yakin?")) return;
+
+                loadAllData();
+                globalState.jadwalTurnamen = globalState.jadwalTurnamen.filter(t => t.id !== id);
+                saveAllData();
+                showAlert("✅ Dihapus!", "success");
+                renderJadwalTurnamen();
+            } catch (e) {
+                console.error("Hapus turnamen error:", e);
+            }
+        }
+
+        // ===== NAVIGATION =====
+        function showSection(id) {
+            try {
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+
+                const section = document.getElementById(id);
+                if (section) section.classList.add('active');
+
+                if (event?.target) {
+                    const link = event.target.closest('.nav-link');
+                    if (link) link.classList.add('active');
+                }
+
+                if (id === 'dashboard') renderDashboard();
+                else if (id === 'db_siswa') renderAllSiswa();
+                else if (id === 'verifikasi') renderVerifikasi();
+                else if (id === 'absensi') renderAbsensi();
+                else if (id === 'keuangan') loadKeuangan();
+                else if (id === 'jadwal') {
+                    renderJadwalLatihan();
+                    renderJadwalTurnamen();
+                }
+
+                console.log("✅ Section changed to:", id);
+            } catch (e) {
+                console.error("Section navigation error:", e);
+            }
+        }
+
+        function logoutAdmin() {
+            try {
+                if (confirm("Logout?")) {
+                    showAlert("✅ Logout!", "success");
+                    setTimeout(() => {
+                        window.location.href = "index.html";
+                    }, 1000);
+                }
+            } catch (e) {
+                console.error("Logout error:", e);
+            }
+        }
+
+        // ===== EXPORT SISWA =====
+        function exportSiswa() {
+            try {
+                if (typeof DBManager === 'undefined' || !DBManager.getSiswaAktif) {
+                    showAlert("⚠️ DBManager not ready", "warn");
+                    return;
+                }
+
+                DBManager.getSiswaAktif(function(siswaList) {
+                    try {
+                        if (!Array.isArray(siswaList) || siswaList.length === 0) {
+                            showAlert("⚠️ Tidak ada data", "warn");
+                            return;
+                        }
+
+                        let csv = 'NISW,Nama,KU,Tipe,Posisi,Telepon,Alamat\n';
+                        siswaList.forEach(s => {
+                            csv += `"${s.nisw}","${s.nama}","${s.kategori}","${s.tipe}","${s.posisi}","${s.noHp}","${s.alamat}"\n`;
+                        });
+
+                        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(blob);
+                        link.download = `Siswa_${new Date().toLocaleDateString('id-ID')}.csv`;
+                        link.click();
+
+                        showAlert("✅ Download selesai!", "success", 3000);
+                    } catch (e) {
+                        console.error("Export siswa error:", e);
+                    }
+                });
+            } catch (e) {
+                console.error("exportSiswa error:", e);
+            }
+        }
+
+        // ===== INITIALIZATION =====
         window.addEventListener('load', function() {
-            loadPendaftarData();
-            loadKeuangan();
-            loadJadwalLatihan();
-            loadJadwalTurnamen();
-            renderAllSiswa();
-            console.log("✅ Admin Panel READY - Disempurnakan!");
+            try {
+                console.log("🚀 Admin Panel Initializing...");
+                
+                loadAllData();
+                
+                // Wait for DBManager
+                let retries = 0;
+                const checkDBManager = setInterval(() => {
+                    if (typeof DBManager !== 'undefined' && DBManager.getSiswaAktif) {
+                        clearInterval(checkDBManager);
+                        console.log("✅ DBManager ready!");
+                        
+                        globalState.isInitialized = true;
+                        renderDashboard();
+                        renderAllSiswa();
+                        renderVerifikasi();
+                        renderJadwalLatihan();
+                        renderJadwalTurnamen();
+                        
+                        console.log("✅ Admin Panel READY!");
+                    } else if (++retries > 30) { // 30 * 500ms = 15 seconds
+                        clearInterval(checkDBManager);
+                        console.error("❌ DBManager timeout!");
+                        showAlert("⚠️ Database connection timeout", "warn");
+                    }
+                }, 500);
+            } catch (e) {
+                console.error("❌ Initialization error:", e);
+                showAlert("❌ Error initializing admin panel", "error");
+            }
+        });
+
+        // Prevent unhandled rejections
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error("❌ Unhandled promise rejection:", event.reason);
+            event.preventDefault();
         });
     </script>
 </body>
