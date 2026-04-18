@@ -1,5 +1,6 @@
 // ==================== DBManager FULL FIREBASE REALTIME - SSB Wind Soccer ====================
-// Versi Pure Cloud - Tanpa duplicate config (18 April 2026)
+// Versi BERSIH - Tidak deklarasi ulang firebaseConfig (18 April 2026)
+// firebase-config.js sudah handle initializeApp
 
 const DBManager = {
     initData: function() {
@@ -11,6 +12,7 @@ const DBManager = {
         return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`;
     },
 
+    // Login Session
     setLoginUser: function(user) { sessionStorage.setItem("userAktif", JSON.stringify(user)); },
     getLoginUser: function() {
         const data = sessionStorage.getItem("userAktif");
@@ -18,6 +20,7 @@ const DBManager = {
     },
     clearLoginUser: function() { sessionStorage.removeItem("userAktif"); },
 
+    // ====================== SISWA ======================
     getSiswaAktif: function(callback) {
         Promise.all([
             firebase.database().ref('dataSiswa').once('value'),
@@ -58,8 +61,11 @@ const DBManager = {
         });
     },
 
+    // ====================== PENDAFTAR ======================
     getPendaftar: function(callback) {
-        firebase.database().ref('dataPendaftar').once('value').then(snap => callback(snap.val() ? Object.values(snap.val()) : []));
+        firebase.database().ref('dataPendaftar').once('value').then(snap => {
+            callback(snap.val() ? Object.values(snap.val()) : []);
+        });
     },
 
     addPendaftar: function(data, callback) {
@@ -73,22 +79,53 @@ const DBManager = {
         });
     },
 
-    // Fungsi pendukung lainnya (singkat)
-    addAbsensi: function(data, callback) { data.tgl = data.tgl || this.getTglSekarang(); firebase.database().ref('dataAbsensi').push(data).then(() => callback && callback(true)); },
-    getAbsensi: function(callback) { firebase.database().ref('dataAbsensi').once('value').then(snap => callback(snap.val() ? Object.values(snap.val()) : [])); },
-    addKeuangan: function(data, callback) { data.tgl = data.tgl || this.getTglSekarang(); firebase.database().ref('dataKeuangan').push(data).then(() => callback && callback(true)); },
-    getKeuangan: function(callback) { firebase.database().ref('dataKeuangan').once('value').then(snap => callback(snap.val() ? Object.values(snap.val()) : [])); },
-    updateNilai: function(nisw, dataNilai, callback) { firebase.database().ref('dataNilai').push(dataNilai).then(() => callback && callback(true)); },
-    getNilai: function(callback) { firebase.database().ref('dataNilai').once('value').then(snap => callback(snap.val() ? Object.values(snap.val()) : [])); },
-    addSaran: function(data, callback) { data.id = Date.now(); data.waktu = this.getTglSekarang(); data.dibaca = false; firebase.database().ref('dataSaran').push(data).then(() => callback && callback(true)); },
-    getSaran: function(callback) { firebase.database().ref('dataSaran').once('value').then(snap => callback(snap.val() ? Object.values(snap.val()) : [])); },
-    getJadwalLatihan: function(callback) { firebase.database().ref('db_latihan').once('value').then(snap => callback(snap.val() ? Object.values(snap.val()) : [])); },
-    addJadwalLatihan: function(data, callback) { data.id = Date.now(); firebase.database().ref('db_latihan').push(data).then(() => callback && callback(true)); },
-    getJadwalTurnamen: function(callback) { firebase.database().ref('db_turnamen').once('value').then(snap => callback(snap.val() ? Object.values(snap.val()) : [])); },
-    addJadwalTurnamen: function(data, callback) { data.id = Date.now(); firebase.database().ref('db_turnamen').push(data).then(() => callback && callback(true)); }
+    // ====================== FUNGSI LAINNYA ======================
+    addAbsensi: function(data, callback) { 
+        data.tgl = data.tgl || this.getTglSekarang(); 
+        firebase.database().ref('dataAbsensi').push(data).then(() => callback && callback(true)); 
+    },
+    getAbsensi: function(callback) { 
+        firebase.database().ref('dataAbsensi').once('value').then(snap => callback(snap.val() ? Object.values(snap.val()) : [])); 
+    },
+    addKeuangan: function(data, callback) { 
+        data.tgl = data.tgl || this.getTglSekarang(); 
+        firebase.database().ref('dataKeuangan').push(data).then(() => callback && callback(true)); 
+    },
+    getKeuangan: function(callback) { 
+        firebase.database().ref('dataKeuangan').once('value').then(snap => callback(snap.val() ? Object.values(snap.val()) : [])); 
+    },
+    updateNilai: function(nisw, dataNilai, callback) { 
+        firebase.database().ref('dataNilai').push(dataNilai).then(() => callback && callback(true)); 
+    },
+    getNilai: function(callback) { 
+        firebase.database().ref('dataNilai').once('value').then(snap => callback(snap.val() ? Object.values(snap.val()) : [])); 
+    },
+    addSaran: function(data, callback) { 
+        data.id = Date.now(); 
+        data.waktu = this.getTglSekarang(); 
+        data.dibaca = false; 
+        firebase.database().ref('dataSaran').push(data).then(() => callback && callback(true)); 
+    },
+    getSaran: function(callback) { 
+        firebase.database().ref('dataSaran').once('value').then(snap => callback(snap.val() ? Object.values(snap.val()) : [])); 
+    },
+    getJadwalLatihan: function(callback) { 
+        firebase.database().ref('db_latihan').once('value').then(snap => callback(snap.val() ? Object.values(snap.val()) : [])); 
+    },
+    addJadwalLatihan: function(data, callback) { 
+        data.id = Date.now(); 
+        firebase.database().ref('db_latihan').push(data).then(() => callback && callback(true)); 
+    },
+    getJadwalTurnamen: function(callback) { 
+        firebase.database().ref('db_turnamen').once('value').then(snap => callback(snap.val() ? Object.values(snap.val()) : [])); 
+    },
+    addJadwalTurnamen: function(data, callback) { 
+        data.id = Date.now(); 
+        firebase.database().ref('db_turnamen').push(data).then(() => callback && callback(true)); 
+    }
 };
 
-// ====================== START ======================
+// ====================== START APP ======================
 function startApp() {
     DBManager.initData();
     window.DBManager = DBManager;
