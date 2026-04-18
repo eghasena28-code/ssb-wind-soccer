@@ -68,6 +68,10 @@
   </form>
 </div>
 
+<!-- Firebase SDK harus dimuat sebelum db-sync.js -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
 <script src="db-sync.js"></script>
 <script>
 // HITUNG OTOMATIS - VERSI STABIL & SESUAI PERMINTAAN ANDA
@@ -93,6 +97,11 @@ document.getElementById("formPendaftaran").onsubmit = async function(e) {
     const btn = document.getElementById("btnSubmit");
     btn.disabled = true;
     btn.textContent = "Mengirim...";
+
+    // Pastikan Firebase sudah siap
+    if (typeof initializeFirebase === 'function') {
+        await initializeFirebase();
+    }
 
     const tglLahir = document.getElementById("tglLahir").value;
     const tahunLahir = new Date(tglLahir).getFullYear();
