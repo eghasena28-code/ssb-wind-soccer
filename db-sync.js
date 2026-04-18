@@ -1,5 +1,19 @@
 // ==================== DBManager FULL FIRESTORE - SSB Wind Soccer ====================
-// Versi Stabil - Pakai Firestore (18 April 2026)
+// Versi SELF-CONTAINED + InitializeApp (18 April 2026)
+
+const firebaseConfig = {
+    apiKey: "AIzaSyD2BTJ2Nz3pu7Wx2bITPhLLIF3PnP0l4xk",
+    authDomain: "ssb-wind-soccer-pro.firebaseapp.com",
+    projectId: "ssb-wind-soccer-pro",
+    storageBucket: "ssb-wind-soccer-pro.firebasestorage.app",
+    messagingSenderId: "1080769161840",
+    appId: "1:1080769161840:web:839f18578776bbc8d862b5"
+};
+
+// Initialize Firebase (paling penting!)
+firebase.initializeApp(firebaseConfig);
+
+console.log("✅ Firebase App '[DEFAULT]' sudah di-initialize");
 
 const DBManager = {
     initData: function() {
@@ -61,11 +75,9 @@ const DBManager = {
         });
     },
 
-    // ====================== PENDAFTAR ======================
+    // ====================== FUNGSI LAINNYA ======================
     getPendaftar: function(callback) {
-        firebase.firestore().collection("dataPendaftar").get().then(snap => {
-            callback(snap.docs.map(doc => doc.data()));
-        });
+        firebase.firestore().collection("dataPendaftar").get().then(snap => callback(snap.docs.map(doc => doc.data())));
     },
 
     addPendaftar: function(data, callback) {
@@ -75,12 +87,10 @@ const DBManager = {
             data.nisw = prefix + new Date().getFullYear() + total.toString().padStart(3, '0');
             data.status = "Menunggu Verifikasi";
             data.tglDaftar = this.getTglSekarang();
-
             firebase.firestore().collection("dataPendaftar").add(data).then(() => callback && callback(data.nisw));
         });
     },
 
-    // ====================== FUNGSI LAINNYA ======================
     addAbsensi: function(data, callback) { 
         data.tgl = data.tgl || this.getTglSekarang(); 
         firebase.firestore().collection("dataAbsensi").add(data).then(() => callback && callback(true)); 
