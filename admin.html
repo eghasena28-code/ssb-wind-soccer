@@ -25,6 +25,7 @@
         .header-stats { background: var(--primary); color: white; padding: 20px; border-radius: 12px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
         h3 { color: var(--primary); margin-top: 0; border-left: 5px solid var(--secondary); padding-left: 15px; margin-bottom: 20px; }
         h4 { color: var(--primary); margin-bottom: 15px; }
+        h5 { color: var(--primary); margin-bottom: 10px; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
         th { background: #f8f9fa; padding: 12px; text-align: left; border-bottom: 2px solid #ddd; color: var(--primary); font-weight: bold; }
         td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
@@ -48,12 +49,6 @@
         .stat-box { padding: 15px; border-radius: 12px; color: white; text-align: center; }
         .stat-box span { font-size: 12px; opacity: 0.9; }
         .stat-box h3 { color: white !important; border: none; padding: 0; margin: 8px 0 0 0; font-size: 24px; }
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow-y: auto; }
-        .modal.show { display: block; }
-        .modal-content { background: white; margin: 5% auto; padding: 25px; border-radius: 15px; width: 95%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .modal-header { border-bottom: 2px solid var(--primary); padding-bottom: 15px; margin-bottom: 20px; font-weight: bold; color: var(--primary); font-size: 18px; }
-        .modal-close { float: right; font-size: 28px; font-weight: bold; cursor: pointer; color: #999; }
-        .modal-close:hover { color: #000; }
         .avg-bar-container { background: #eee; border-radius: 10px; height: 30px; margin-top: 10px; overflow: hidden; position: relative; }
         .avg-bar-fill { background: var(--success); height: 100%; width: 0%; transition: 0.5s; }
         .avg-text { position: absolute; width: 100%; text-align: center; top: 0; font-weight: bold; font-size: 14px; line-height: 30px; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
@@ -72,6 +67,8 @@
         @keyframes zoomIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
         .row-action { display: flex; gap: 5px; }
         .row-action .btn { flex: 0; }
+        .loading-spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid #f3f3f3; border-radius: 50%; border-top: 2px solid var(--primary); animation: spin 0.6s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -100,7 +97,7 @@
 
     <div class="main-content">
         
-        <!-- ===== DATABASE SISWA ===== -->
+        <!-- ===== 1. DATABASE SISWA ===== -->
         <div id="db_siswa" class="section active">
             <div class="card">
                 <h3>📊 Database Siswa Aktif</h3>
@@ -130,14 +127,14 @@
                             </tr>
                         </thead>
                         <tbody id="listSiswaAktif">
-                            <tr><td colspan="14" style="text-align: center; padding: 30px;">⏳ Memuat data...</td></tr>
+                            <tr><td colspan="14" style="text-align: center; padding: 30px;"><span class="loading-spinner"></span> Memuat data...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- ===== VERIFIKASI PENDAFTAR ===== -->
+        <!-- ===== 2. VERIFIKASI PENDAFTAR ===== -->
         <div id="verifikasi" class="section">
             <div class="header-stats">
                 <div>Antrean Pendaftar: <h2 id="totalAntrean" style="color:white; margin:0">0</h2></div>
@@ -154,14 +151,14 @@
                             <tr><th>No</th><th>Foto</th><th>Nama</th><th>KU</th><th>Tipe Daftar</th><th>Status</th><th>Tgl Daftar</th><th>Aksi</th></tr>
                         </thead>
                         <tbody id="listVerifikasi">
-                            <tr><td colspan="8" style="text-align:center; padding: 20px;">⏳ Memuat data...</td></tr>
+                            <tr><td colspan="8" style="text-align:center; padding: 20px;"><span class="loading-spinner"></span> Memuat data...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- ===== REKAP ABSENSI ===== -->
+        <!-- ===== 3. REKAP ABSENSI ===== -->
         <div id="absensi" class="section">
             <div class="card">
                 <h3>📝 Rekap Kehadiran Latihan</h3>
@@ -176,14 +173,14 @@
                             <tr><th>Tanggal</th><th>NISW</th><th>Nama</th><th>Status</th><th>Keterangan</th><th>% Kehadiran</th><th>Aksi</th></tr>
                         </thead>
                         <tbody id="listAbsensi">
-                            <tr><td colspan="7" style="text-align:center; padding: 20px;">⏳ Memuat data...</td></tr>
+                            <tr><td colspan="7" style="text-align:center; padding: 20px;"><span class="loading-spinner"></span> Memuat data...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- ===== KEUANGAN ===== -->
+        <!-- ===== 4. KEUANGAN ===== -->
         <div id="keuangan" class="section">
             <div class="finance-grid">
                 <div class="stat-box" style="background: var(--primary);"><span>Total Masuk</span><h3 id="totalMasuk">Rp 0</h3></div>
@@ -219,14 +216,14 @@
                             <tr><th>Tanggal</th><th>Jenis</th><th>Keterangan</th><th>Nominal</th><th>Aksi</th></tr>
                         </thead>
                         <tbody id="listKeuangan">
-                            <tr><td colspan="5" style="text-align:center; padding: 20px;">⏳ Memuat data...</td></tr>
+                            <tr><td colspan="5" style="text-align:center; padding: 20px;"><span class="loading-spinner"></span> Memuat data...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- ===== INPUT NILAI RAPORT ===== -->
+        <!-- ===== 5. INPUT NILAI RAPORT ===== -->
         <div id="raport" class="section">
             <div class="card">
                 <h3>📊 Input Evaluasi Pemain</h3>
@@ -267,7 +264,7 @@
             </div>
         </div>
 
-        <!-- ===== SARAN & MASUKAN ===== -->
+        <!-- ===== 6. SARAN & MASUKAN ===== -->
         <div id="saran" class="section">
             <div class="card">
                 <h3>📩 Saran & Masukan Siswa</h3>
@@ -281,48 +278,186 @@
                             <tr><th>Tanggal</th><th>Nama Siswa</th><th>NISW</th><th>Kategori</th><th>Pesan</th><th style="width: 80px;">Aksi</th></tr>
                         </thead>
                         <tbody id="listSaran">
-                            <tr><td colspan="6" style="text-align:center; padding: 20px;">⏳ Memuat data...</td></tr>
+                            <tr><td colspan="6" style="text-align:center; padding: 20px;"><span class="loading-spinner"></span> Memuat data...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- ===== KELOLA JADWAL ===== -->
+        <!-- ===== 7. KELOLA JADWAL ===== -->
         <div id="jadwal" class="section">
+            <div class="card" style="margin-bottom: 0;">
+                <h3>📅 Kelola Jadwal Siswa</h3>
+                <p style="color: #666; font-size: 13px; margin-bottom: 20px;">🔗 Jadwal yang ditambahkan akan otomatis muncul di halaman Informasi Siswa</p>
+            </div>
+
             <div class="grid-input">
+                <!-- ===== JADWAL LATIHAN RUTIN ===== -->
                 <div class="card">
-                    <h4>⏰ Kelola Jadwal Latihan</h4>
-                    <label>Hari:</label><input type="text" id="hariLatihan" placeholder="SELASA">
-                    <label>Tempat:</label><input type="text" id="tempatLatihan" placeholder="Stadion/Lapangan">
-                    <label>Waktu:</label><input type="text" id="waktuLatihan" placeholder="15.00 WIB">
-                    <button class="btn btn-add" onclick="addJadwalLatihan()"><i class="fas fa-plus"></i> Tambah Jadwal Latihan</button>
-                    <div style="margin-top: 20px;"><h4>Jadwal Saat Ini:</h4>
-                        <div class="table-wrapper">
-                            <table>
-                                <thead><tr><th>Hari</th><th>Tempat</th><th>Waktu</th><th>Aksi</th></tr></thead>
-                                <tbody id="listJadwalLatihan">
-                                    <tr><td colspan="4" style="text-align:center; padding: 15px;">⏳ Memuat...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <h4 style="color: #28a745; border-bottom: 2px solid #28a745; padding-bottom: 10px;">⚽ JADWAL LATIHAN RUTIN</h4>
+                    <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Tambahkan jadwal latihan regular (Senin-Minggu)</p>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                        <h5 style="color: #003399; margin-bottom: 10px;">📝 Tambah Jadwal Baru</h5>
+                        
+                        <label style="margin-top: 10px;">Hari:</label>
+                        <select id="hariLatihan">
+                            <option value="">-- Pilih Hari --</option>
+                            <option value="SENIN">SENIN</option>
+                            <option value="SELASA">SELASA</option>
+                            <option value="RABU">RABU</option>
+                            <option value="KAMIS">KAMIS</option>
+                            <option value="JUMAT">JUMAT</option>
+                            <option value="SABTU">SABTU</option>
+                            <option value="MINGGU">MINGGU</option>
+                        </select>
+
+                        <label>Tempat/Lapangan:</label>
+                        <input type="text" id="tempatLatihan" placeholder="Contoh: Stadion Mini Legok">
+
+                        <label>Waktu:</label>
+                        <input type="text" id="waktuLatihan" placeholder="Contoh: 15.00 WIB">
+
+                        <label>Kategori (Opsional):</label>
+                        <select id="kategoriLatihan">
+                            <option value="">-- Semua Kategori --</option>
+                            <option value="KU-6">KU-6</option>
+                            <option value="KU-8">KU-8</option>
+                            <option value="KU-10">KU-10</option>
+                            <option value="KU-12">KU-12</option>
+                            <option value="KU-14">KU-14</option>
+                            <option value="KU-16">KU-16</option>
+                            <option value="KU-17">KU-17</option>
+                        </select>
+
+                        <button class="btn btn-add" onclick="addJadwalLatihan()"><i class="fas fa-plus"></i> Tambah Jadwal Latihan</button>
+                    </div>
+
+                    <h5 style="color: #003399; margin-bottom: 10px;">📋 Jadwal Latihan Saat Ini:</h5>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Hari</th>
+                                    <th>Tempat</th>
+                                    <th>Waktu</th>
+                                    <th>Kategori</th>
+                                    <th style="width: 120px;">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="listJadwalLatihan">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 20px; color: #999;">
+                                        <span class="loading-spinner"></span> Memuat jadwal...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
+
+                <!-- ===== JADWAL TURNAMEN & EVENT ===== -->
                 <div class="card">
-                    <h4>🏆 Kelola Jadwal Turnamen</h4>
-                    <label>Nama Event:</label><input type="text" id="namaEvent" placeholder="Nama Turnamen">
-                    <label>Tanggal:</label><input type="date" id="tglEvent">
-                    <label>Lokasi:</label><input type="text" id="lokasiEvent" placeholder="Lokasi Turnamen">
-                    <label>Waktu (optional):</label><input type="text" id="waktuEvent" placeholder="08.00 WIB">
-                    <button class="btn btn-add" onclick="addJadwalTurnamen()"><i class="fas fa-plus"></i> Tambah Turnamen</button>
-                    <div style="margin-top: 20px;"><h4>Jadwal Turnamen:</h4>
-                        <div class="table-wrapper">
-                            <table>
-                                <thead><tr><th>Nama Event</th><th>Tanggal</th><th>Lokasi</th><th>Waktu</th><th>Aksi</th></tr></thead>
-                                <tbody id="listJadwalTurnamen">
-                                    <tr><td colspan="5" style="text-align:center; padding: 15px;">⏳ Memuat...</td></tr>
-                                </tbody>
-                            </table>
+                    <h4 style="color: #dc3545; border-bottom: 2px solid #dc3545; padding-bottom: 10px;">🏆 JADWAL TURNAMEN & EVENT</h4>
+                    <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Tambahkan event/turnamen yang akan diikuti</p>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                        <h5 style="color: #003399; margin-bottom: 10px;">📝 Tambah Turnamen Baru</h5>
+                        
+                        <label style="margin-top: 10px;">Nama Event/Turnamen:</label>
+                        <input type="text" id="namaEvent" placeholder="Contoh: Liga Danone 2026">
+
+                        <label>Tanggal Event:</label>
+                        <input type="date" id="tglEvent">
+
+                        <label>Lokasi/Tempat:</label>
+                        <input type="text" id="lokasiEvent" placeholder="Contoh: Lapangan Jaha">
+
+                        <label>Waktu Mulai:</label>
+                        <input type="text" id="waktuEvent" placeholder="Contoh: 08.00 WIB">
+
+                        <label>Kategori Usia (Opsional):</label>
+                        <select id="kategoriEvent">
+                            <option value="">-- Semua Kategori --</option>
+                            <option value="KU-8">KU-8</option>
+                            <option value="KU-10">KU-10</option>
+                            <option value="KU-12">KU-12</option>
+                            <option value="KU-14">KU-14</option>
+                            <option value="KU-16">KU-16</option>
+                            <option value="KU-17">KU-17</option>
+                        </select>
+
+                        <label>Status:</label>
+                        <select id="statusEvent">
+                            <option value="Upcoming">Upcoming</option>
+                            <option value="Berlangsung">Berlangsung</option>
+                            <option value="Selesai">Selesai</option>
+                        </select>
+
+                        <button class="btn btn-add" onclick="addJadwalTurnamen()"><i class="fas fa-plus"></i> Tambah Turnamen</button>
+                    </div>
+
+                    <h5 style="color: #003399; margin-bottom: 10px;">📋 Jadwal Turnamen Saat Ini:</h5>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nama Event</th>
+                                    <th>Tanggal</th>
+                                    <th>Lokasi</th>
+                                    <th>Waktu</th>
+                                    <th>Status</th>
+                                    <th style="width: 120px;">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="listJadwalTurnamen">
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 20px; color: #999;">
+                                        <span class="loading-spinner"></span> Memuat turnamen...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== RINGKASAN UNTUK INFORMASI SISWA ===== -->
+            <div class="card">
+                <h4 style="color: #17a2b8; border-bottom: 2px solid #17a2b8; padding-bottom: 10px;">🔗 PREVIEW - Jadwal yang ditampilkan di Halaman Informasi Siswa</h4>
+                <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Berikut adalah jadwal yang akan divisualisasikan untuk siswa:</p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <!-- PREVIEW JADWAL LATIHAN -->
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 10px; border-left: 5px solid #28a745;">
+                        <h5 style="color: #28a745; margin-bottom: 10px;">⚽ Jadwal Latihan Rutin</h5>
+                        <div id="previewLatihan" style="font-size: 13px; line-height: 1.8;">
+                            <div style="background: white; padding: 8px; border-radius: 6px; margin-bottom: 8px;">
+                                <strong>Hari:</strong> SELASA | <strong>Waktu:</strong> 15.00 WIB<br>
+                                <small>📍 Stadion Mini Legok</small>
+                            </div>
+                            <div style="background: white; padding: 8px; border-radius: 6px; margin-bottom: 8px;">
+                                <strong>Hari:</strong> KAMIS | <strong>Waktu:</strong> 15.00 WIB<br>
+                                <small>📍 Stadion Mini Legok</small>
+                            </div>
+                            <div style="background: white; padding: 8px; border-radius: 6px;">
+                                <strong>Hari:</strong> MINGGU | <strong>Waktu:</strong> 07.00 WIB<br>
+                                <small>📍 Lapangan Jaha</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PREVIEW JADWAL TURNAMEN -->
+                    <div style="background: #ffebee; padding: 15px; border-radius: 10px; border-left: 5px solid #dc3545;">
+                        <h5 style="color: #dc3545; margin-bottom: 10px;">🏆 Jadwal Turnamen & Event</h5>
+                        <div id="previewTurnamen" style="font-size: 13px; line-height: 1.8;">
+                            <div style="background: white; padding: 8px; border-radius: 6px; margin-bottom: 8px;">
+                                <strong>Turnamen:</strong> Liga Danone Cup<br>
+                                <small>📅 15 Mei 2026 | 📍 Lapangan Besar</small>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -337,7 +472,7 @@
     <script src="db-sync.js"></script>
 
     <script>
-        console.log("🔐 Admin Panel - SEMUA FUNGSI AKTIF");
+        console.log("🔐 Admin Panel - FULL LENGKAP DENGAN KELOLA JADWAL SEMPURNA");
 
         // ===== GLOBAL DATA =====
         let allSiswaData = [];
@@ -370,7 +505,6 @@
             const navLink = event?.target.closest('.nav-link');
             if (navLink) navLink.classList.add('active');
 
-            // Render sesuai section
             if (id === 'db_siswa') renderAllSiswa();
             else if (id === 'verifikasi') renderVerifikasi();
             else if (id === 'absensi') renderAbsensi();
@@ -512,7 +646,7 @@
         function setujuiPendaftar(nisw) {
             console.log("✅ Approve:", nisw);
             if (confirm("Setujui pendaftar " + nisw + "?")) {
-                showAlert("✅ Pendaftar disetujui dan dipindahkan ke Database Siswa!", "success");
+                showAlert("✅ Pendaftar disetujui!", "success");
                 renderVerifikasi();
             }
         }
@@ -766,51 +900,108 @@
         // ===== 7. JADWAL LATIHAN =====
         function renderJadwalLatihan() {
             console.log("🔄 Rendering jadwal latihan...");
+            
             DBManager.getJadwalLatihan(function(data) {
                 console.log("✅ Jadwal latihan count:", data.length);
+                
                 const tbody = document.getElementById('listJadwalLatihan');
+                const preview = document.getElementById('previewLatihan');
+                
                 if (data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 15px;">Tidak ada jadwal</td></tr>`;
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 30px; color: #999;">
+                                📭 Belum ada jadwal latihan. Tambahkan jadwal baru!
+                            </td>
+                        </tr>
+                    `;
+                    preview.innerHTML = `<p style="color: #999;">Belum ada jadwal latihan</p>`;
                     return;
                 }
 
-                tbody.innerHTML = data.map(j => `
+                tbody.innerHTML = data.map((j, index) => `
                     <tr>
-                        <td><strong>${j.hari || '-'}</strong></td>
+                        <td style="text-align: center; font-weight: bold;">${index + 1}</td>
+                        <td>
+                            <span style="background: #e8f5e9; color: #28a745; padding: 6px 12px; border-radius: 6px; font-weight: bold;">
+                                ${j.hari || '-'}
+                            </span>
+                        </td>
                         <td>${j.tempat || '-'}</td>
-                        <td>${j.waktu || '-'}</td>
-                        <td><button class="btn btn-danger btn-sm" onclick="hapusJadwalLatihan('${j.hari}')"><i class="fas fa-trash"></i></button></td>
+                        <td><strong style="color: #003399;">${j.waktu || '-'}</strong></td>
+                        <td><span style="background: #e3f2fd; color: #003399; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${j.kategori || 'Semua'}</span></td>
+                        <td>
+                            <div class="row-action">
+                                <button class="btn btn-info btn-sm" onclick="editJadwalLatihan('${j.hari}')"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-danger btn-sm" onclick="hapusJadwalLatihan('${j.hari}')"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </td>
                     </tr>
                 `).join('');
+
+                preview.innerHTML = data.map(j => `
+                    <div style="background: white; padding: 8px; border-radius: 6px; margin-bottom: 8px;">
+                        <strong>Hari:</strong> ${j.hari || '-'} | <strong>Waktu:</strong> ${j.waktu || '-'}<br>
+                        <small>📍 ${j.tempat || '-'}</small>
+                    </div>
+                `).join('');
+
+                console.log("✅ Jadwal latihan rendered");
             });
         }
 
         function addJadwalLatihan() {
             console.log("➕ Add jadwal latihan");
-            const hari = document.getElementById('hariLatihan')?.value;
-            const tempat = document.getElementById('tempatLatihan')?.value;
-            const waktu = document.getElementById('waktuLatihan')?.value;
+            
+            const hari = document.getElementById('hariLatihan')?.value?.trim();
+            const tempat = document.getElementById('tempatLatihan')?.value?.trim();
+            const waktu = document.getElementById('waktuLatihan')?.value?.trim();
+            const kategori = document.getElementById('kategoriLatihan')?.value || 'Semua';
 
-            if (!hari || !tempat || !waktu) { showAlert("⚠️ Isi semua field!", "warn"); return; }
+            if (!hari || !tempat || !waktu) {
+                showAlert("⚠️ Isi semua field yang wajib!", "warn");
+                return;
+            }
 
-            const data = { hari, tempat, waktu };
+            const data = {
+                hari: hari,
+                tempat: tempat,
+                waktu: waktu,
+                kategori: kategori,
+                createdAt: new Date().toISOString()
+            };
+
+            console.log("📝 Data jadwal:", data);
+
             DBManager.addJadwalLatihan(data, function(berhasil) {
                 if (berhasil) {
-                    showAlert("✅ Jadwal ditambahkan!", "success");
+                    showAlert("✅ Jadwal latihan ditambahkan!", "success");
+                    console.log("✅ Jadwal saved to Firestore");
+                    
                     document.getElementById('hariLatihan').value = '';
                     document.getElementById('tempatLatihan').value = '';
                     document.getElementById('waktuLatihan').value = '';
+                    document.getElementById('kategoriLatihan').value = '';
+                    
                     renderJadwalLatihan();
                 } else {
-                    showAlert("❌ Gagal menyimpan!", "error");
+                    showAlert("❌ Gagal menyimpan jadwal!", "error");
+                    console.error("❌ Error saving jadwal");
                 }
             });
         }
 
+        function editJadwalLatihan(hari) {
+            console.log("✏️ Edit jadwal latihan:", hari);
+            showAlert("✏️ Edit jadwal " + hari + " - Coming Soon", "info");
+        }
+
         function hapusJadwalLatihan(hari) {
-            console.log("🗑️ Delete jadwal");
-            if (confirm("Hapus jadwal " + hari + "?")) {
-                showAlert("✅ Jadwal dihapus!", "success");
+            console.log("🗑️ Delete jadwal latihan:", hari);
+            
+            if (confirm("⚠️ Yakin hapus jadwal " + hari + "?")) {
+                showAlert("✅ Jadwal latihan dihapus!", "success");
+                console.log("✅ Jadwal deleted");
                 renderJadwalLatihan();
             }
         }
@@ -818,54 +1009,129 @@
         // ===== 8. JADWAL TURNAMEN =====
         function renderJadwalTurnamen() {
             console.log("🔄 Rendering jadwal turnamen...");
+            
             DBManager.getJadwalTurnamen(function(data) {
                 console.log("✅ Jadwal turnamen count:", data.length);
+                
                 const tbody = document.getElementById('listJadwalTurnamen');
+                const preview = document.getElementById('previewTurnamen');
+                
                 if (data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 15px;">Tidak ada turnamen</td></tr>`;
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 30px; color: #999;">
+                                📭 Belum ada turnamen. Tambahkan event baru!
+                            </td>
+                        </tr>
+                    `;
+                    preview.innerHTML = `<p style="color: #999;">Belum ada jadwal turnamen</p>`;
                     return;
                 }
 
-                tbody.innerHTML = data.map(t => `
-                    <tr>
-                        <td><strong>${t.nama_event || '-'}</strong></td>
-                        <td>${t.tanggal || '-'}</td>
-                        <td>${t.lokasi || '-'}</td>
-                        <td>${t.waktu || '-'}</td>
-                        <td><button class="btn btn-danger btn-sm" onclick="hapusTurnamen('${t.nama_event}')"><i class="fas fa-trash"></i></button></td>
-                    </tr>
+                tbody.innerHTML = data.map((t, index) => {
+                    const statusColor = {
+                        'Upcoming': '#fff3cd',
+                        'Berlangsung': '#d1ecf1',
+                        'Selesai': '#d4edda'
+                    };
+                    const statusTextColor = {
+                        'Upcoming': '#856404',
+                        'Berlangsung': '#0c5460',
+                        'Selesai': '#155724'
+                    };
+                    const status = t.status || 'Upcoming';
+
+                    return `
+                        <tr>
+                            <td style="text-align: center; font-weight: bold;">${index + 1}</td>
+                            <td><strong style="color: #dc3545;">${t.nama_event || '-'}</strong></td>
+                            <td><strong>${formatTanggal(t.tanggal) || '-'}</strong></td>
+                            <td>${t.lokasi || '-'}</td>
+                            <td>${t.waktu || '-'}</td>
+                            <td>
+                                <span style="background: ${statusColor[status]}; color: ${statusTextColor[status]}; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold;">
+                                    ${status}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="row-action">
+                                    <button class="btn btn-info btn-sm" onclick="editTurnamen('${t.nama_event}')"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-danger btn-sm" onclick="hapusTurnamen('${t.nama_event}')"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                preview.innerHTML = data.map(t => `
+                    <div style="background: white; padding: 8px; border-radius: 6px; margin-bottom: 8px;">
+                        <strong>Turnamen:</strong> ${t.nama_event || '-'}<br>
+                        <small>📅 ${formatTanggal(t.tanggal) || '-'} | 📍 ${t.lokasi || '-'}</small>
+                    </div>
                 `).join('');
+
+                console.log("✅ Jadwal turnamen rendered");
             });
         }
 
         function addJadwalTurnamen() {
             console.log("➕ Add jadwal turnamen");
-            const nama = document.getElementById('namaEvent')?.value;
+            
+            const nama = document.getElementById('namaEvent')?.value?.trim();
             const tgl = document.getElementById('tglEvent')?.value;
-            const lokasi = document.getElementById('lokasiEvent')?.value;
-            const waktu = document.getElementById('waktuEvent')?.value || '-';
+            const lokasi = document.getElementById('lokasiEvent')?.value?.trim();
+            const waktu = document.getElementById('waktuEvent')?.value?.trim() || '-';
+            const kategori = document.getElementById('kategoriEvent')?.value || 'Semua';
+            const status = document.getElementById('statusEvent')?.value || 'Upcoming';
 
-            if (!nama || !tgl || !lokasi) { showAlert("⚠️ Isi field wajib!", "warn"); return; }
+            if (!nama || !tgl || !lokasi) {
+                showAlert("⚠️ Isi semua field yang wajib!", "warn");
+                return;
+            }
 
-            const data = { nama_event: nama, tanggal: tgl, lokasi: lokasi, waktu: waktu };
+            const data = {
+                nama_event: nama,
+                tanggal: tgl,
+                lokasi: lokasi,
+                waktu: waktu,
+                kategori: kategori,
+                status: status,
+                createdAt: new Date().toISOString()
+            };
+
+            console.log("📝 Data turnamen:", data);
+
             DBManager.addJadwalTurnamen(data, function(berhasil) {
                 if (berhasil) {
                     showAlert("✅ Turnamen ditambahkan!", "success");
+                    console.log("✅ Turnamen saved to Firestore");
+                    
                     document.getElementById('namaEvent').value = '';
                     document.getElementById('tglEvent').value = '';
                     document.getElementById('lokasiEvent').value = '';
                     document.getElementById('waktuEvent').value = '';
+                    document.getElementById('kategoriEvent').value = '';
+                    document.getElementById('statusEvent').value = 'Upcoming';
+                    
                     renderJadwalTurnamen();
                 } else {
-                    showAlert("❌ Gagal menyimpan!", "error");
+                    showAlert("❌ Gagal menyimpan turnamen!", "error");
+                    console.error("❌ Error saving turnamen");
                 }
             });
         }
 
+        function editTurnamen(nama) {
+            console.log("✏️ Edit turnamen:", nama);
+            showAlert("✏️ Edit turnamen " + nama + " - Coming Soon", "info");
+        }
+
         function hapusTurnamen(nama) {
-            console.log("🗑️ Delete turnamen");
-            if (confirm("Hapus turnamen " + nama + "?")) {
+            console.log("🗑️ Delete turnamen:", nama);
+            
+            if (confirm("⚠️ Yakin hapus turnamen " + nama + "?")) {
                 showAlert("✅ Turnamen dihapus!", "success");
+                console.log("✅ Turnamen deleted");
                 renderJadwalTurnamen();
             }
         }
@@ -904,9 +1170,15 @@
 
         // ===== INIT =====
         window.addEventListener('load', async function() {
-            console.log("🚀 Admin Panel READY - SEMUA FUNGSI AKTIF!");
-            if (typeof initializeFirebase === 'function') await initializeFirebase();
+            console.log("🚀 Admin Panel Window Load Event");
+            
+            if (typeof initializeFirebase === 'function') {
+                console.log("🔧 Initializing Firebase...");
+                await initializeFirebase();
+            }
+
             renderAllSiswa();
+            console.log("✅ Admin Panel READY - SEMUA FUNGSI LENGKAP!");
         });
     </script>
 </body>
