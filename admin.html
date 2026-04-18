@@ -7,432 +7,409 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { 
-            --primary: #003399; 
-            --secondary: #ffb400; 
-            --success: #28a745; 
-            --danger: #dc3545; 
-            --info: #17a2b8; 
-            --warning: #ffc107; 
+        :root {
+            --primary: #003399;
+            --secondary: #ffb400;
+            --success: #28a745;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --warning: #ffc107;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Poppins', sans-serif; 
-            background: #f4f7f6; 
-            display: flex; 
-            min-height: 100vh;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .sidebar { 
-            width: 260px; 
-            background: var(--primary); 
-            height: 100vh; 
-            color: white; 
-            position: fixed; 
-            padding: 20px; 
-            box-sizing: border-box; 
-            z-index: 1000; 
-            overflow-y: auto; 
-            display: flex; 
-            flex-direction: column; 
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
         }
-        .sidebar-content { 
-            flex: 1; 
-            overflow-y: auto; 
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f7f6;
+            display: flex;
         }
-        .sidebar h2 { 
-            font-size: 18px; 
-            border-bottom: 2px solid var(--secondary); 
-            padding-bottom: 10px; 
-            margin-bottom: 30px; 
-            text-align: center; 
+        .sidebar {
+            width: 220px;
+            background: var(--primary);
+            height: 100vh;
+            color: white;
+            position: fixed;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 1000;
+            overflow-y: auto;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
         }
-        .nav-link { 
-            display: block; 
-            color: white; 
-            padding: 12px; 
-            border-radius: 8px; 
-            margin-bottom: 10px; 
-            cursor: pointer; 
-            transition: 0.3s; 
-            font-size: 14px; 
-            position: relative; 
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 10px;
         }
-        .nav-link:hover, .nav-link.active { 
-            background: var(--secondary); 
-            color: var(--primary); 
-            font-weight: bold; 
+        .sidebar-logo {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto 10px;
         }
-        .badge-notif { 
-            background: var(--danger); 
-            color: white; 
-            padding: 2px 8px; 
-            border-radius: 20px; 
-            font-size: 10px; 
-            position: absolute; 
-            right: 10px; 
-            top: 12px; 
+        .sidebar h2 {
+            font-size: 16px;
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            text-align: center;
         }
-        .logout-section { 
-            margin-top: auto; 
-            padding-top: 20px; 
-            border-top: 1px solid rgba(255,255,255,0.2); 
+        .sidebar-nav {
+            flex: 1;
         }
-        .btn-logout { 
-            width: 100%; 
-            background: var(--danger); 
-            color: white; 
-            padding: 12px; 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            transition: 0.3s; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 8px; 
+        .nav-link {
+            display: block;
+            color: white;
+            padding: 12px 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+            user-select: none;
+            border-left: 3px solid transparent;
         }
-        .btn-logout:hover { 
-            background: #c82333; 
-            transform: translateY(-2px); 
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
+        .nav-link:hover {
+            background: rgba(255, 180, 0, 0.2);
+            border-left-color: var(--secondary);
         }
-        .main-content { 
-            margin-left: 260px; 
-            padding: 20px; 
-            width: calc(100% - 260px); 
-            min-height: 100vh; 
-            box-sizing: border-box; 
+        .nav-link.active {
+            background: var(--secondary);
+            color: var(--primary);
+            font-weight: bold;
+            border-left-color: var(--primary);
         }
-        .card { 
-            background: white; 
-            padding: 25px; 
-            border-radius: 15px; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
-            margin-bottom: 20px; 
+        .logout-section {
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
         }
-        .header-stats { 
-            background: var(--primary); 
-            color: white; 
-            padding: 20px; 
-            border-radius: 12px; 
-            margin-bottom: 20px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            flex-wrap: wrap;
+        .btn-logout {
+            width: 100%;
+            background: var(--danger);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+        .btn-logout:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .main-content {
+            margin-left: 220px;
+            width: calc(100% - 220px);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .content-header {
+            background: white;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .content-header h1 {
+            color: var(--primary);
+            font-size: 18px;
+            margin: 0;
+            display: flex;
+            align-items: center;
             gap: 10px;
         }
-        h3 { 
-            color: var(--primary); 
-            margin: 0 0 15px 0; 
-            border-left: 5px solid var(--secondary); 
-            padding-left: 15px; 
-            font-size: 18px;
-        }
-        h4 { 
-            color: var(--primary); 
-            margin-bottom: 15px; 
-            font-size: 16px;
-        }
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-top: 10px; 
-            font-size: 13px; 
-        }
-        th { 
-            background: #f8f9fa; 
-            padding: 12px; 
-            text-align: left; 
-            border-bottom: 2px solid #ddd; 
-            color: var(--primary); 
-            font-weight: bold; 
-        }
-        td { 
-            padding: 10px 12px; 
-            border-bottom: 1px solid #eee; 
-            vertical-align: middle; 
-        }
-        label { 
-            display: block; 
-            margin-bottom: 5px; 
-            font-weight: 600; 
-            font-size: 13px; 
-            color: #555; 
-        }
-        input, select, textarea { 
-            width: 100%; 
-            padding: 10px; 
-            border: 1px solid #ddd; 
-            border-radius: 6px; 
-            box-sizing: border-box; 
-            font-family: inherit; 
-            margin-bottom: 10px; 
-            font-size: 13px; 
-        }
-        input:disabled, input[readonly] { 
-            background: #f0f0f0; 
-            color: #666; 
-        }
-        textarea { 
-            resize: vertical; 
-            min-height: 60px; 
-        }
-        .btn { 
-            padding: 10px 15px; 
-            border: none; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            font-size: 13px; 
-            transition: 0.3s; 
-            display: inline-flex; 
-            align-items: center; 
-            gap: 6px; 
-        }
-        .btn:hover { 
-            opacity: 0.9; 
-            transform: translateY(-2px); 
-        }
-        .btn:disabled { 
-            opacity: 0.5; 
-            cursor: not-allowed; 
-        }
-        .btn-add { 
-            background: var(--success); 
-            color: white; 
-            width: 100%; 
-            justify-content: center; 
-        }
-        .btn-danger { 
-            background: var(--danger); 
-            color: white; 
-        }
-        .btn-info { 
-            background: var(--info); 
-            color: white; 
-        }
-        .btn-warning { 
-            background: var(--warning); 
-            color: #333; 
-            font-weight: bold; 
-        }
-        .btn-print { 
-            background: #6f42c1; 
-            color: white; 
-        }
-        .btn-success { 
-            background: var(--success); 
-            color: white; 
-        }
-        .btn-sm { 
-            padding: 6px 10px; 
-            font-size: 11px; 
-        }
-        .section { 
-            display: none; 
-        }
-        .section.active { 
-            display: block; 
-            animation: fadeIn 0.3s ease-in; 
-        }
-        @keyframes fadeIn { 
-            from { opacity: 0; } 
-            to { opacity: 1; } 
-        }
-        .grid-input { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 15px; 
-        }
-        @media (max-width: 768px) {
-            .grid-input { 
-                grid-template-columns: 1fr; 
-            }
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-                padding: 10px;
-            }
-            .main-content {
-                margin-left: 0;
-                width: 100%;
-                padding: 10px;
-            }
-        }
-        .finance-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
-            gap: 15px; 
-            margin-bottom: 20px; 
-        }
-        .stat-box { 
-            padding: 15px; 
-            border-radius: 12px; 
-            color: white; 
-            text-align: center; 
-        }
-        .stat-box span { 
-            font-size: 12px; 
-            opacity: 0.9; 
-            display: block;
-            margin-bottom: 5px;
-        }
-        .stat-box h3 { 
-            color: white !important; 
-            border: none; 
-            padding: 0; 
-            margin: 0; 
-            font-size: 24px; 
-        }
-        .filter-section { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
-            gap: 10px; 
-            margin-bottom: 20px; 
-        }
-        .btn-group { 
-            display: flex; 
-            gap: 10px; 
-            margin-bottom: 20px; 
-            flex-wrap: wrap; 
-        }
-        .btn-group .btn { 
-            flex: 1; 
-            min-width: 100px;
-            justify-content: center;
-        }
-        .table-wrapper { 
-            overflow-x: auto; 
-            margin-top: 10px;
-        }
-        .alert-modal { 
-            position: fixed; 
-            top: 50%; 
-            left: 50%; 
-            transform: translate(-50%, -50%); 
-            min-width: 260px; 
-            max-width: 90%; 
-            padding: 20px; 
-            border-radius: 12px; 
-            background: white; 
-            color: #333; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
-            z-index: 10000; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            text-align: center; 
-            gap: 12px; 
-            animation: slideDown 0.3s ease;
-        }
-        @keyframes slideDown {
-            from { 
-                opacity: 0; 
-                transform: translate(-50%, -60%);
-            }
-            to { 
-                opacity: 1; 
-                transform: translate(-50%, -50%);
-            }
-        }
-        .alert-modal div { 
-            font-weight: 600; 
-            font-size: 14px; 
-            line-height: 1.5; 
-        }
-        .alert-success { 
-            border-top: 4px solid var(--success); 
-        }
-        .alert-error { 
-            border-top: 4px solid var(--danger); 
-        }
-        .alert-warn { 
-            border-top: 4px solid var(--warning); 
-        }
-        .alert-info { 
-            border-top: 4px solid var(--info); 
-        }
-        .loading-spinner { 
-            display: inline-block; 
-            width: 12px; 
-            height: 12px; 
-            border: 2px solid #f3f3f3; 
-            border-radius: 50%; 
-            border-top: 2px solid var(--primary); 
-            animation: spin 0.6s linear infinite; 
-        }
-        @keyframes spin { 
-            to { transform: rotate(360deg); } 
-        }
-        .modal-overlay { 
-            display: none; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            right: 0; 
-            bottom: 0; 
-            background: rgba(0,0,0,0.5); 
-            z-index: 9999; 
-            justify-content: center; 
-            align-items: center; 
+        .content-area {
+            flex: 1;
             overflow-y: auto;
             padding: 20px;
         }
-        .modal-overlay.active { 
-            display: flex; 
+        .section {
+            display: none;
         }
-        .modal-content { 
-            background: white; 
-            padding: 30px; 
-            border-radius: 12px; 
-            max-width: 500px; 
-            width: 100%;
-            max-height: 90vh; 
-            overflow-y: auto; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
+        .section.active {
+            display: block !important;
         }
-        .modal-header { 
-            font-size: 16px; 
-            font-weight: bold; 
-            color: var(--primary); 
-            margin-bottom: 15px; 
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
         }
-        .modal-body { 
-            margin-bottom: 15px; 
-            font-size: 13px; 
-            line-height: 1.6; 
+        .card h3 {
+            color: var(--primary);
+            font-size: 16px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--secondary);
+            padding-left: 10px;
         }
-        .modal-footer { 
-            display: flex; 
-            gap: 10px; 
-            justify-content: flex-end; 
-            flex-wrap: wrap; 
+        .card h4 {
+            color: var(--primary);
+            font-size: 14px;
+            margin-bottom: 12px;
         }
-        .info-box { 
-            background: #e7f3ff; 
-            border-left: 4px solid var(--info); 
-            padding: 10px; 
-            border-radius: 6px; 
-            margin-bottom: 15px; 
-            font-size: 12px; 
-            color: var(--info); 
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 15px;
         }
-        .success-badge { 
-            background: #d4edda; 
-            color: #155724; 
-            padding: 4px 8px; 
-            border-radius: 4px; 
-            font-size: 11px; 
-            font-weight: bold; 
-        }
-        .loading-state {
+        .stat-box {
+            padding: 15px;
+            border-radius: 8px;
+            color: white;
             text-align: center;
-            padding: 40px 20px;
+        }
+        .stat-box span {
+            display: block;
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        .stat-box h3 {
+            color: white !important;
+            border: none;
+            padding: 0;
+            margin: 0;
+            font-size: 24px;
+        }
+        .btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            user-select: none;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        .btn-info {
+            background: var(--info);
+            color: white;
+        }
+        .btn-warning {
+            background: var(--warning);
+            color: #333;
+        }
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 11px;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 600;
+            font-size: 12px;
+            color: #555;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 12px;
+            box-sizing: border-box;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(0, 51, 153, 0.1);
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        @media (max-width: 1024px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .btn-group .btn {
+            flex: 1;
+            min-width: 100px;
+            justify-content: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        th {
+            background: #f8f9fa;
+            padding: 10px;
+            text-align: left;
+            border-bottom: 2px solid #ddd;
+            color: var(--primary);
+            font-weight: bold;
+        }
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        tr:hover {
+            background: #fafafa;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .badge-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        .alert {
+            padding: 12px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .alert-info {
+            background: #e7f3ff;
+            border-left: 4px solid var(--info);
+            color: var(--info);
+        }
+        .alert-success {
+            background: #d4edda;
+            border-left: 4px solid var(--success);
+            color: #155724;
+        }
+        .alert-error {
+            background: #f8d7da;
+            border-left: 4px solid var(--danger);
+            color: #721c24;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
             color: #999;
+        }
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            margin-left: 5px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        .modal-header {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        .modal-body {
+            margin-bottom: 15px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
         }
     </style>
 </head>
@@ -440,508 +417,381 @@
 
     <!-- SIDEBAR -->
     <div class="sidebar">
-        <div class="sidebar-content">
-            <div style="text-align: center; margin-bottom: 15px;">
-                <img src="logossb.png" style="width: 60px; height: 60px; object-fit: contain;" alt="SSB" onerror="this.textContent='SSB'">
-            </div>
+        <div class="sidebar-header">
+            <img src="logossb.png" class="sidebar-logo" alt="SSB" onerror="this.alt='SSB'; this.textContent='SSB'">
             <h2>ADMIN</h2>
-            
-            <div class="nav-link active" onclick="showSection('dashboard')">
+        </div>
+
+        <div class="sidebar-nav">
+            <div class="nav-link active" onclick="switchSection(event, 'dashboard')">
                 📊 Dashboard
             </div>
-            <div class="nav-link" onclick="showSection('db_siswa')">
+            <div class="nav-link" onclick="switchSection(event, 'siswa')">
                 👥 Database Siswa
             </div>
-            <div class="nav-link" onclick="showSection('verifikasi')">
-                ✅ Verifikasi <span id="badgeCount" class="badge-notif" style="display:none;">0</span>
+            <div class="nav-link" onclick="switchSection(event, 'verifikasi')">
+                ✅ Verifikasi
             </div>
-            <div class="nav-link" onclick="showSection('absensi')">
-                📝 Absensi
-            </div>
-            <div class="nav-link" onclick="showSection('keuangan')">
+            <div class="nav-link" onclick="switchSection(event, 'keuangan')">
                 💰 Keuangan
             </div>
-            <div class="nav-link" onclick="showSection('raport')">
-                📊 Nilai
-            </div>
-            <div class="nav-link" onclick="showSection('jadwal')">
+            <div class="nav-link" onclick="switchSection(event, 'jadwal')">
                 📅 Jadwal
             </div>
         </div>
-        
+
         <div class="logout-section">
             <button class="btn-logout" onclick="logoutAdmin()">
-                <i class="fas fa-sign-out-alt"></i> LOGOUT
+                🚪 LOGOUT
             </button>
         </div>
     </div>
 
+    <!-- MAIN CONTENT -->
     <div class="main-content">
-        
         <!-- DASHBOARD -->
         <div id="dashboard" class="section active">
-            <div class="card">
-                <h3>📊 Dashboard</h3>
-                <div class="finance-grid">
-                    <div class="stat-box" style="background: var(--success);">
-                        <span>Total Siswa</span>
-                        <h3 id="dashTotal">0</h3>
+            <div class="content-header">
+                <h1>📊 Dashboard</h1>
+            </div>
+            <div class="content-area">
+                <div class="card">
+                    <div class="stat-grid">
+                        <div class="stat-box" style="background: var(--success);">
+                            <span>Total Siswa</span>
+                            <h3 id="totalSiswa">0</h3>
+                        </div>
+                        <div class="stat-box" style="background: var(--info);">
+                            <span>Menunggu Verifikasi</span>
+                            <h3 id="totalPending">0</h3>
+                        </div>
+                        <div class="stat-box" style="background: var(--primary);">
+                            <span>Saldo Kas</span>
+                            <h3 id="totalSaldo">Rp 0</h3>
+                        </div>
                     </div>
-                    <div class="stat-box" style="background: var(--info);">
-                        <span>Menunggu Verifikasi</span>
-                        <h3 id="dashPending">0</h3>
-                    </div>
-                    <div class="stat-box" style="background: var(--primary);">
-                        <span>Saldo Kas</span>
-                        <h3 id="dashSaldo">Rp 0</h3>
+                    <div class="btn-group">
+                        <button class="btn btn-info" onclick="refreshDashboard()">
+                            🔄 Refresh
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- DATABASE SISWA -->
-        <div id="db_siswa" class="section">
-            <div class="card">
-                <h3>👥 Database Siswa</h3>
-                <div class="finance-grid">
-                    <div style="text-align: center;">
-                        <div style="font-size: 12px; color: #666;">Reguler</div>
-                        <div id="totalReguler" style="font-size: 24px; font-weight: bold; color: var(--primary);">0</div>
+        <div id="siswa" class="section">
+            <div class="content-header">
+                <h1>👥 Database Siswa</h1>
+            </div>
+            <div class="content-area">
+                <div class="card">
+                    <div class="stat-grid">
+                        <div style="text-align: center;">
+                            <div style="font-size: 12px; color: #666;">Reguler</div>
+                            <div style="font-size: 20px; font-weight: bold; color: var(--primary);" id="countReguler">0</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 12px; color: #666;">Beasiswa</div>
+                            <div style="font-size: 20px; font-weight: bold; color: var(--primary);" id="countBeasiswa">0</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 12px; color: #666;">Total</div>
+                            <div style="font-size: 20px; font-weight: bold; color: var(--primary);" id="countTotal">0</div>
+                        </div>
                     </div>
-                    <div style="text-align: center;">
-                        <div style="font-size: 12px; color: #666;">Beasiswa</div>
-                        <div id="totalBeasiswa" style="font-size: 24px; font-weight: bold; color: var(--primary);">0</div>
-                    </div>
-                    <div style="text-align: center;">
-                        <div style="font-size: 12px; color: #666;">Total</div>
-                        <div id="totalSiswa" style="font-size: 24px; font-weight: bold; color: var(--primary);">0</div>
-                    </div>
-                </div>
-                
-                <div class="filter-section">
-                    <div>
-                        <label>Kategori:</label>
-                        <select id="filterKategori" onchange="renderAllSiswa()">
-                            <option value="">Semua</option>
-                            <option value="KU-6">KU-6</option>
-                            <option value="KU-8">KU-8</option>
-                            <option value="KU-10">KU-10</option>
-                            <option value="KU-12">KU-12</option>
-                            <option value="KU-14">KU-14</option>
-                            <option value="KU-16">KU-16</option>
-                            <option value="KU-17">KU-17</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label>Tipe:</label>
-                        <select id="filterTipe" onchange="renderAllSiswa()">
-                            <option value="">Semua</option>
-                            <option value="Reguler">Reguler</option>
-                            <option value="Beasiswa">Beasiswa</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label>Status:</label>
-                        <select id="filterStatus" onchange="renderAllSiswa()">
-                            <option value="">Semua</option>
-                            <option value="Disetujui">Disetujui</option>
-                            <option value="Ditolak">Ditolak</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label>Cari:</label>
-                        <input type="text" id="searchNama" placeholder="Nama/NISW" onkeyup="renderAllSiswa()">
-                    </div>
-                </div>
 
-                <div class="btn-group">
-                    <button class="btn btn-info" onclick="renderAllSiswa()">
-                        <i class="fas fa-sync-alt"></i> Refresh
-                    </button>
-                    <button class="btn btn-print" onclick="exportSiswa()">
-                        <i class="fas fa-download"></i> Export
-                    </button>
-                </div>
+                    <div class="btn-group">
+                        <button class="btn btn-info" onclick="loadSiswa()">
+                            🔄 Refresh
+                        </button>
+                        <button class="btn btn-warning" onclick="exportSiswa()">
+                            📥 Export
+                        </button>
+                    </div>
 
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>NISW</th>
-                                <th>Nama</th>
-                                <th>KU</th>
-                                <th>Tipe</th>
-                                <th>Posisi</th>
-                                <th>Telepon</th>
-                                <th>Alamat</th>
-                            </tr>
-                        </thead>
-                        <tbody id="listSiswaAktif">
-                            <tr>
-                                <td colspan="8" style="text-align: center;">
-                                    <span class="loading-spinner"></span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>NISW</th>
+                                    <th>Nama</th>
+                                    <th>Kategori</th>
+                                    <th>Tipe</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableSiswa">
+                                <tr>
+                                    <td colspan="6" class="loading">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- VERIFIKASI PENDAFTAR -->
+        <!-- VERIFIKASI -->
         <div id="verifikasi" class="section">
-            <div class="card">
-                <h3>✅ Verifikasi Pendaftaran (Antrean: <span id="totalAntrean">0</span>)</h3>
-                
-                <div class="btn-group">
-                    <button class="btn btn-info" onclick="renderVerifikasi()">
-                        <i class="fas fa-sync-alt"></i> Refresh
-                    </button>
-                </div>
-
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Foto</th>
-                                <th>Nama</th>
-                                <th>KU</th>
-                                <th>Tipe</th>
-                                <th>Nominal</th>
-                                <th>Tanggal</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="listVerifikasi">
-                            <tr>
-                                <td colspan="8" style="text-align: center;">
-                                    <span class="loading-spinner"></span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="content-header">
+                <h1>✅ Verifikasi Pendaftaran</h1>
             </div>
-        </div>
-
-        <!-- ABSENSI -->
-        <div id="absensi" class="section">
-            <div class="card">
-                <h3>📝 Rekap Absensi</h3>
-                
-                <div class="grid-input" style="margin-bottom: 15px;">
-                    <div>
-                        <label>Tanggal:</label>
-                        <input type="date" id="filterTglAbsen" onchange="renderAbsensi()">
+            <div class="content-area">
+                <div class="card">
+                    <div class="btn-group">
+                        <button class="btn btn-info" onclick="loadVerifikasi()">
+                            🔄 Refresh
+                        </button>
                     </div>
-                    <div>
-                        <label>NISW:</label>
-                        <input type="text" id="filterNiswAbsen" placeholder="NISW..." onkeyup="renderAbsensi()">
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nama</th>
+                                    <th>Kategori</th>
+                                    <th>Tipe</th>
+                                    <th>Nominal</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableVerifikasi">
+                                <tr>
+                                    <td colspan="6" class="loading">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                </div>
-
-                <div class="btn-group">
-                    <button class="btn btn-info" onclick="renderAbsensi()">
-                        <i class="fas fa-sync-alt"></i> Refresh
-                    </button>
-                </div>
-
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Tanggal</th>
-                                <th>NISW</th>
-                                <th>Nama</th>
-                                <th>Status</th>
-                                <th>Keterangan</th>
-                                <th>% Kehadiran</th>
-                            </tr>
-                        </thead>
-                        <tbody id="listAbsensi">
-                            <tr>
-                                <td colspan="6" style="text-align: center;">-</td>
-                            </tr>
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </div>
 
         <!-- KEUANGAN -->
         <div id="keuangan" class="section">
-            <div class="finance-grid">
-                <div class="stat-box" style="background: var(--success);">
-                    <span>💵 Masuk</span>
-                    <h3 id="totalMasuk">Rp 0</h3>
-                </div>
-                <div class="stat-box" style="background: var(--danger);">
-                    <span>💸 Keluar</span>
-                    <h3 id="totalKeluar">Rp 0</h3>
-                </div>
-                <div class="stat-box" style="background: var(--primary);">
-                    <span>💰 Saldo</span>
-                    <h3 id="saldoAkhir">Rp 0</h3>
-                </div>
+            <div class="content-header">
+                <h1>💰 Keuangan</h1>
             </div>
-
-            <div class="grid-input">
-                <!-- PEMASUKAN -->
+            <div class="content-area">
                 <div class="card">
-                    <h4>💰 Catat Pemasukan</h4>
-                    
-                    <label>Jenis:</label>
-                    <select id="jenisPemasukan" onchange="updateFormPemasukan()">
-                        <option value="">-- Pilih --</option>
-                        <option value="SPP">SPP Siswa</option>
-                        <option value="Daftar">Uang Daftar</option>
-                        <option value="Sponsor">Sponsor</option>
-                        <option value="Kompetisi">Kompetisi</option>
-                    </select>
-
-                    <div id="fieldNISW" style="display: none;">
-                        <label>NISW:</label>
-                        <input type="text" id="niswBayar" placeholder="R2026001" onchange="cariNamaSiswa()">
-                        <label>Nama (Auto):</label>
-                        <input type="text" id="namaSiswaAuto" readonly>
-                    </div>
-
-                    <label>Dari:</label>
-                    <input type="text" id="pengirimMasuk" placeholder="Nama/Sumber">
-
-                    <label>Nominal:</label>
-                    <input type="number" id="nomBayar" placeholder="0" min="0">
-
-                    <label>Catatan:</label>
-                    <textarea id="ketMasuk" placeholder="Detail..."></textarea>
-
-                    <button class="btn btn-add" id="btnSimpanMasuk" onclick="simpanPemasukan()">
-                        <i class="fas fa-save"></i> Simpan
-                    </button>
-                </div>
-
-                <!-- PENGELUARAN -->
-                <div class="card">
-                    <h4>💸 Catat Pengeluaran</h4>
-                    
-                    <label>Keperluan:</label>
-                    <input type="text" id="ketKeluar" placeholder="Untuk apa?">
-
-                    <label>Nominal:</label>
-                    <input type="number" id="nomKeluar" placeholder="0" min="0">
-
-                    <label>Catatan:</label>
-                    <textarea id="catatanKeluar" placeholder="Detail..."></textarea>
-
-                    <button class="btn btn-danger" id="btnSimpanKeluar" style="width: 100%; justify-content: center;" onclick="simpanPengeluaran()">
-                        <i class="fas fa-save"></i> Simpan
-                    </button>
-                </div>
-            </div>
-
-            <!-- RIWAYAT KEUANGAN -->
-            <div class="card">
-                <h3>📋 Riwayat Keuangan</h3>
-                
-                <div class="btn-group">
-                    <button class="btn btn-info" onclick="loadKeuangan()">
-                        <i class="fas fa-sync-alt"></i> Refresh
-                    </button>
-                    <button class="btn btn-print" onclick="exportKeuangan()">
-                        <i class="fas fa-download"></i> Export CSV
-                    </button>
-                    <button class="btn btn-warning" onclick="hitungUlangSaldo()">
-                        <i class="fas fa-calculator"></i> Hitung Ulang
-                    </button>
-                    <button class="btn btn-danger" onclick="resetKeuangan()">
-                        <i class="fas fa-trash"></i> Hapus Semua
-                    </button>
-                </div>
-
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Tanggal</th>
-                                <th>Jenis</th>
-                                <th>Dari</th>
-                                <th>Catatan</th>
-                                <th style="text-align: right;">Nominal</th>
-                                <th style="text-align: center;">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="listKeuangan">
-                            <tr>
-                                <td colspan="6" style="text-align: center;">-</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- NILAI RAPORT -->
-        <div id="raport" class="section">
-            <div class="card">
-                <h3>📊 Input Nilai Raport</h3>
-                
-                <label>NISW Siswa:</label>
-                <input type="text" id="niswNilai" placeholder="R2026001" onchange="loadSiswaForRaport()">
-                
-                <div id="siswaRaportInfo" style="background: #f0f4ff; padding: 12px; border-radius: 8px; margin-bottom: 15px; display: none;">
-                    <strong>Nama:</strong> <span id="namaRaport">-</span> | 
-                    <strong>KU:</strong> <span id="kuRaport">-</span>
-                </div>
-
-                <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-                    <h4>Antropometri</h4>
-                    <div class="grid-input">
-                        <div>
-                            <label>TB (cm):</label>
-                            <input type="number" id="tb" placeholder="165" oninput="hitungBMI()">
+                    <div class="stat-grid">
+                        <div class="stat-box" style="background: var(--success);">
+                            <span>💵 Masuk</span>
+                            <h3 id="totalMasuk">Rp 0</h3>
                         </div>
-                        <div>
-                            <label>BB (kg):</label>
-                            <input type="number" id="bb" placeholder="55" oninput="hitungBMI()">
+                        <div class="stat-box" style="background: var(--danger);">
+                            <span>💸 Keluar</span>
+                            <h3 id="totalKeluar">Rp 0</h3>
+                        </div>
+                        <div class="stat-box" style="background: var(--primary);">
+                            <span>💰 Saldo</span>
+                            <h3 id="saldoKas">Rp 0</h3>
                         </div>
                     </div>
-                    <div>
-                        <label>BMI (Auto):</label>
-                        <input type="text" id="bmi" readonly style="background: #e9f0ff; font-weight: bold;">
+                </div>
+
+                <div class="grid-2">
+                    <!-- PEMASUKAN -->
+                    <div class="card">
+                        <h4>💰 Pemasukan</h4>
+
+                        <div class="form-group">
+                            <label>Jenis:</label>
+                            <select id="jenisMasuk" onchange="updateFormMasuk()">
+                                <option value="">-- Pilih --</option>
+                                <option value="SPP">SPP Siswa</option>
+                                <option value="Daftar">Uang Daftar</option>
+                                <option value="Sponsor">Sponsor</option>
+                                <option value="Lainnya">Lain-lain</option>
+                            </select>
+                        </div>
+
+                        <div id="niswaField" style="display: none;">
+                            <div class="form-group">
+                                <label>NISW:</label>
+                                <input type="text" id="niswInput" placeholder="R2026001" onchange="searchSiswa()">
+                            </div>
+                            <div class="form-group">
+                                <label>Nama (Auto):</label>
+                                <input type="text" id="namaAuto" readonly>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Dari:</label>
+                            <input type="text" id="dariMasuk" placeholder="Nama/Sumber">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Nominal (Rp):</label>
+                            <input type="number" id="nominalMasuk" placeholder="0" min="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Catatan:</label>
+                            <textarea id="catatanMasuk" placeholder="Detail..."></textarea>
+                        </div>
+
+                        <button class="btn btn-success btn-block" onclick="saveMasuk()">
+                            💾 Simpan
+                        </button>
+                    </div>
+
+                    <!-- PENGELUARAN -->
+                    <div class="card">
+                        <h4>💸 Pengeluaran</h4>
+
+                        <div class="form-group">
+                            <label>Keperluan:</label>
+                            <input type="text" id="keperluanKeluar" placeholder="Untuk apa?">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Nominal (Rp):</label>
+                            <input type="number" id="nominalKeluar" placeholder="0" min="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Catatan:</label>
+                            <textarea id="catatanKeluar" placeholder="Detail..."></textarea>
+                        </div>
+
+                        <button class="btn btn-danger btn-block" onclick="saveKeluar()">
+                            💾 Simpan
+                        </button>
                     </div>
                 </div>
 
-                <h4>Skill Teknik</h4>
-                <div class="grid-input">
-                    <div>
-                        <label>Passing (0-100):</label>
-                        <input type="number" id="n_passing" class="input-nilai" placeholder="0" oninput="hitungRataOtomatis()">
+                <!-- RIWAYAT -->
+                <div class="card">
+                    <h3>📋 Riwayat Keuangan</h3>
+
+                    <div class="btn-group">
+                        <button class="btn btn-info" onclick="loadKeuangan()">
+                            🔄 Refresh
+                        </button>
+                        <button class="btn btn-warning" onclick="exportKeuangan()">
+                            📥 Export
+                        </button>
+                        <button class="btn btn-danger" onclick="resetKeuangan()">
+                            🗑️ Hapus Semua
+                        </button>
                     </div>
-                    <div>
-                        <label>Shooting (0-100):</label>
-                        <input type="number" id="n_shooting" class="input-nilai" placeholder="0" oninput="hitungRataOtomatis()">
-                    </div>
-                    <div>
-                        <label>Dribbling (0-100):</label>
-                        <input type="number" id="n_dribbling" class="input-nilai" placeholder="0" oninput="hitungRataOtomatis()">
-                    </div>
-                    <div>
-                        <label>Control (0-100):</label>
-                        <input type="number" id="n_control" class="input-nilai" placeholder="0" oninput="hitungRataOtomatis()">
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Jenis</th>
+                                    <th>Dari</th>
+                                    <th>Catatan</th>
+                                    <th>Nominal</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableKeuangan">
+                                <tr>
+                                    <td colspan="6" style="text-align: center;">-</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-
-                <h4 style="margin-top: 15px;">Skill Fisik & Taktik</h4>
-                <div class="grid-input">
-                    <div>
-                        <label>Positioning (0-100):</label>
-                        <input type="number" id="n_positioning" class="input-nilai" placeholder="0" oninput="hitungRataOtomatis()">
-                    </div>
-                    <div>
-                        <label>Kecepatan (0-100):</label>
-                        <input type="number" id="n_speed" class="input-nilai" placeholder="0" oninput="hitungRataOtomatis()">
-                    </div>
-                </div>
-
-                <div style="margin-top: 15px; padding: 12px; background: #f0f0f0; border-radius: 8px;">
-                    <strong>Rata-Rata:</strong>
-                    <div style="font-size: 24px; font-weight: bold; color: var(--primary); text-align: center;">
-                        <span id="avgText">0</span>%
-                    </div>
-                </div>
-
-                <div>
-                    <label style="margin-top: 15px;">Catatan:</label>
-                    <textarea id="catatanPelatih" placeholder="Saran perkembangan..."></textarea>
-                </div>
-
-                <button class="btn btn-add" onclick="simpanNilai()">
-                    <i class="fas fa-save"></i> SIMPAN
-                </button>
             </div>
         </div>
 
         <!-- JADWAL -->
         <div id="jadwal" class="section">
-            <div class="grid-input">
-                <!-- LATIHAN RUTIN -->
-                <div class="card">
-                    <h4>⚽ Jadwal Latihan</h4>
-                    
-                    <label>Hari:</label>
-                    <input type="text" id="inputHari" placeholder="SELASA">
-                    
-                    <label>Tempat:</label>
-                    <input type="text" id="inputTempat" placeholder="Stadion Mini Legok">
-                    
-                    <label>Waktu:</label>
-                    <input type="text" id="inputWaktu" placeholder="15.00 WIB">
-                    
-                    <button class="btn btn-add" onclick="tambahJadwalLatihan()">
-                        <i class="fas fa-plus"></i> Tambah
-                    </button>
+            <div class="content-header">
+                <h1>📅 Jadwal</h1>
+            </div>
+            <div class="content-area">
+                <div class="grid-2">
+                    <!-- LATIHAN -->
+                    <div class="card">
+                        <h4>⚽ Jadwal Latihan</h4>
 
-                    <h4 style="margin-top: 20px;">Jadwal Saat Ini</h4>
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Hari</th>
-                                    <th>Tempat</th>
-                                    <th>Waktu</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody id="listJadwalLatihan">
-                                <tr>
-                                    <td colspan="5" style="text-align: center;">-</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div class="form-group">
+                            <label>Hari:</label>
+                            <input type="text" id="hariLatihan" placeholder="SELASA">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Tempat:</label>
+                            <input type="text" id="tempatLatihan" placeholder="Stadion">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Waktu:</label>
+                            <input type="text" id="waktuLatihan" placeholder="15.00 WIB">
+                        </div>
+
+                        <button class="btn btn-success btn-block" onclick="addLatihan()">
+                            ➕ Tambah
+                        </button>
+
+                        <h4 style="margin-top: 20px;">Jadwal Saat Ini</h4>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Hari</th>
+                                        <th>Tempat</th>
+                                        <th>Waktu</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableLatihan">
+                                    <tr><td colspan="5" style="text-align: center;">-</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
 
-                <!-- TURNAMEN -->
-                <div class="card">
-                    <h4>🏆 Jadwal Turnamen</h4>
-                    
-                    <label>Event:</label>
-                    <input type="text" id="namaEvent" placeholder="Liga Danone 2026">
-                    
-                    <label>Tanggal:</label>
-                    <input type="date" id="tglEvent">
-                    
-                    <label>Lokasi:</label>
-                    <input type="text" id="lokasiEvent" placeholder="Lapangan Jaha">
-                    
-                    <label>Waktu:</label>
-                    <input type="text" id="waktuEvent" placeholder="08.00 WIB">
-                    
-                    <button class="btn btn-add" onclick="tambahJadwalTurnamen()">
-                        <i class="fas fa-plus"></i> Tambah
-                    </button>
+                    <!-- TURNAMEN -->
+                    <div class="card">
+                        <h4>🏆 Jadwal Turnamen</h4>
 
-                    <h4 style="margin-top: 20px;">Jadwal Saat Ini</h4>
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Event</th>
-                                    <th>Tanggal</th>
-                                    <th>Lokasi</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody id="listJadwalTurnamen">
-                                <tr>
-                                    <td colspan="5" style="text-align: center;">-</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div class="form-group">
+                            <label>Event:</label>
+                            <input type="text" id="namaEvent" placeholder="Liga 2026">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Tanggal:</label>
+                            <input type="date" id="tglEvent">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Lokasi:</label>
+                            <input type="text" id="lokasiEvent" placeholder="Lapangan">
+                        </div>
+
+                        <button class="btn btn-success btn-block" onclick="addTurnamen()">
+                            ➕ Tambah
+                        </button>
+
+                        <h4 style="margin-top: 20px;">Jadwal Saat Ini</h4>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Event</th>
+                                        <th>Tanggal</th>
+                                        <th>Lokasi</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableTurnamen">
+                                    <tr><td colspan="5" style="text-align: center;">-</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -952,14 +802,10 @@
     <div id="modalVerifikasi" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">✅ Konfirmasi Verifikasi</div>
-            <div class="modal-body" id="modalBodyVerifikasi"></div>
+            <div class="modal-body" id="modalBody"></div>
             <div class="modal-footer">
-                <button class="btn btn-danger" onclick="closeModalVerifikasi()">
-                    <i class="fas fa-times"></i> Batal
-                </button>
-                <button class="btn btn-success" onclick="prosesSemiOtomatis()">
-                    <i class="fas fa-check"></i> Setujui
-                </button>
+                <button class="btn btn-danger" onclick="closeModal()">Batal</button>
+                <button class="btn btn-success" onclick="confirmVerifikasi()">Setujui</button>
             </div>
         </div>
     </div>
@@ -971,1037 +817,564 @@
     <script src="db-sync.js"></script>
 
     <script>
-        console.log("🔐 Admin Panel v2 - BUG FIXED");
+        console.log("✅ Admin Panel FINAL v1.0");
 
         // ===== GLOBAL STATE =====
-        let globalState = {
-            allSiswaData: [],
-            keuanganData: [],
-            pendaftarData: [],
+        let appState = {
+            keuangan: [],
             jadwalLatihan: [],
             jadwalTurnamen: [],
-            modalPendaftar: null,
-            isInitialized: false
+            selectedPendaftar: null,
+            dbReady: false,
+            retryCount: 0
         };
 
-        const NOMINAL_DAFTAR = { 'Reguler': 500000, 'Beasiswa': 100000 };
+        const NOMINAL = { 'Reguler': 500000, 'Beasiswa': 100000 };
 
-        // ===== ERROR HANDLING =====
-        window.addEventListener('error', function(e) {
-            console.error("❌ Uncaught error:", e.error);
-            showAlert("❌ Error: " + e.message, "error");
-        });
-
-        // ===== ALERT FUNCTION =====
-        function showAlert(msg, type = "success", time = 2200) {
-            try {
-                const box = document.createElement("div");
-                box.className = `alert-modal alert-${type}`;
-                box.innerHTML = `<div>${msg}</div>`;
-                document.body.appendChild(box);
-                
-                setTimeout(() => {
-                    try {
-                        box.style.opacity = "0";
-                        box.style.transition = "0.3s ease";
-                        setTimeout(() => {
-                            if (box.parentNode) box.parentNode.removeChild(box);
-                        }, 300);
-                    } catch (e) {
-                        console.error("Alert cleanup error:", e);
-                    }
-                }, time);
-            } catch (e) {
-                console.error("Alert creation error:", e);
-            }
+        // ===== HELPERS =====
+        function formatRupiah(n) {
+            return new Intl.NumberFormat('id-ID').format(n || 0);
         }
 
-        // ===== FORMAT FUNCTIONS =====
-        function formatRupiah(nominal) {
-            try {
-                return new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0 }).format(nominal || 0);
-            } catch (e) {
-                return (nominal || 0).toString();
-            }
+        function showNotif(msg, type = 'success') {
+            console.log(`[${type.toUpperCase()}]`, msg);
+            alert(msg);
         }
 
-        function formatTanggal(tgl) {
-            if (!tgl) return '-';
-            if (typeof tgl !== 'string') return '-';
-            if (tgl.includes('/')) return tgl;
-            if (tgl.includes('-')) {
-                const parts = tgl.split('-');
-                if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
-            }
-            return tgl;
-        }
-
-        // ===== DATA PERSISTENCE - SAFE =====
-        function loadAllData() {
+        function loadStorage() {
             try {
-                globalState.keuanganData = JSON.parse(localStorage.getItem('keuanganData') || '[]');
-                globalState.pendaftarData = JSON.parse(localStorage.getItem('pendaftarData') || '[]');
-                globalState.jadwalLatihan = JSON.parse(localStorage.getItem('jadwalLatihan') || '[]');
-                globalState.jadwalTurnamen = JSON.parse(localStorage.getItem('jadwalTurnamen') || '[]');
-                console.log("✅ Data loaded successfully");
+                appState.keuangan = JSON.parse(localStorage.getItem('keuangan') || '[]');
+                appState.jadwalLatihan = JSON.parse(localStorage.getItem('jadwalLatihan') || '[]');
+                appState.jadwalTurnamen = JSON.parse(localStorage.getItem('jadwalTurnamen') || '[]');
+                console.log("✅ Storage loaded");
                 return true;
             } catch (e) {
-                console.error("❌ Data load error:", e);
-                showAlert("⚠️ Error loading data", "warn");
+                console.error("❌ Load storage error:", e);
                 return false;
             }
         }
 
-        function saveAllData() {
+        function saveStorage() {
             try {
-                localStorage.setItem('keuanganData', JSON.stringify(globalState.keuanganData));
-                localStorage.setItem('pendaftarData', JSON.stringify(globalState.pendaftarData));
-                localStorage.setItem('jadwalLatihan', JSON.stringify(globalState.jadwalLatihan));
-                localStorage.setItem('jadwalTurnamen', JSON.stringify(globalState.jadwalTurnamen));
-                console.log("✅ Data saved successfully");
+                localStorage.setItem('keuangan', JSON.stringify(appState.keuangan));
+                localStorage.setItem('jadwalLatihan', JSON.stringify(appState.jadwalLatihan));
+                localStorage.setItem('jadwalTurnamen', JSON.stringify(appState.jadwalTurnamen));
+                console.log("✅ Storage saved");
                 return true;
             } catch (e) {
-                console.error("❌ Data save error:", e);
-                showAlert("❌ Error saving data", "error");
+                console.error("❌ Save storage error:", e);
                 return false;
             }
+        }
+
+        // ===== NAVIGATION - CORE FIX =====
+        function switchSection(evt, sectionId) {
+            evt?.preventDefault();
+            evt?.stopPropagation();
+
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+
+            // Remove active from all nav links
+            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+
+            // Show target section
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.classList.add('active');
+            }
+
+            // Mark nav link as active
+            if (evt?.target) {
+                evt.target.classList.add('active');
+            }
+
+            console.log("✅ Switched to:", sectionId);
         }
 
         // ===== DASHBOARD =====
-        function renderDashboard() {
-            try {
-                loadAllData();
-                
-                if (typeof DBManager === 'undefined' || !DBManager.getSiswaAktif) {
-                    console.warn("⚠️ DBManager not ready yet");
-                    return;
-                }
-
-                DBManager.getSiswaAktif(function(siswaList) {
-                    try {
-                        if (!Array.isArray(siswaList)) {
-                            console.error("Invalid siswaList");
-                            return;
-                        }
-
-                        const total = siswaList.length;
-                        const pending = globalState.pendaftarData.filter(p => p.status !== 'DISETUJUI').length;
-
-                        const masuk = globalState.keuanganData
-                            .filter(k => k.jenisMasukKeluar === 'Masuk')
-                            .reduce((s, k) => s + (k.nominal || 0), 0);
-                        const keluar = globalState.keuanganData
-                            .filter(k => k.jenisMasukKeluar === 'Keluar')
-                            .reduce((s, k) => s + (k.nominal || 0), 0);
-                        const saldo = masuk - keluar;
-
-                        const dashTotal = document.getElementById('dashTotal');
-                        const dashPending = document.getElementById('dashPending');
-                        const dashSaldo = document.getElementById('dashSaldo');
-
-                        if (dashTotal) dashTotal.textContent = total;
-                        if (dashPending) dashPending.textContent = pending;
-                        if (dashSaldo) dashSaldo.textContent = 'Rp ' + formatRupiah(saldo);
-                    } catch (e) {
-                        console.error("Dashboard render error:", e);
-                    }
-                });
-            } catch (e) {
-                console.error("Dashboard error:", e);
-            }
+        function refreshDashboard() {
+            loadStorage();
+            console.log("Dashboard refreshed");
         }
 
-        // ===== SISWA AKTIF =====
-        function renderAllSiswa() {
-            try {
-                loadAllData();
+        // ===== SISWA =====
+        function loadSiswa() {
+            const tbody = document.getElementById('tableSiswa');
+            
+            if (typeof DBManager === 'undefined' || !DBManager.getSiswaAktif) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">DBManager belum siap</td></tr>';
+                return;
+            }
 
-                if (typeof DBManager === 'undefined' || !DBManager.getSiswaAktif) {
-                    console.warn("⚠️ DBManager not ready");
-                    setTimeout(renderAllSiswa, 1000);
+            tbody.innerHTML = '<tr><td colspan="6" class="loading">Loading...</td></tr>';
+
+            DBManager.getSiswaAktif(function(data) {
+                if (!Array.isArray(data)) data = [];
+
+                const reguler = data.filter(s => s.tipe === 'Reguler').length;
+                const beasiswa = data.filter(s => s.tipe === 'Beasiswa').length;
+
+                document.getElementById('countReguler').textContent = reguler;
+                document.getElementById('countBeasiswa').textContent = beasiswa;
+                document.getElementById('countTotal').textContent = data.length;
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Tidak ada data siswa</td></tr>';
                     return;
                 }
 
-                const filterKategori = document.getElementById('filterKategori')?.value || '';
-                const filterTipe = document.getElementById('filterTipe')?.value || '';
-                const filterStatus = document.getElementById('filterStatus')?.value || '';
-                const searchNama = document.getElementById('searchNama')?.value?.toLowerCase() || '';
+                tbody.innerHTML = data.map((s, i) => `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td><strong>${s.nisw || '-'}</strong></td>
+                        <td>${s.nama || '-'}</td>
+                        <td><span class="badge badge-info">${s.kategori || '-'}</span></td>
+                        <td><span class="badge badge-success">${s.tipe || '-'}</span></td>
+                        <td>${s.status || 'Aktif'}</td>
+                    </tr>
+                `).join('');
+            });
+        }
 
-                DBManager.getSiswaAktif(function(siswaList) {
-                    try {
-                        if (!Array.isArray(siswaList)) {
-                            siswaList = [];
-                        }
-
-                        let filtered = siswaList.filter(siswa => {
-                            const matchKat = !filterKategori || siswa.kategori === filterKategori;
-                            const matchTipe = !filterTipe || siswa.tipe === filterTipe;
-                            const matchStatus = !filterStatus || siswa.status === filterStatus;
-                            const matchSearch = !searchNama || 
-                                (siswa.nama && siswa.nama.toLowerCase().includes(searchNama)) ||
-                                (siswa.nisw && siswa.nisw.toLowerCase().includes(searchNama));
-                            return matchKat && matchTipe && matchStatus && matchSearch;
-                        });
-
-                        const reguler = siswaList.filter(s => s.tipe === 'Reguler').length;
-                        const beasiswa = siswaList.filter(s => s.tipe === 'Beasiswa').length;
-
-                        const elReg = document.getElementById('totalReguler');
-                        const elBea = document.getElementById('totalBeasiswa');
-                        const elTotal = document.getElementById('totalSiswa');
-
-                        if (elReg) elReg.textContent = reguler;
-                        if (elBea) elBea.textContent = beasiswa;
-                        if (elTotal) elTotal.textContent = siswaList.length;
-
-                        const tbody = document.getElementById('listSiswaAktif');
-                        if (!tbody) {
-                            console.error("listSiswaAktif element not found");
-                            return;
-                        }
-
-                        if (filtered.length === 0) {
-                            tbody.innerHTML = `<tr><td colspan="8" style="text-align: center;">Tidak ada data</td></tr>`;
-                            return;
-                        }
-
-                        tbody.innerHTML = filtered.map((siswa, idx) => `
-                            <tr>
-                                <td>${idx + 1}</td>
-                                <td><strong>${siswa.nisw || '-'}</strong></td>
-                                <td>${siswa.nama || '-'}</td>
-                                <td>${siswa.kategori || '-'}</td>
-                                <td><span class="success-badge">${siswa.tipe || '-'}</span></td>
-                                <td>${siswa.posisi || '-'}</td>
-                                <td><a href="tel:${siswa.noHp}" style="color: var(--info);">${siswa.noHp || '-'}</a></td>
-                                <td style="font-size: 12px;">${siswa.alamat ? siswa.alamat.substring(0, 20) + '...' : '-'}</td>
-                            </tr>
-                        `).join('');
-
-                        console.log("✅ Siswa rendered:", filtered.length);
-                    } catch (e) {
-                        console.error("Siswa render error:", e);
-                        showAlert("❌ Error rendering data", "error");
-                    }
-                });
-            } catch (e) {
-                console.error("renderAllSiswa error:", e);
+        function exportSiswa() {
+            if (typeof DBManager === 'undefined' || !DBManager.getSiswaAktif) {
+                showNotif("DBManager belum siap");
+                return;
             }
+
+            DBManager.getSiswaAktif(function(data) {
+                if (!Array.isArray(data) || data.length === 0) {
+                    showNotif("Tidak ada data untuk diexport");
+                    return;
+                }
+
+                let csv = 'NISW,Nama,Kategori,Tipe\n';
+                data.forEach(s => {
+                    csv += `"${s.nisw}","${s.nama}","${s.kategori}","${s.tipe}"\n`;
+                });
+
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `siswa-${new Date().toLocaleDateString('id-ID')}.csv`;
+                link.click();
+
+                showNotif("✅ Export berhasil!");
+            });
         }
 
         // ===== VERIFIKASI =====
-        function renderVerifikasi() {
-            try {
-                loadAllData();
+        function loadVerifikasi() {
+            const tbody = document.getElementById('tableVerifikasi');
 
-                if (typeof DBManager === 'undefined' || !DBManager.getPendaftar) {
-                    console.warn("⚠️ DBManager not ready");
-                    setTimeout(renderVerifikasi, 1000);
+            if (typeof DBManager === 'undefined' || !DBManager.getPendaftar) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">DBManager belum siap</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = '<tr><td colspan="6" class="loading">Loading...</td></tr>';
+
+            DBManager.getPendaftar(function(data) {
+                if (!Array.isArray(data)) data = [];
+
+                const pending = data.filter(p => p.status !== 'DISETUJUI');
+
+                if (pending.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Tidak ada pendaftar menunggu</td></tr>';
                     return;
                 }
 
-                DBManager.getPendaftar(function(data) {
-                    try {
-                        globalState.pendaftarData = Array.isArray(data) ? data : [];
-                        const pending = globalState.pendaftarData.filter(p => p.status !== 'DISETUJUI');
-
-                        const elAntrean = document.getElementById('totalAntrean');
-                        const elBadge = document.getElementById('badgeCount');
-
-                        if (elAntrean) elAntrean.textContent = pending.length;
-                        if (elBadge) {
-                            elBadge.textContent = pending.length;
-                            elBadge.style.display = pending.length > 0 ? 'block' : 'none';
-                        }
-
-                        const tbody = document.getElementById('listVerifikasi');
-                        if (!tbody) return;
-
-                        if (pending.length === 0) {
-                            tbody.innerHTML = `<tr><td colspan="8" style="text-align: center;">Tidak ada</td></tr>`;
-                            return;
-                        }
-
-                        tbody.innerHTML = pending.map((p, i) => {
-                            const nominal = NOMINAL_DAFTAR[p.tipe] || 500000;
-                            return `
-                                <tr>
-                                    <td>${i + 1}</td>
-                                    <td><img src="${p.foto || 'https://via.placeholder.com/40?text=Foto'}" 
-                                        style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;" 
-                                        onerror="this.src='https://via.placeholder.com/40?text=No'"></td>
-                                    <td><strong>${p.nama || '-'}</strong></td>
-                                    <td>${p.kategori || '-'}</td>
-                                    <td><span class="success-badge">${p.tipe || '-'}</span></td>
-                                    <td>Rp ${formatRupiah(nominal)}</td>
-                                    <td>${formatTanggal(p.tglDaftar)}</td>
-                                    <td><button class="btn btn-success btn-sm" onclick="openModalVerifikasi(event)">Setujui</button></td>
-                                </tr>
-                            `;
-                        }).join('');
-
-                        // Store references untuk modal
-                        const buttons = tbody.querySelectorAll('button');
-                        buttons.forEach((btn, idx) => {
-                            btn._pendaftarData = pending[idx];
-                        });
-
-                        console.log("✅ Verifikasi rendered:", pending.length);
-                    } catch (e) {
-                        console.error("Verifikasi render error:", e);
-                    }
-                });
-            } catch (e) {
-                console.error("renderVerifikasi error:", e);
-            }
+                tbody.innerHTML = pending.map((p, i) => {
+                    const nom = NOMINAL[p.tipe] || 500000;
+                    return `
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td><strong>${p.nama}</strong></td>
+                            <td><span class="badge badge-info">${p.kategori}</span></td>
+                            <td><span class="badge badge-success">${p.tipe}</span></td>
+                            <td>Rp ${formatRupiah(nom)}</td>
+                            <td>
+                                <button class="btn btn-success btn-sm" onclick="openVerifikasiModal('${btoa(JSON.stringify(p))}')">
+                                    Setujui
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            });
         }
 
-        function openModalVerifikasi(event) {
+        function openVerifikasiModal(encoded) {
             try {
-                const btn = event?.target?.closest('button');
-                if (!btn || !btn._pendaftarData) {
-                    showAlert("⚠️ Data not found", "warn");
-                    return;
-                }
+                const p = JSON.parse(atob(encoded));
+                const nom = NOMINAL[p.tipe] || 500000;
 
-                globalState.modalPendaftar = btn._pendaftarData;
-                const p = globalState.modalPendaftar;
-                const nominal = NOMINAL_DAFTAR[p.tipe] || 500000;
+                appState.selectedPendaftar = p;
 
-                const modalBody = document.getElementById('modalBodyVerifikasi');
-                if (!modalBody) return;
-
-                modalBody.innerHTML = `
-                    <div style="text-align: left; font-size: 14px;">
-                        <div><strong>Nama:</strong> ${p.nama}</div>
-                        <div><strong>Kategori:</strong> ${p.kategori}</div>
-                        <div><strong>Tipe:</strong> ${p.tipe}</div>
-                        <div style="margin-top: 15px; padding: 10px; background: #e8f5e9; border-radius: 6px;">
-                            <strong style="color: #28a745;">💰 Nominal: Rp ${formatRupiah(nominal)}</strong>
-                        </div>
+                document.getElementById('modalBody').innerHTML = `
+                    <div>
+                        <p><strong>Nama:</strong> ${p.nama}</p>
+                        <p><strong>Kategori:</strong> ${p.kategori}</p>
+                        <p><strong>Tipe:</strong> ${p.tipe}</p>
+                        <p><strong style="color: #28a745;">Nominal: Rp ${formatRupiah(nom)}</strong></p>
                     </div>
                 `;
 
-                const modal = document.getElementById('modalVerifikasi');
-                if (modal) modal.classList.add('active');
+                document.getElementById('modalVerifikasi').classList.add('active');
             } catch (e) {
                 console.error("Modal error:", e);
-                showAlert("❌ Error opening modal", "error");
+                showNotif("Error membuka modal");
             }
         }
 
-        function closeModalVerifikasi() {
-            const modal = document.getElementById('modalVerifikasi');
-            if (modal) modal.classList.remove('active');
-            globalState.modalPendaftar = null;
+        function closeModal() {
+            document.getElementById('modalVerifikasi').classList.remove('active');
+            appState.selectedPendaftar = null;
         }
 
-        function prosesSemiOtomatis() {
-            try {
-                if (!globalState.modalPendaftar) {
-                    showAlert("❌ Data not found", "error");
-                    return;
-                }
-
-                const p = globalState.modalPendaftar;
-                const nominal = NOMINAL_DAFTAR[p.tipe] || 500000;
-
-                // Update pendaftar
-                const idx = globalState.pendaftarData.findIndex(x => x.nisw === p.nisw);
-                if (idx !== -1) {
-                    globalState.pendaftarData[idx].status = 'DISETUJUI';
-                }
-
-                // Catat keuangan
-                globalState.keuanganData.push({
-                    id: Date.now(),
-                    tanggal: new Date().toLocaleDateString('id-ID'),
-                    jenisMasukKeluar: 'Masuk',
-                    jenis: 'Daftar',
-                    dari: p.nama,
-                    keterangan: `Uang Daftar ${p.tipe}`,
-                    nominal: nominal,
-                    createdAt: new Date().toISOString()
-                });
-
-                saveAllData();
-                hitungSaldoKeuangan();
-                showAlert(`✅ ${p.nama} DISETUJUI! Rp ${formatRupiah(nominal)} dicatat`, "success");
-                
-                closeModalVerifikasi();
-                renderVerifikasi();
-                renderKeuangan();
-                renderDashboard();
-            } catch (e) {
-                console.error("Proses error:", e);
-                showAlert("❌ " + e.message, "error");
+        function confirmVerifikasi() {
+            if (!appState.selectedPendaftar) {
+                showNotif("Data tidak ditemukan");
+                return;
             }
-        }
 
-        // ===== ABSENSI =====
-        function renderAbsensi() {
-            try {
-                const tgl = document.getElementById('filterTglAbsen')?.value || '';
-                const nisw = document.getElementById('filterNiswAbsen')?.value?.toLowerCase() || '';
+            const p = appState.selectedPendaftar;
+            const nom = NOMINAL[p.tipe] || 500000;
 
-                if (typeof DBManager === 'undefined' || !DBManager.getAbsensi) {
-                    return;
-                }
+            loadStorage();
 
-                DBManager.getAbsensi(function(data) {
-                    try {
-                        if (!Array.isArray(data)) data = [];
-                        
-                        let filtered = data.filter(a => {
-                            const matchTgl = !tgl || a.tanggal === tgl;
-                            const matchNisw = !nisw || (a.nisw && a.nisw.toLowerCase().includes(nisw));
-                            return matchTgl && matchNisw;
-                        });
+            appState.keuangan.push({
+                id: Date.now(),
+                tanggal: new Date().toLocaleDateString('id-ID'),
+                jenis: 'Masuk',
+                dari: p.nama,
+                catatan: `Uang Daftar - ${p.tipe}`,
+                nominal: nom
+            });
 
-                        const tbody = document.getElementById('listAbsensi');
-                        if (!tbody) return;
-
-                        if (filtered.length === 0) {
-                            tbody.innerHTML = `<tr><td colspan="6">-</td></tr>`;
-                            return;
-                        }
-
-                        tbody.innerHTML = filtered.map(a => `
-                            <tr>
-                                <td>${a.tanggal || '-'}</td>
-                                <td>${a.nisw || '-'}</td>
-                                <td>${a.nama || '-'}</td>
-                                <td>${a.status || '-'}</td>
-                                <td>${a.alasan || '-'}</td>
-                                <td style="text-align: center; font-weight: bold;">75%</td>
-                            </tr>
-                        `).join('');
-                    } catch (e) {
-                        console.error("Absensi render error:", e);
-                    }
-                });
-            } catch (e) {
-                console.error("renderAbsensi error:", e);
-            }
+            saveStorage();
+            showNotif(`✅ ${p.nama} disetujui!`);
+            closeModal();
+            loadVerifikasi();
+            loadKeuangan();
         }
 
         // ===== KEUANGAN =====
-        function updateFormPemasukan() {
-            const jenis = document.getElementById('jenisPemasukan')?.value;
-            const field = document.getElementById('fieldNISW');
+        function updateFormMasuk() {
+            const jenis = document.getElementById('jenisMasuk').value;
+            const field = document.getElementById('niswaField');
             if (field) {
                 field.style.display = (jenis === 'SPP' || jenis === 'Daftar') ? 'block' : 'none';
             }
         }
 
-        function cariNamaSiswa() {
-            try {
-                const nisw = document.getElementById('niswBayar')?.value?.trim().toUpperCase();
-                const field = document.getElementById('namaSiswaAuto');
+        function searchSiswa() {
+            const nisw = document.getElementById('niswInput')?.value?.toUpperCase();
+            if (!nisw) return;
 
-                if (!nisw || !field) return;
+            if (typeof DBManager === 'undefined' || !DBManager.findSiswa) {
+                return;
+            }
 
-                if (typeof DBManager === 'undefined' || !DBManager.findSiswa) {
-                    field.value = '[DBManager not ready]';
-                    return;
+            DBManager.findSiswa(nisw, function(siswa) {
+                const field = document.getElementById('namaAuto');
+                if (siswa) {
+                    field.value = siswa.nama || '';
+                } else {
+                    field.value = '[NISW tidak ditemukan]';
                 }
-
-                DBManager.findSiswa(nisw, function(siswa) {
-                    try {
-                        if (siswa) {
-                            field.value = siswa.nama || '';
-                            showAlert("✅ " + siswa.nama, "success", 1500);
-                        } else {
-                            field.value = '[NISW tidak ditemukan]';
-                            showAlert("⚠️ NISW tidak ditemukan", "warn", 1500);
-                        }
-                    } catch (e) {
-                        console.error("Cari siswa error:", e);
-                    }
-                });
-            } catch (e) {
-                console.error("cariNamaSiswa error:", e);
-            }
+            });
         }
 
-        function simpanPemasukan() {
-            try {
-                const btn = document.getElementById('btnSimpanMasuk');
-                if (btn) btn.disabled = true;
+        function saveMasuk() {
+            const jenis = document.getElementById('jenisMasuk').value;
+            const dari = document.getElementById('dariMasuk').value;
+            const nominal = parseInt(document.getElementById('nominalMasuk').value) || 0;
+            const catatan = document.getElementById('catatanMasuk').value;
 
-                const jenis = document.getElementById('jenisPemasukan')?.value?.trim();
-                const dari = document.getElementById('pengirimMasuk')?.value?.trim();
-                const nominal = parseInt(document.getElementById('nomBayar')?.value) || 0;
-                const ket = document.getElementById('ketMasuk')?.value?.trim();
-
-                if (!jenis || !dari || !nominal || !ket) {
-                    showAlert("⚠️ Isi semua field!", "warn");
-                    if (btn) btn.disabled = false;
-                    return;
-                }
-
-                loadAllData();
-                globalState.keuanganData.push({
-                    id: Date.now(),
-                    tanggal: new Date().toLocaleDateString('id-ID'),
-                    jenisMasukKeluar: 'Masuk',
-                    jenis: jenis,
-                    dari: dari,
-                    keterangan: ket,
-                    nominal: nominal
-                });
-
-                saveAllData();
-                hitungSaldoKeuangan();
-                showAlert("✅ Disimpan!", "success");
-
-                document.getElementById('jenisPemasukan').value = '';
-                document.getElementById('pengirimMasuk').value = '';
-                document.getElementById('nomBayar').value = '';
-                document.getElementById('ketMasuk').value = '';
-                document.getElementById('niswBayar').value = '';
-                document.getElementById('namaSiswaAuto').value = '';
-                updateFormPemasukan();
-                renderKeuangan();
-                renderDashboard();
-
-                if (btn) btn.disabled = false;
-            } catch (e) {
-                console.error("Simpan pemasukan error:", e);
-                showAlert("❌ " + e.message, "error");
-                const btn = document.getElementById('btnSimpanMasuk');
-                if (btn) btn.disabled = false;
+            if (!jenis || !dari || !nominal || !catatan) {
+                showNotif("⚠️ Isi semua field!");
+                return;
             }
+
+            loadStorage();
+            appState.keuangan.push({
+                id: Date.now(),
+                tanggal: new Date().toLocaleDateString('id-ID'),
+                jenis: 'Masuk',
+                dari: dari,
+                catatan: catatan,
+                nominal: nominal
+            });
+            saveStorage();
+
+            showNotif("✅ Pemasukan disimpan!");
+
+            document.getElementById('jenisMasuk').value = '';
+            document.getElementById('niswInput').value = '';
+            document.getElementById('namaAuto').value = '';
+            document.getElementById('dariMasuk').value = '';
+            document.getElementById('nominalMasuk').value = '';
+            document.getElementById('catatanMasuk').value = '';
+
+            loadKeuangan();
         }
 
-        function simpanPengeluaran() {
-            try {
-                const btn = document.getElementById('btnSimpanKeluar');
-                if (btn) btn.disabled = true;
+        function saveKeluar() {
+            const keperluan = document.getElementById('keperluanKeluar').value;
+            const nominal = parseInt(document.getElementById('nominalKeluar').value) || 0;
+            const catatan = document.getElementById('catatanKeluar').value;
 
-                const keperluan = document.getElementById('ketKeluar')?.value?.trim();
-                const nominal = parseInt(document.getElementById('nomKeluar')?.value) || 0;
-                const catatan = document.getElementById('catatanKeluar')?.value?.trim();
-
-                if (!keperluan || !nominal || !catatan) {
-                    showAlert("⚠️ Isi semua field!", "warn");
-                    if (btn) btn.disabled = false;
-                    return;
-                }
-
-                loadAllData();
-                globalState.keuanganData.push({
-                    id: Date.now(),
-                    tanggal: new Date().toLocaleDateString('id-ID'),
-                    jenisMasukKeluar: 'Keluar',
-                    jenis: 'Pengeluaran',
-                    dari: keperluan,
-                    keterangan: catatan,
-                    nominal: nominal
-                });
-
-                saveAllData();
-                hitungSaldoKeuangan();
-                showAlert("✅ Disimpan!", "success");
-
-                document.getElementById('ketKeluar').value = '';
-                document.getElementById('nomKeluar').value = '';
-                document.getElementById('catatanKeluar').value = '';
-                renderKeuangan();
-                renderDashboard();
-
-                if (btn) btn.disabled = false;
-            } catch (e) {
-                console.error("Simpan pengeluaran error:", e);
-                showAlert("❌ " + e.message, "error");
-                const btn = document.getElementById('btnSimpanKeluar');
-                if (btn) btn.disabled = false;
+            if (!keperluan || !nominal || !catatan) {
+                showNotif("⚠️ Isi semua field!");
+                return;
             }
-        }
 
-        function hitungSaldoKeuangan() {
-            try {
-                loadAllData();
+            loadStorage();
+            appState.keuangan.push({
+                id: Date.now(),
+                tanggal: new Date().toLocaleDateString('id-ID'),
+                jenis: 'Keluar',
+                dari: keperluan,
+                catatan: catatan,
+                nominal: nominal
+            });
+            saveStorage();
 
-                const masuk = globalState.keuanganData
-                    .filter(k => k.jenisMasukKeluar === 'Masuk')
-                    .reduce((s, k) => s + (k.nominal || 0), 0);
-                
-                const keluar = globalState.keuanganData
-                    .filter(k => k.jenisMasukKeluar === 'Keluar')
-                    .reduce((s, k) => s + (k.nominal || 0), 0);
-                
-                const saldo = masuk - keluar;
+            showNotif("✅ Pengeluaran disimpan!");
 
-                const elMasuk = document.getElementById('totalMasuk');
-                const elKeluar = document.getElementById('totalKeluar');
-                const elSaldo = document.getElementById('saldoAkhir');
+            document.getElementById('keperluanKeluar').value = '';
+            document.getElementById('nominalKeluar').value = '';
+            document.getElementById('catatanKeluar').value = '';
 
-                if (elMasuk) elMasuk.textContent = 'Rp ' + formatRupiah(masuk);
-                if (elKeluar) elKeluar.textContent = 'Rp ' + formatRupiah(keluar);
-                if (elSaldo) elSaldo.textContent = 'Rp ' + formatRupiah(saldo);
-
-                console.log("💰 Saldo updated");
-            } catch (e) {
-                console.error("Hitung saldo error:", e);
-            }
-        }
-
-        function renderKeuangan() {
-            try {
-                loadAllData();
-                hitungSaldoKeuangan();
-
-                const tbody = document.getElementById('listKeuangan');
-                if (!tbody) return;
-
-                if (!globalState.keuanganData || globalState.keuanganData.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center;">-</td></tr>`;
-                    return;
-                }
-
-                const sorted = [...globalState.keuanganData].sort((a, b) => b.id - a.id);
-
-                tbody.innerHTML = sorted.map(k => `
-                    <tr>
-                        <td>${k.tanggal}</td>
-                        <td><strong>${k.jenisMasukKeluar}</strong></td>
-                        <td>${k.dari}</td>
-                        <td>${k.keterangan}</td>
-                        <td style="text-align: right; font-weight: bold; color: ${k.jenisMasukKeluar === 'Masuk' ? '#28a745' : '#dc3545'};">
-                            ${k.jenisMasukKeluar === 'Masuk' ? '+' : '-'} Rp ${formatRupiah(k.nominal)}
-                        </td>
-                        <td style="text-align: center;">
-                            <button class="btn btn-danger btn-sm" onclick="hapusTransaksi(${k.id})">Hapus</button>
-                        </td>
-                    </tr>
-                `).join('');
-
-                console.log("✅ Keuangan rendered");
-            } catch (e) {
-                console.error("Render keuangan error:", e);
-            }
-        }
-
-        function hapusTransaksi(id) {
-            try {
-                if (!confirm("Yakin hapus?")) return;
-
-                loadAllData();
-                globalState.keuanganData = globalState.keuanganData.filter(k => k.id !== id);
-                saveAllData();
-                showAlert("✅ Dihapus!", "success");
-                renderKeuangan();
-                renderDashboard();
-            } catch (e) {
-                console.error("Hapus error:", e);
-                showAlert("❌ " + e.message, "error");
-            }
+            loadKeuangan();
         }
 
         function loadKeuangan() {
-            loadAllData();
-            renderKeuangan();
+            loadStorage();
+
+            const masuk = appState.keuangan.filter(k => k.jenis === 'Masuk').reduce((s, k) => s + k.nominal, 0);
+            const keluar = appState.keuangan.filter(k => k.jenis === 'Keluar').reduce((s, k) => s + k.nominal, 0);
+            const saldo = masuk - keluar;
+
+            document.getElementById('totalMasuk').textContent = 'Rp ' + formatRupiah(masuk);
+            document.getElementById('totalKeluar').textContent = 'Rp ' + formatRupiah(keluar);
+            document.getElementById('saldoKas').textContent = 'Rp ' + formatRupiah(saldo);
+            document.getElementById('totalSaldo').textContent = 'Rp ' + formatRupiah(saldo);
+
+            const tbody = document.getElementById('tableKeuangan');
+            if (appState.keuangan.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">-</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = appState.keuangan.map(k => `
+                <tr>
+                    <td>${k.tanggal}</td>
+                    <td><strong>${k.jenis}</strong></td>
+                    <td>${k.dari}</td>
+                    <td>${k.catatan}</td>
+                    <td style="color: ${k.jenis === 'Masuk' ? '#28a745' : '#dc3545'}; font-weight: bold;">
+                        ${k.jenis === 'Masuk' ? '+' : '-'} Rp ${formatRupiah(k.nominal)}
+                    </td>
+                    <td><button class="btn btn-danger btn-sm" onclick="deleteTransaksi(${k.id})">Hapus</button></td>
+                </tr>
+            `).join('');
         }
 
-        function hitungUlangSaldo() {
-            hitungSaldoKeuangan();
-            showAlert("✅ Saldo dihitung ulang!", "success");
+        function deleteTransaksi(id) {
+            if (!confirm("Yakin hapus?")) return;
+
+            loadStorage();
+            appState.keuangan = appState.keuangan.filter(k => k.id !== id);
+            saveStorage();
+            showNotif("✅ Dihapus!");
+            loadKeuangan();
         }
 
         function exportKeuangan() {
-            try {
-                loadAllData();
+            loadStorage();
 
-                if (!globalState.keuanganData || globalState.keuanganData.length === 0) {
-                    showAlert("⚠️ Tidak ada data!", "warn");
-                    return;
-                }
-
-                let csv = 'Tanggal,Jenis,Dari,Catatan,Nominal\n';
-                globalState.keuanganData.forEach(k => {
-                    csv += `"${k.tanggal}","${k.jenisMasukKeluar}","${k.dari}","${k.keterangan}",${k.nominal}\n`;
-                });
-
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = `Keuangan_${new Date().toLocaleDateString('id-ID')}.csv`;
-                link.click();
-
-                showAlert("✅ Download selesai!", "success", 3000);
-            } catch (e) {
-                console.error("Export error:", e);
-                showAlert("❌ " + e.message, "error");
+            if (appState.keuangan.length === 0) {
+                showNotif("Tidak ada data untuk diexport");
+                return;
             }
+
+            let csv = 'Tanggal,Jenis,Dari,Catatan,Nominal\n';
+            appState.keuangan.forEach(k => {
+                csv += `"${k.tanggal}","${k.jenis}","${k.dari}","${k.catatan}",${k.nominal}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `keuangan-${new Date().toLocaleDateString('id-ID')}.csv`;
+            link.click();
+
+            showNotif("✅ Export berhasil!");
         }
 
         function resetKeuangan() {
-            try {
-                if (!confirm("⚠️ Hapus semua keuangan? Ini tidak bisa dibatalkan!")) return;
+            if (!confirm("⚠️ Hapus SEMUA keuangan?")) return;
 
-                loadAllData();
-                globalState.keuanganData = [];
-                saveAllData();
-                showAlert("✅ Dihapus!", "success");
-                renderKeuangan();
-                renderDashboard();
-            } catch (e) {
-                console.error("Reset error:", e);
-                showAlert("❌ " + e.message, "error");
-            }
-        }
-
-        // ===== NILAI RAPORT =====
-        function loadSiswaForRaport() {
-            try {
-                const nisw = document.getElementById('niswNilai')?.value?.toUpperCase();
-                if (!nisw) return;
-
-                if (typeof DBManager === 'undefined' || !DBManager.findSiswa) {
-                    return;
-                }
-
-                DBManager.findSiswa(nisw, function(siswa) {
-                    try {
-                        const info = document.getElementById('siswaRaportInfo');
-                        if (!siswa) {
-                            showAlert("❌ NISW tidak ditemukan!", "error");
-                            if (info) info.style.display = 'none';
-                            return;
-                        }
-
-                        const elNama = document.getElementById('namaRaport');
-                        const elKu = document.getElementById('kuRaport');
-
-                        if (elNama) elNama.textContent = siswa.nama || '-';
-                        if (elKu) elKu.textContent = siswa.kategori || '-';
-                        if (info) info.style.display = 'block';
-                    } catch (e) {
-                        console.error("Raport load error:", e);
-                    }
-                });
-            } catch (e) {
-                console.error("loadSiswaForRaport error:", e);
-            }
-        }
-
-        function hitungBMI() {
-            try {
-                const tb = parseFloat(document.getElementById('tb')?.value) || 0;
-                const bb = parseFloat(document.getElementById('bb')?.value) || 0;
-
-                if (tb > 0 && bb > 0) {
-                    const bmi = (bb / Math.pow(tb / 100, 2)).toFixed(1);
-                    const elBMI = document.getElementById('bmi');
-                    if (elBMI) elBMI.value = bmi;
-                }
-            } catch (e) {
-                console.error("BMI error:", e);
-            }
-        }
-
-        function hitungRataOtomatis() {
-            try {
-                const inputs = document.querySelectorAll('.input-nilai');
-                let total = 0, count = 0;
-
-                inputs.forEach(input => {
-                    const val = parseFloat(input.value) || 0;
-                    if (val > 0) {
-                        total += val;
-                        count++;
-                    }
-                });
-
-                const rata = count > 0 ? (total / count).toFixed(0) : 0;
-                const elAvg = document.getElementById('avgText');
-                if (elAvg) elAvg.textContent = rata;
-            } catch (e) {
-                console.error("Rata-rata error:", e);
-            }
-        }
-
-        function simpanNilai() {
-            try {
-                const nisw = document.getElementById('niswNilai')?.value;
-                if (!nisw) {
-                    showAlert("⚠️ Masukkan NISW!", "warn");
-                    return;
-                }
-
-                showAlert("✅ Nilai disimpan!", "success");
-            } catch (e) {
-                console.error("Simpan nilai error:", e);
-                showAlert("❌ " + e.message, "error");
-            }
+            loadStorage();
+            appState.keuangan = [];
+            saveStorage();
+            showNotif("✅ Dihapus!");
+            loadKeuangan();
         }
 
         // ===== JADWAL =====
-        function tambahJadwalLatihan() {
-            try {
-                const hari = document.getElementById('inputHari')?.value?.trim();
-                const tempat = document.getElementById('inputTempat')?.value?.trim();
-                const waktu = document.getElementById('inputWaktu')?.value?.trim();
+        function addLatihan() {
+            const hari = document.getElementById('hariLatihan').value;
+            const tempat = document.getElementById('tempatLatihan').value;
+            const waktu = document.getElementById('waktuLatihan').value;
 
-                if (!hari || !tempat || !waktu) {
-                    showAlert("⚠️ Isi semua!", "warn");
-                    return;
-                }
-
-                loadAllData();
-                globalState.jadwalLatihan.push({
-                    id: Date.now(),
-                    hari: hari.toUpperCase(),
-                    tempat,
-                    waktu
-                });
-
-                saveAllData();
-                showAlert("✅ Ditambahkan!", "success");
-
-                document.getElementById('inputHari').value = '';
-                document.getElementById('inputTempat').value = '';
-                document.getElementById('inputWaktu').value = '';
-                renderJadwalLatihan();
-            } catch (e) {
-                console.error("Tambah latihan error:", e);
-                showAlert("❌ " + e.message, "error");
+            if (!hari || !tempat || !waktu) {
+                showNotif("⚠️ Isi semua field!");
+                return;
             }
+
+            loadStorage();
+            appState.jadwalLatihan.push({
+                id: Date.now(),
+                hari: hari.toUpperCase(),
+                tempat,
+                waktu
+            });
+            saveStorage();
+
+            showNotif("✅ Jadwal ditambahkan!");
+
+            document.getElementById('hariLatihan').value = '';
+            document.getElementById('tempatLatihan').value = '';
+            document.getElementById('waktuLatihan').value = '';
+
+            renderLatihan();
         }
 
-        function renderJadwalLatihan() {
-            try {
-                loadAllData();
+        function renderLatihan() {
+            loadStorage();
 
-                const tbody = document.getElementById('listJadwalLatihan');
-                if (!tbody) return;
-
-                if (!globalState.jadwalLatihan || globalState.jadwalLatihan.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">-</td></tr>`;
-                    return;
-                }
-
-                tbody.innerHTML = globalState.jadwalLatihan.map((j, i) => `
-                    <tr>
-                        <td>${i + 1}</td>
-                        <td><strong>${j.hari}</strong></td>
-                        <td>${j.tempat}</td>
-                        <td>${j.waktu}</td>
-                        <td><button class="btn btn-danger btn-sm" onclick="hapusJadwalLatihan(${j.id})">Hapus</button></td>
-                    </tr>
-                `).join('');
-            } catch (e) {
-                console.error("Render latihan error:", e);
+            const tbody = document.getElementById('tableLatihan');
+            if (appState.jadwalLatihan.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">-</td></tr>';
+                return;
             }
+
+            tbody.innerHTML = appState.jadwalLatihan.map((j, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td><strong>${j.hari}</strong></td>
+                    <td>${j.tempat}</td>
+                    <td>${j.waktu}</td>
+                    <td><button class="btn btn-danger btn-sm" onclick="deleteLatihan(${j.id})">Hapus</button></td>
+                </tr>
+            `).join('');
         }
 
-        function hapusJadwalLatihan(id) {
-            try {
-                if (!confirm("Yakin?")) return;
+        function deleteLatihan(id) {
+            if (!confirm("Yakin?")) return;
 
-                loadAllData();
-                globalState.jadwalLatihan = globalState.jadwalLatihan.filter(j => j.id !== id);
-                saveAllData();
-                showAlert("✅ Dihapus!", "success");
-                renderJadwalLatihan();
-            } catch (e) {
-                console.error("Hapus latihan error:", e);
-            }
+            loadStorage();
+            appState.jadwalLatihan = appState.jadwalLatihan.filter(j => j.id !== id);
+            saveStorage();
+            showNotif("✅ Dihapus!");
+            renderLatihan();
         }
 
-        function tambahJadwalTurnamen() {
-            try {
-                const nama = document.getElementById('namaEvent')?.value?.trim();
-                const tgl = document.getElementById('tglEvent')?.value;
-                const lokasi = document.getElementById('lokasiEvent')?.value?.trim();
-                const waktu = document.getElementById('waktuEvent')?.value?.trim() || '-';
+        function addTurnamen() {
+            const nama = document.getElementById('namaEvent').value;
+            const tgl = document.getElementById('tglEvent').value;
+            const lokasi = document.getElementById('lokasiEvent').value;
 
-                if (!nama || !tgl || !lokasi) {
-                    showAlert("⚠️ Isi semua!", "warn");
-                    return;
-                }
-
-                loadAllData();
-                globalState.jadwalTurnamen.push({
-                    id: Date.now(),
-                    nama,
-                    tgl,
-                    lokasi,
-                    waktu
-                });
-
-                saveAllData();
-                showAlert("✅ Ditambahkan!", "success");
-
-                document.getElementById('namaEvent').value = '';
-                document.getElementById('tglEvent').value = '';
-                document.getElementById('lokasiEvent').value = '';
-                document.getElementById('waktuEvent').value = '';
-                renderJadwalTurnamen();
-            } catch (e) {
-                console.error("Tambah turnamen error:", e);
-                showAlert("❌ " + e.message, "error");
+            if (!nama || !tgl || !lokasi) {
+                showNotif("⚠️ Isi semua field!");
+                return;
             }
+
+            loadStorage();
+            appState.jadwalTurnamen.push({
+                id: Date.now(),
+                nama,
+                tgl,
+                lokasi
+            });
+            saveStorage();
+
+            showNotif("✅ Turnamen ditambahkan!");
+
+            document.getElementById('namaEvent').value = '';
+            document.getElementById('tglEvent').value = '';
+            document.getElementById('lokasiEvent').value = '';
+
+            renderTurnamen();
         }
 
-        function renderJadwalTurnamen() {
-            try {
-                loadAllData();
+        function renderTurnamen() {
+            loadStorage();
 
-                const tbody = document.getElementById('listJadwalTurnamen');
-                if (!tbody) return;
-
-                if (!globalState.jadwalTurnamen || globalState.jadwalTurnamen.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">-</td></tr>`;
-                    return;
-                }
-
-                tbody.innerHTML = globalState.jadwalTurnamen.map((t, i) => `
-                    <tr>
-                        <td>${i + 1}</td>
-                        <td><strong>${t.nama}</strong></td>
-                        <td>${t.tgl}</td>
-                        <td>${t.lokasi}</td>
-                        <td><button class="btn btn-danger btn-sm" onclick="hapusJadwalTurnamen(${t.id})">Hapus</button></td>
-                    </tr>
-                `).join('');
-            } catch (e) {
-                console.error("Render turnamen error:", e);
+            const tbody = document.getElementById('tableTurnamen');
+            if (appState.jadwalTurnamen.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">-</td></tr>';
+                return;
             }
+
+            tbody.innerHTML = appState.jadwalTurnamen.map((t, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td><strong>${t.nama}</strong></td>
+                    <td>${t.tgl}</td>
+                    <td>${t.lokasi}</td>
+                    <td><button class="btn btn-danger btn-sm" onclick="deleteTurnamen(${t.id})">Hapus</button></td>
+                </tr>
+            `).join('');
         }
 
-        function hapusJadwalTurnamen(id) {
-            try {
-                if (!confirm("Yakin?")) return;
+        function deleteTurnamen(id) {
+            if (!confirm("Yakin?")) return;
 
-                loadAllData();
-                globalState.jadwalTurnamen = globalState.jadwalTurnamen.filter(t => t.id !== id);
-                saveAllData();
-                showAlert("✅ Dihapus!", "success");
-                renderJadwalTurnamen();
-            } catch (e) {
-                console.error("Hapus turnamen error:", e);
-            }
+            loadStorage();
+            appState.jadwalTurnamen = appState.jadwalTurnamen.filter(t => t.id !== id);
+            saveStorage();
+            showNotif("✅ Dihapus!");
+            renderTurnamen();
         }
 
-        // ===== NAVIGATION =====
-        function showSection(id) {
-            try {
-                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-
-                const section = document.getElementById(id);
-                if (section) section.classList.add('active');
-
-                if (event?.target) {
-                    const link = event.target.closest('.nav-link');
-                    if (link) link.classList.add('active');
-                }
-
-                if (id === 'dashboard') renderDashboard();
-                else if (id === 'db_siswa') renderAllSiswa();
-                else if (id === 'verifikasi') renderVerifikasi();
-                else if (id === 'absensi') renderAbsensi();
-                else if (id === 'keuangan') loadKeuangan();
-                else if (id === 'jadwal') {
-                    renderJadwalLatihan();
-                    renderJadwalTurnamen();
-                }
-
-                console.log("✅ Section changed to:", id);
-            } catch (e) {
-                console.error("Section navigation error:", e);
-            }
-        }
-
+        // ===== LOGOUT =====
         function logoutAdmin() {
-            try {
-                if (confirm("Logout?")) {
-                    showAlert("✅ Logout!", "success");
-                    setTimeout(() => {
-                        window.location.href = "index.html";
-                    }, 1000);
-                }
-            } catch (e) {
-                console.error("Logout error:", e);
+            if (confirm("Logout?")) {
+                showNotif("✅ Goodbye!");
+                setTimeout(() => window.location.href = "index.html", 500);
             }
         }
 
-        // ===== EXPORT SISWA =====
-        function exportSiswa() {
-            try {
-                if (typeof DBManager === 'undefined' || !DBManager.getSiswaAktif) {
-                    showAlert("⚠️ DBManager not ready", "warn");
-                    return;
-                }
-
-                DBManager.getSiswaAktif(function(siswaList) {
-                    try {
-                        if (!Array.isArray(siswaList) || siswaList.length === 0) {
-                            showAlert("⚠️ Tidak ada data", "warn");
-                            return;
-                        }
-
-                        let csv = 'NISW,Nama,KU,Tipe,Posisi,Telepon,Alamat\n';
-                        siswaList.forEach(s => {
-                            csv += `"${s.nisw}","${s.nama}","${s.kategori}","${s.tipe}","${s.posisi}","${s.noHp}","${s.alamat}"\n`;
-                        });
-
-                        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                        const link = document.createElement('a');
-                        link.href = URL.createObjectURL(blob);
-                        link.download = `Siswa_${new Date().toLocaleDateString('id-ID')}.csv`;
-                        link.click();
-
-                        showAlert("✅ Download selesai!", "success", 3000);
-                    } catch (e) {
-                        console.error("Export siswa error:", e);
-                    }
-                });
-            } catch (e) {
-                console.error("exportSiswa error:", e);
-            }
-        }
-
-        // ===== INITIALIZATION =====
+        // ===== INIT =====
         window.addEventListener('load', function() {
-            try {
-                console.log("🚀 Admin Panel Initializing...");
-                
-                loadAllData();
-                
-                // Wait for DBManager
-                let retries = 0;
-                const checkDBManager = setInterval(() => {
-                    if (typeof DBManager !== 'undefined' && DBManager.getSiswaAktif) {
-                        clearInterval(checkDBManager);
-                        console.log("✅ DBManager ready!");
-                        
-                        globalState.isInitialized = true;
-                        renderDashboard();
-                        renderAllSiswa();
-                        renderVerifikasi();
-                        renderJadwalLatihan();
-                        renderJadwalTurnamen();
-                        
-                        console.log("✅ Admin Panel READY!");
-                    } else if (++retries > 30) { // 30 * 500ms = 15 seconds
-                        clearInterval(checkDBManager);
-                        console.error("❌ DBManager timeout!");
-                        showAlert("⚠️ Database connection timeout", "warn");
-                    }
-                }, 500);
-            } catch (e) {
-                console.error("❌ Initialization error:", e);
-                showAlert("❌ Error initializing admin panel", "error");
-            }
-        });
+            console.log("🚀 Admin Panel Initializing...");
 
-        // Prevent unhandled rejections
-        window.addEventListener('unhandledrejection', function(event) {
-            console.error("❌ Unhandled promise rejection:", event.reason);
-            event.preventDefault();
+            loadStorage();
+            renderLatihan();
+            renderTurnamen();
+
+            // Wait for DBManager
+            const checkDB = setInterval(() => {
+                if (typeof DBManager !== 'undefined' && DBManager.getSiswaAktif) {
+                    clearInterval(checkDB);
+                    appState.dbReady = true;
+                    console.log("✅ DBManager ready!");
+                    loadSiswa();
+                    loadVerifikasi();
+                    loadKeuangan();
+                    refreshDashboard();
+                } else if (++appState.retryCount > 20) {
+                    clearInterval(checkDB);
+                    console.warn("⚠️ DBManager timeout - functions may be limited");
+                }
+            }, 500);
+
+            console.log("✅ Admin Panel READY!");
         });
     </script>
 </body>
