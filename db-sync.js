@@ -1,10 +1,9 @@
-// ==================== DBManager FULL FIREBASE REALTIME - SSB Wind Soccer ====================
-// Versi BERSIH - Tidak deklarasi ulang firebaseConfig (18 April 2026)
-// firebase-config.js sudah handle initializeApp
+// ==================== DBManager FULL FIRESTORE - SSB Wind Soccer ====================
+// Versi Pure Firestore - Fix "database is not a function" (18 April 2026)
 
 const DBManager = {
     initData: function() {
-        console.log("✅ Firebase Realtime Database SIAP - Full Cloud Mode");
+        console.log("✅ Firebase Firestore SIAP - Full Cloud Mode");
     },
 
     getTglSekarang: function() {
@@ -22,49 +21,53 @@ const DBManager = {
 
     // ====================== SISWA ======================
     getSiswaAktif: function(callback) {
+        const db = firebase.firestore();
         Promise.all([
-            firebase.database().ref('dataSiswa').once('value'),
-            firebase.database().ref('dataBeasiswa').once('value')
+            db.collection("dataSiswa").get(),
+            db.collection("dataBeasiswa").get()
         ]).then(([snap1, snap2]) => {
-            const reguler = snap1.val() ? Object.values(snap1.val()) : [];
-            const beasiswa = snap2.val() ? Object.values(snap2.val()) : [];
+            const reguler = snap1.docs.map(doc => doc.data());
+            const beasiswa = snap2.docs.map(doc => doc.data());
             callback([...reguler, ...beasiswa]);
+        }).catch(err => {
+            console.error("Error getSiswaAktif:", err);
+            callback([]);
         });
     },
 
     addSiswaAktif: function(siswa, callback) {
+        const db = firebase.firestore();
         const key = siswa.tipe === "Beasiswa" ? "dataBeasiswa" : "dataSiswa";
-        firebase.database().ref(key).push(siswa).then(() => callback && callback(true));
+        db.collection(key).add(siswa).then(() => callback && callback(true));
     },
 
     updateSiswaAktif: function(nisw, updateData, callback) {
+        const db = firebase.firestore();
         ["dataSiswa", "dataBeasiswa"].forEach(key => {
-            firebase.database().ref(key).once('value', snap => {
-                snap.forEach(child => {
-                    if (String(child.val().nisw).toUpperCase() === String(nisw).toUpperCase()) {
-                        child.ref.update(updateData).then(() => callback && callback(true));
-                    }
+            db.collection(key).where("nisw", "==", nisw.toUpperCase()).get()
+                .then(snap => {
+                    snap.forEach(doc => {
+                        doc.ref.update(updateData).then(() => callback && callback(true));
+                    });
                 });
-            });
         });
     },
 
     deleteSiswaAktif: function(nisw, callback) {
+        const db = firebase.firestore();
         ["dataSiswa", "dataBeasiswa"].forEach(key => {
-            firebase.database().ref(key).once('value', snap => {
-                snap.forEach(child => {
-                    if (String(child.val().nisw).toUpperCase() === String(nisw).toUpperCase()) {
-                        child.ref.remove().then(() => callback && callback(true));
-                    }
+            db.collection(key).where("nisw", "==", nisw.toUpperCase()).get()
+                .then(snap => {
+                    snap.forEach(doc => doc.ref.delete().then(() => callback && callback(true)));
                 });
-            });
         });
     },
 
     // ====================== PENDAFTAR ======================
     getPendaftar: function(callback) {
-        firebase.database().ref('dataPendaftar').once('value').then(snap => {
-            callback(snap.val() ? Object.values(snap.val()) : []);
+        const db = firebase.firestore();
+        db.collection("dataPendaftar").get().then(snap => {
+            callback(snap.docs.map(doc => doc.data()));
         });
     },
 
@@ -75,53 +78,55 @@ const DBManager = {
             data.nisw = prefix + new Date().getFullYear() + total.toString().padStart(3, '0');
             data.status = "Menunggu Verifikasi";
             data.tglDaftar = this.getTglSekarang();
-            firebase.database().ref('dataPendaftar').push(data).then(() => callback && callback(data.nisw));
+
+            const db = firebase.firestore();
+            db.collection("dataPendaftar").add(data).then(() => callback && callback(data.nisw));
         });
     },
 
     // ====================== FUNGSI LAINNYA ======================
     addAbsensi: function(data, callback) { 
         data.tgl = data.tgl || this.getTglSekarang(); 
-        firebase.database().ref('dataAbsensi').push(data).then(() => callback && callback(true)); 
+        firebase.firestore().collection("dataAbsensi").add(data).then(() => callback && callback(true)); 
     },
     getAbsensi: function(callback) { 
-        firebase.database().ref('dataAbsensi').once('value').then(snap => callback(snap.val() ? Object.values(snap.val()) : [])); 
+        firebase.firestore().collection("dataAbsensi").get().then(snap => callback(snap.docs.map(doc => doc.data()))); 
     },
     addKeuangan: function(data, callback) { 
         data.tgl = data.tgl || this.getTglSekarang(); 
-        firebase.database().ref('dataKeuangan').push(data).then(() => callback && callback(true)); 
+        firebase.firestore().collection("dataKeuangan").add(data).then(() => callback && callback(true)); 
     },
     getKeuangan: function(callback) { 
-        firebase.database().ref('dataKeuangan').once('value').then(snap => callback(snap.val() ? Object.values(snap.val()) : [])); 
+        firebase.firestore().collection("dataKeuangan").get().then(snap => callback(snap.docs.map(doc => doc.data()))); 
     },
     updateNilai: function(nisw, dataNilai, callback) { 
-        firebase.database().ref('dataNilai').push(dataNilai).then(() => callback && callback(true)); 
+        firebase.firestore().collection("dataNilai").add(dataNilai).then(() => callback && callback(true)); 
     },
     getNilai: function(callback) { 
-        firebase.database().ref('dataNilai').once('value').then(snap => callback(snap.val() ? Object.values(snap.val()) : [])); 
+        firebase.firestore().collection("dataNilai").get().then(snap => callback(snap.docs.map(doc => doc.data()))); 
     },
     addSaran: function(data, callback) { 
         data.id = Date.now(); 
         data.waktu = this.getTglSekarang(); 
         data.dibaca = false; 
-        firebase.database().ref('dataSaran').push(data).then(() => callback && callback(true)); 
+        firebase.firestore().collection("dataSaran").add(data).then(() => callback && callback(true)); 
     },
     getSaran: function(callback) { 
-        firebase.database().ref('dataSaran').once('value').then(snap => callback(snap.val() ? Object.values(snap.val()) : [])); 
+        firebase.firestore().collection("dataSaran").get().then(snap => callback(snap.docs.map(doc => doc.data()))); 
     },
     getJadwalLatihan: function(callback) { 
-        firebase.database().ref('db_latihan').once('value').then(snap => callback(snap.val() ? Object.values(snap.val()) : [])); 
+        firebase.firestore().collection("db_latihan").get().then(snap => callback(snap.docs.map(doc => doc.data()))); 
     },
     addJadwalLatihan: function(data, callback) { 
         data.id = Date.now(); 
-        firebase.database().ref('db_latihan').push(data).then(() => callback && callback(true)); 
+        firebase.firestore().collection("db_latihan").add(data).then(() => callback && callback(true)); 
     },
     getJadwalTurnamen: function(callback) { 
-        firebase.database().ref('db_turnamen').once('value').then(snap => callback(snap.val() ? Object.values(snap.val()) : [])); 
+        firebase.firestore().collection("db_turnamen").get().then(snap => callback(snap.docs.map(doc => doc.data()))); 
     },
     addJadwalTurnamen: function(data, callback) { 
         data.id = Date.now(); 
-        firebase.database().ref('db_turnamen').push(data).then(() => callback && callback(true)); 
+        firebase.firestore().collection("db_turnamen").add(data).then(() => callback && callback(true)); 
     }
 };
 
@@ -129,6 +134,6 @@ const DBManager = {
 function startApp() {
     DBManager.initData();
     window.DBManager = DBManager;
-    console.log("🚀 DBManager FULL FIREBASE AKTIF - Siap Publish!");
+    console.log("🚀 DBManager FULL FIRESTORE AKTIF - Siap Publish!");
 }
 startApp();
