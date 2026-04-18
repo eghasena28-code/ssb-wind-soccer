@@ -137,13 +137,11 @@
     <footer>© 2026 SSB Wind Soccer</footer>
   </div>
 
-  <!-- Script -->
-  <script src="db-sync.js"></script>
-
-  <!-- === FIREBASE SDK & CONFIG (DITAMBAHKAN DI SINI) === -->
+  <!-- Firebase SDK harus dimuat PERTAMA, baru db-sync.js -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
+  <script src="db-sync.js"></script>
 
   <script>
     // Background slideshow
@@ -196,15 +194,21 @@
         return;
       }
       const niswInput = niswVal.toUpperCase();
-      const siswa = DBManager.findSiswa(niswInput);
-      if (siswa) {
-        DBManager.setLoginUser(siswa);
-        showAlert("Selamat Datang, " + siswa.nama + "!", "success");
-        setTimeout(() => { window.location.href = "beranda.html"; }, 1500);
-      } else {
-        showAlert("NISW Tidak Terdaftar", "error");
-        document.getElementById("nisw").value = '';
-      }
+      const btnSubmit = document.querySelector(".btn-login[type='submit']");
+      if (btnSubmit) { btnSubmit.disabled = true; btnSubmit.textContent = "Memeriksa..."; }
+
+      // findSiswa sekarang async (callback) karena query ke Firestore
+      DBManager.findSiswa(niswInput, function(siswa) {
+        if (btnSubmit) { btnSubmit.disabled = false; btnSubmit.textContent = "Masuk Siswa"; }
+        if (siswa) {
+          DBManager.setLoginUser(siswa);
+          showAlert("Selamat Datang, " + siswa.nama + "!", "success");
+          setTimeout(() => { window.location.href = "beranda.html"; }, 1500);
+        } else {
+          showAlert("NISW Tidak Terdaftar", "error");
+          document.getElementById("nisw").value = '';
+        }
+      });
     };
 
     // ==================== LOGIN ADMIN ====================
@@ -223,20 +227,7 @@
     document.getElementById("btnDaftar").onclick = () => window.location.href = "pendaftaran.html";
     document.getElementById("btnBeasiswa").onclick = () => window.location.href = "pendaftaran_beasiswa.html";
 
-    // ==================== FIREBASE INITIALIZATION ====================
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log("📄 Halaman index.html dimuat");
-
-        if (typeof initializeFirebase === 'function') {
-            initializeFirebase().then(() => {
-                console.log("✅ Firebase berhasil diinisialisasi di index.html");
-            }).catch((err) => {
-                console.error("❌ Gagal initialize Firebase:", err);
-            });
-        } else {
-            console.warn("⚠️ initializeFirebase function tidak ditemukan");
-        }
-    });
+    // Firebase sudah diinisialisasi via firebase-config.js
   </script>
 </body>
 </html>
