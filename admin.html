@@ -85,7 +85,7 @@
                     <div style="display: flex; justify-content: space-around; align-items: center; gap: 20px;">
                         <div style="text-align: center; flex: 1;"><div style="font-size: 13px; opacity: 0.85; margin-bottom: 4px;">REGULER</div><div id="totalReguler" style="font-size: 28px; font-weight: bold; line-height: 1;">0</div></div>
                         <div style="text-align: center; flex: 1;"><div style="font-size: 13px; opacity: 0.85; margin-bottom: 4px;">BEASISWA</div><div id="totalBeasiswa" style="font-size: 28px; font-weight: bold; line-height: 1;">0</div></div>
-                        <div style="text-align: center; flex: 1; border-left: 2px solid rgba(255,255,255,0.4); padding-left: 20px;"><div style="font-size: 13px; opacity: 0.85; margin-bottom: 4px;">TOTAL KESELURUHAN</div><div id="totalSiswaAktif" style="font-size: 32px; font-weight: bold; line-height: 1;">0</div></div>
+                        <div style="text-align: center; flex: 1; border-left: 2px solid rgba(255,255,255,0.4); padding-left: 20px;"><div style="font-size: 13px; opacity: 0.85; margin-bottom: 4px;">TOTAL</div><div id="totalSiswaAktif" style="font-size: 32px; font-weight: bold; line-height: 1;">0</div></div>
                     </div>
                 </div>
                 <div class="filter-section">
@@ -163,7 +163,7 @@
                 </div>
             </div>
             <div class="card">
-                <h3>Riwayat Keuangan (20 Transaksi Terakhir)</h3>
+                <h3>Riwayat Keuangan (20 Terakhir)</h3>
                 <div class="filter-section">
                     <div style="flex: 1;"><button class="btn btn-info" onclick="renderKeuangan()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
                 </div>
@@ -253,7 +253,9 @@
     <script src="db-sync.js"></script>
 
     <script>
-        // ==================== ADMIN PANEL - FIXED & TESTED ====================
+        // ========================================
+        // ADMIN PANEL - FULL FIXED & WORKING
+        // ========================================
 
         function cekLoginAdmin() {
             const adminCode = sessionStorage.getItem("adminLogin");
@@ -302,13 +304,13 @@
                             <td>${siswa.tglLahir || siswa.tanggalLahir || '-'}</td>
                             <td>${siswa.noHp || '-'}</td>
                             <td>${siswa.namaOrtu || '-'}</td>
-                            <td>${siswa.alamat ? siswa.alamat.substring(0, 25) + '...' : '-'}</td>
+                            <td>${siswa.alamat ? siswa.alamat.substring(0, 20) + '...' : '-'}</td>
                         </tr>
                     `;
                     tbody.innerHTML += row;
                 });
 
-                console.log("✅ Siswa aktif berhasil di-render:", siswaFiltered.length);
+                console.log("✅ Siswa aktif di-render:", siswaFiltered.length);
             });
         }
 
@@ -333,24 +335,34 @@
                             <td><span class="badge" style="background: ${p.tipe === 'Beasiswa' ? '#28a745' : '#003399'}; color:white;">${p.tipe}</span></td>
                             <td><span class="badge" style="background:#ff9800; color:white;">Menunggu</span></td>
                             <td>
-                                <button class="btn btn-add" style="padding:5px 10px; font-size:11px;" onclick="setujuiPendaftar(${idx}, '${p.tipe}')">Setujui</button>
+                                <button class="btn btn-add" style="padding:5px 10px; font-size:11px;" onclick="setujuiPendaftar('${p.nisw || idx}', '${p.tipe}')">Setujui</button>
                             </td>
                         </tr>
                     `;
                     tbody.innerHTML += row;
                 });
 
-                console.log("✅ Pendaftar berhasil di-render:", pendaftarList.length);
+                console.log("✅ Pendaftar di-render:", pendaftarList.length);
             });
         }
 
-        function setujuiPendaftar(idx, tipe) {
+        function setujuiPendaftar(niswOrIdx, tipe) {
             DBManager.getPendaftar(function(pendaftarList) {
-                const p = pendaftarList[idx];
+                let p;
+                if (isNaN(niswOrIdx)) {
+                    p = pendaftarList.find(x => x.nisw === niswOrIdx);
+                } else {
+                    p = pendaftarList[parseInt(niswOrIdx)];
+                }
                 
+                if (!p) {
+                    alert("❌ Data pendaftar tidak ditemukan!");
+                    return;
+                }
+
                 const tahun = new Date().getFullYear();
                 const prefix = tipe === "Beasiswa" ? "B" : "R";
-                const urut = (idx + 1).toString().padStart(3, '0');
+                const urut = (pendaftarList.indexOf(p) + 1).toString().padStart(3, '0');
                 const nisw = prefix + tahun + urut;
 
                 const siswaBaru = {
@@ -360,10 +372,16 @@
                     tglDaftar: new Date().toLocaleString('id-ID')
                 };
 
+                console.log("💾 Menyimpan siswa baru:", siswaBaru);
+
                 DBManager.addSiswaAktif(siswaBaru, function(berhasil) {
                     if (berhasil) {
-                        alert(`✅ Siswa diterima!\nNISW: ${nisw}`);
+                        alert(`✅ Siswa diterima!\nNISW: ${nisw}\nNama: ${p.nama}\nTipe: ${tipe}`);
+                        console.log("✅ Siswa berhasil disimpan dengan NISW:", nisw);
                         renderPendaftar();
+                        renderSiswaAktif();
+                    } else {
+                        alert('❌ Gagal menyimpan siswa');
                     }
                 });
             });
@@ -403,24 +421,21 @@
                     tbody.innerHTML += row;
                 });
 
-                console.log("✅ Absensi berhasil di-render:", absensiFiltered.length);
+                console.log("✅ Absensi di-render:", absensiFiltered.length);
             });
         }
 
         // ===== 4. KEUANGAN (FIXED!) =====
         function renderKeuangan() {
-            console.log("🔄 renderKeuangan() dipanggil - Fresh load dari Firestore");
+            console.log("🔄 renderKeuangan - FRESH LOAD");
             
             DBManager.getKeuangan(function(keuanganList) {
-                console.log("📊 Total data keuangan dari DB:", keuanganList.length);
-                console.log("📋 Data keuangan:", keuanganList);
+                console.log("📊 Data keuangan dari DB:", keuanganList);
 
                 let totalMasuk = 0, totalKeluar = 0;
 
-                // STANDARDISASI: Cek field 'jenisMasukKeluar' yang konsisten
                 keuanganList.forEach(k => {
                     const nominal = parseInt(k.nominal) || 0;
-                    console.log(`💰 Item: ${k.keterangan || k.keperluan} | Nominal: ${nominal} | Jenis: ${k.jenisMasukKeluar}`);
                     
                     if (k.jenisMasukKeluar === 'Masuk') {
                         totalMasuk += nominal;
@@ -431,7 +446,7 @@
 
                 const saldo = totalMasuk - totalKeluar;
 
-                console.log(`✅ Total Masuk: ${totalMasuk} | Total Keluar: ${totalKeluar} | Saldo: ${saldo}`);
+                console.log(`✅ Masuk: ${totalMasuk} | Keluar: ${totalKeluar} | Saldo: ${saldo}`);
 
                 document.getElementById('totalMasuk').innerText = 'Rp ' + totalMasuk.toLocaleString('id-ID');
                 document.getElementById('totalKeluar').innerText = 'Rp ' + totalKeluar.toLocaleString('id-ID');
@@ -460,11 +475,13 @@
                     tbody.innerHTML += row;
                 });
 
-                console.log("✅ Riwayat keuangan berhasil di-render");
+                console.log("✅ Riwayat keuangan di-render");
             });
         }
 
         function transaksiMasuk() {
+            console.log("💰 transaksiMasuk() - Button Clicked");
+
             const nisw = document.getElementById('niswBayar')?.value.trim() || '';
             const pengirim = document.getElementById('pengirimMasuk')?.value.trim() || '';
             const nominal = parseInt(document.getElementById('nomBayar')?.value) || 0;
@@ -482,25 +499,24 @@
                 nominal: nominal,
                 jenis: jenis,
                 keterangan: `${ket || 'Pemasukan'} (${jenis})`,
-                jenisMasukKeluar: 'Masuk',  // ← STANDARDISASI!
+                jenisMasukKeluar: 'Masuk',
                 tanggal: new Date().toLocaleString('id-ID')
             };
 
-            console.log("💰 Simpan pemasukan:", dataMasuk);
+            console.log("💾 DATA MASUK:", dataMasuk);
 
             DBManager.addKeuangan(dataMasuk, function(berhasil) {
                 if (berhasil) {
                     console.log("✅ Pemasukan berhasil disimpan!");
-                    alert('✅ Pemasukan berhasil disimpan!');
+                    alert('✅ Pemasukan Rp ' + nominal.toLocaleString('id-ID') + ' berhasil disimpan!');
                     
-                    // Clear form
                     document.getElementById('niswBayar').value = '';
                     document.getElementById('pengirimMasuk').value = '';
                     document.getElementById('nomBayar').value = '';
                     document.getElementById('ketMasuk').value = '';
                     
-                    // REFRESH langsung
                     setTimeout(() => {
+                        console.log("🔄 Refresh renderKeuangan...");
                         renderKeuangan();
                     }, 500);
                 } else {
@@ -510,6 +526,8 @@
         }
 
         function transaksiKeluar() {
+            console.log("💸 transaksiKeluar() - Button Clicked");
+
             const keperluan = document.getElementById('ketKeluar')?.value.trim() || '';
             const nominal = parseInt(document.getElementById('nomKeluar')?.value) || 0;
             const catatan = document.getElementById('catatanKeluar')?.value.trim() || '';
@@ -523,24 +541,23 @@
                 keperluan: keperluan,
                 nominal: nominal,
                 keterangan: catatan || keperluan,
-                jenisMasukKeluar: 'Keluar',  // ← STANDARDISASI!
+                jenisMasukKeluar: 'Keluar',
                 tanggal: new Date().toLocaleString('id-ID')
             };
 
-            console.log("💸 Simpan pengeluaran:", dataKeluar);
+            console.log("💾 DATA KELUAR:", dataKeluar);
 
             DBManager.addKeuangan(dataKeluar, function(berhasil) {
                 if (berhasil) {
                     console.log("✅ Pengeluaran berhasil disimpan!");
-                    alert('✅ Pengeluaran berhasil disimpan!');
+                    alert('✅ Pengeluaran Rp ' + nominal.toLocaleString('id-ID') + ' berhasil disimpan!');
                     
-                    // Clear form
                     document.getElementById('ketKeluar').value = '';
                     document.getElementById('nomKeluar').value = '';
                     document.getElementById('catatanKeluar').value = '';
                     
-                    // REFRESH langsung
                     setTimeout(() => {
+                        console.log("🔄 Refresh renderKeuangan...");
                         renderKeuangan();
                     }, 500);
                 } else {
@@ -556,6 +573,7 @@
             if (tb > 0 && bb > 0) {
                 const bmi = (bb / Math.pow(tb / 100, 2)).toFixed(1);
                 document.getElementById('bmi').value = bmi;
+                console.log("📊 BMI dihitung:", bmi);
             }
         }
 
@@ -569,9 +587,12 @@
             const rata = count > 0 ? (total / count).toFixed(1) : 0;
             document.getElementById('avgFill').style.width = rata + '%';
             document.getElementById('avgText').textContent = rata;
+            console.log("📈 Rata-rata nilai:", rata);
         }
 
         function simpanNilai() {
+            console.log("📝 simpanNilai() - Button Clicked");
+
             const nisw = document.getElementById('niswNilai')?.value.trim().toUpperCase() || '';
             const tb = parseFloat(document.getElementById('tb')?.value) || 0;
             const bb = parseFloat(document.getElementById('bb')?.value) || 0;
@@ -612,9 +633,12 @@
                 createdAt: new Date().toISOString()
             };
 
+            console.log("💾 DATA NILAI:", dataNilai);
+
             DBManager.addNilai(dataNilai, function(berhasil) {
                 if (berhasil) {
                     alert(`✅ Evaluasi ${nisw} berhasil disimpan!`);
+                    console.log("✅ Nilai berhasil disimpan!");
                     
                     document.getElementById('niswNilai').value = '';
                     document.getElementById('tb').value = '';
@@ -667,18 +691,20 @@
                         <td>${saran.nama || '-'}</td>
                         <td>${saran.nisw || '-'}</td>
                         <td><span class="badge" style="background:#17a2b8; color:white;">${saran.kategori}</span></td>
-                        <td>${saran.pesan ? saran.pesan.substring(0, 40) + '...' : '-'}</td>
+                        <td>${saran.pesan ? saran.pesan.substring(0, 35) + '...' : '-'}</td>
                         <td><button class="btn btn-info" style="padding:5px 10px; font-size:11px;">Baca</button></td>
                     </tr>
                 `;
                 tbody.innerHTML += row;
             });
 
-            console.log("✅ Saran berhasil di-render:", saranList.length);
+            console.log("✅ Saran di-render:", saranList.length);
         }
 
         // ===== 7. JADWAL =====
         function renderJadwal() {
+            console.log("📅 renderJadwal()");
+
             DBManager.getJadwalLatihan(function(latihanList) {
                 const tbody = document.getElementById('listJadwalLatihan');
                 tbody.innerHTML = '';
@@ -698,6 +724,7 @@
                         tbody.innerHTML += row;
                     });
                 }
+                console.log("✅ Jadwal latihan di-render:", latihanList.length);
             });
 
             DBManager.getJadwalTurnamen(function(turnaList) {
@@ -719,10 +746,13 @@
                         tbody.innerHTML += row;
                     });
                 }
+                console.log("✅ Jadwal turnamen di-render:", turnaList.length);
             });
         }
 
         function addJadwalLatihan() {
+            console.log("➕ addJadwalLatihan() - Button Clicked");
+
             const hari = document.getElementById('hariLatihan')?.value.trim().toUpperCase() || '';
             const tempat = document.getElementById('tempatLatihan')?.value.trim() || '';
             const waktu = document.getElementById('waktuLatihan')?.value.trim() || '';
@@ -734,18 +764,24 @@
 
             const dataJadwal = { hari, tempat, waktu };
 
+            console.log("💾 DATA JADWAL LATIHAN:", dataJadwal);
+
             DBManager.addJadwalLatihan(dataJadwal, function(berhasil) {
                 if (berhasil) {
-                    alert('✅ Jadwal Latihan berhasil ditambahkan!');
+                    alert('✅ Jadwal Latihan ditambahkan!');
                     document.getElementById('hariLatihan').value = '';
                     document.getElementById('tempatLatihan').value = '';
                     document.getElementById('waktuLatihan').value = '';
                     renderJadwal();
+                } else {
+                    alert('❌ Gagal tambah jadwal latihan');
                 }
             });
         }
 
         function addJadwalTurnamen() {
+            console.log("➕ addJadwalTurnamen() - Button Clicked");
+
             const namaEvent = document.getElementById('namaEvent')?.value.trim() || '';
             const tglEvent = document.getElementById('tglEvent')?.value || '';
             const lokasiEvent = document.getElementById('lokasiEvent')?.value.trim() || '';
@@ -763,14 +799,18 @@
                 waktu: waktuEvent || '-'
             };
 
+            console.log("💾 DATA JADWAL TURNAMEN:", dataJadwal);
+
             DBManager.addJadwalTurnamen(dataJadwal, function(berhasil) {
                 if (berhasil) {
-                    alert('✅ Jadwal Turnamen berhasil ditambahkan!');
+                    alert('✅ Jadwal Turnamen ditambahkan!');
                     document.getElementById('namaEvent').value = '';
                     document.getElementById('tglEvent').value = '';
                     document.getElementById('lokasiEvent').value = '';
                     document.getElementById('waktuEvent').value = '';
                     renderJadwal();
+                } else {
+                    alert('❌ Gagal tambah jadwal turnamen');
                 }
             });
         }
@@ -786,7 +826,7 @@
                 const navLink = event.target.closest('.nav-link');
                 if (navLink) navLink.classList.add('active');
                 
-                // Render sesuai section yang dibuka
+                console.log("🔄 Mengakses section:", id);
                 if (id === 'db_siswa') renderSiswaAktif();
                 else if (id === 'verifikasi') renderPendaftar();
                 else if (id === 'absensi') renderAbsensi();
@@ -813,6 +853,7 @@
                         console.log("✅ Siswa ditemukan:", siswa.nama);
                     } else {
                         document.getElementById('pengirimMasuk').value = '';
+                        console.log("⚠️ Siswa tidak ditemukan:", nisw);
                     }
                 });
             }
@@ -820,9 +861,10 @@
 
         // ===== INIT =====
         window.addEventListener('load', function() {
+            console.log("🚀 ADMIN PANEL STARTING...");
             cekLoginAdmin();
             renderSiswaAktif();
-            console.log("🚀 Admin Panel FULLY OPERATIONAL!");
+            console.log("✅ ADMIN PANEL FULLY OPERATIONAL!");
         });
     </script>
 </body>
