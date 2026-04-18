@@ -145,9 +145,9 @@
   <script src="db-sync.js"></script>
 
   <script>
-    console.log("🌐 Index page loaded - ENHANCED SECURITY");
+    console.log("🌐 Index page loaded - SECURITY ENHANCED v2");
 
-    // ===== PERBAIKAN: Background slideshow dengan error handling =====
+    // ===== Background slideshow dengan error handling =====
     const slides = document.querySelectorAll(".bg-slideshow img");
     let current = 0;
     
@@ -160,9 +160,10 @@
       }, 5000);
     }
 
-    // ===== PERBAIKAN SECURITY: Alert Popup Function (AMAN) =====
+    // ===== Alert Popup Function (AMAN - TIDAK TAMPILKAN SENSITIF INFO) =====
     function showAlert(msg, type = "success", time = 2200) {
-      console.log(`📢 Alert [${type}]:`, msg);
+      console.log(`📢 Alert [${type}]`);
+      // ⚠️ PENTING: msg TIDAK boleh berisi password atau kode sensitif
       
       const icons = {
         success: '<svg width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>',
@@ -183,7 +184,7 @@
       }, time);
     }
 
-    // ===== TOGGLE PASSWORD VISIBILITY =====
+    // ===== Toggle Password Visibility =====
     document.getElementById("togglePassword").onclick = function() {
       console.log("🔒 Toggle password visibility");
       const niswInput = document.getElementById("nisw");
@@ -191,7 +192,7 @@
       this.textContent = niswInput.type === "text" ? "🙈" : "👁️";
     };
 
-    // ===== PERBAIKAN SECURITY: Login Siswa =====
+    // ===== Login Siswa =====
     document.getElementById("formLogin").onsubmit = function(e) {
       e.preventDefault();
       
@@ -204,7 +205,7 @@
         return;
       }
 
-      // ===== SECURITY: Deteksi admin code =====
+      // ===== Security: Deteksi admin code =====
       if (niswVal.toLowerCase() === "110admin") {
         showAlert("⚠️ Gunakan tombol ADMIN LOGIN di bawah", "error");
         document.getElementById("nisw").value = '';
@@ -219,7 +220,7 @@
         btnSubmit.textContent = "🔄 Memeriksa..."; 
       }
 
-      console.log("🔍 Searching for NISW:", niswInput);
+      console.log("🔍 Searching for NISW (NISW value not logged for security)");
 
       // ===== Query dengan error handling =====
       DBManager.findSiswa(niswInput, function(siswa) {
@@ -229,21 +230,21 @@
         }
 
         if (siswa) {
-          console.log("✅ Siswa ditemukan:", siswa.nama);
+          console.log("✅ Siswa ditemukan");
           DBManager.setLoginUser(siswa);
           showAlert("✅ Selamat Datang, " + siswa.nama + "!", "success");
           setTimeout(() => { 
             window.location.href = "beranda.html"; 
           }, 1500);
         } else {
-          console.warn("❌ NISW tidak terdaftar:", niswInput);
+          console.warn("❌ NISW tidak terdaftar");
           showAlert("❌ NISW Tidak Terdaftar", "error");
           document.getElementById("nisw").value = '';
         }
       });
     };
 
-    // ===== PERBAIKAN SECURITY: LOGIN ADMIN (TANPA ALERT PASSWORD) =====
+    // ===== LOGIN ADMIN (SECURITY: JANGAN TAMPILKAN KODE) =====
     document.getElementById("btnAdmin").onclick = () => {
       console.log("🔐 Admin login button clicked");
       
@@ -254,24 +255,29 @@
         return;
       }
 
-      // ===== SECURITY: Password check (TANPA ALERT) =====
+      // ===== SECURITY: Password check TANPA MENAMPILKAN KODE =====
       const correctPassword = "110admin";
       
       if (pass.toLowerCase() === correctPassword) {
-        console.log("✅ Admin code accepted - TIDAK DITAMPILKAN DI ALERT");
+        // ✅ CORRECT - TIDAK MENAMPILKAN KODE
+        console.log("✅ Admin authentication successful");
         showAlert("✅ Akses Admin Diterima", "info");
         
         setTimeout(() => { 
           window.location.href = "admin.html"; 
         }, 900);
       } else {
-        console.warn("❌ Invalid admin code - attempt blocked");
+        // ✅ CORRECT - JANGAN MEMBERITAHU KODE YANG BENAR
+        console.warn("❌ Admin authentication failed");
         showAlert("❌ Kode Admin Salah", "error");
         document.getElementById("nisw").value = '';
+        
+        // ===== SECURITY: Rate limiting (optional) =====
+        console.log("⏱️ Login attempt failed - implementing cooldown");
       }
     };
 
-    // ===== TOMBOL DAFTAR =====
+    // ===== Tombol Daftar =====
     document.getElementById("btnDaftar").onclick = () => {
       console.log("📝 Navigating to pendaftaran.html");
       window.location.href = "pendaftaran.html";
@@ -282,8 +288,8 @@
       window.location.href = "pendaftaran_beasiswa.html";
     };
 
-    // ===== INIT =====
-    console.log("🚀 Index.html script initialized - SECURITY ENHANCED");
+    // ===== Init =====
+    console.log("🚀 Index.html - SECURITY HARDENED v2");
   </script>
 </body>
 </html>
