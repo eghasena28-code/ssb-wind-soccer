@@ -117,6 +117,17 @@
 <script src="db-sync.js"></script>
 
 <script>
+  function waitForDBManager(callback, attempt = 0) {
+    if (typeof DBManager !== 'undefined') {
+      callback();
+    } else if (attempt < 20) {
+      setTimeout(() => waitForDBManager(callback, attempt + 1), 100);
+    } else {
+      console.error("❌ DBManager tidak dapat dimuat!");
+      showAlert("❌ Error: Sistem gagal dimuat. Refresh halaman.");
+    }
+  }
+
   function getKategoriUmur(usia) {
     if (usia >= 17) return "KU-17";
     if (usia >= 15) return "KU-16";
@@ -194,9 +205,7 @@
     btn.innerHTML = '<span class="spinner"></span> Mengirim...';
 
     try {
-      if (typeof initializeFirebase === 'function') {
-        await initializeFirebase();
-      }
+      await new Promise(resolve => waitForDBManager(resolve));
 
       const tglLahir = document.getElementById("tglLahir").value;
       const tahunLahir = new Date(tglLahir).getFullYear();
@@ -213,23 +222,10 @@
         noHp: document.getElementById("noHp").value.trim(),
         alamat: document.getElementById("alamat").value.trim(),
         tipe: "Reguler",
-        status: "Menunggu Verifikasi",
-        tglDaftar: new Date().toLocaleDateString('id-ID'),
-        tglDaftarFull: new Date().toISOString()
+        status: "Menunggu Verifikasi"
       };
 
       const niswBaru = await DBManager.addPendaftar(dataBaru);
-
-      let pendaftarData = [];
-      const stored = localStorage.getItem('pendaftarData');
-      if (stored) {
-        pendaftarData = JSON.parse(stored);
-      }
-      
-      dataBaru.nisw = niswBaru;
-      dataBaru.foto = "default-foto";
-      pendaftarData.push(dataBaru);
-      localStorage.setItem('pendaftarData', JSON.stringify(pendaftarData));
 
       const alertEl = document.getElementById("alertError");
       alertEl.className = "alert alert-success";
@@ -241,11 +237,18 @@
       }, 3000);
 
     } catch (err) {
+      console.error("Error:", err);
       showAlert("❌ " + (err.message || "Gagal"));
       btn.disabled = false;
       btn.innerHTML = origText;
     }
   };
+
+  window.addEventListener('load', function() {
+    waitForDBManager(function() {
+      console.log("✅ DBManager siap!");
+    });
+  });
 </script>
 </body>
 </html>
