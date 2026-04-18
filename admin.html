@@ -46,12 +46,6 @@
         .stat-box { padding: 15px; border-radius: 12px; color: white; text-align: center; }
         .stat-box span { font-size: 12px; opacity: 0.9; }
         .stat-box h3 { color: white !important; border: none; padding: 0; margin: 8px 0 0 0; font-size: 24px; }
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow-y: auto; }
-        .modal-content { background: white; margin: 5% auto; padding: 25px; border-radius: 15px; width: 95%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .modal-header { border-bottom: 2px solid var(--primary); padding-bottom: 15px; margin-bottom: 20px; font-weight: bold; color: var(--primary); font-size: 18px; }
-        .avg-bar-container { background: #eee; border-radius: 10px; height: 30px; margin-top: 10px; overflow: hidden; position: relative; }
-        .avg-bar-fill { background: var(--success); height: 100%; width: 0%; transition: 0.5s; }
-        .avg-text { position: absolute; width: 100%; text-align: center; top: 0; font-weight: bold; font-size: 14px; line-height: 30px; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
         .antropometri-box { background: #f8f9fa; padding: 18px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #ffb400; }
         .antropometri-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
         .filter-section { display: flex; gap: 15px; margin-bottom: 15px; align-items: flex-end; }
@@ -68,11 +62,11 @@
             </div>
             <h2>ADMIN WIND SOCCER</h2>
             <div class="nav-link active" onclick="showSection('db_siswa')">👥 Database Siswa</div>
-            <div class="nav-link" onclick="showSection('verifikasi')">✅ Verifikasi Pendaftar <span id="badgeCount" class="badge-notif" style="display:none;">0</span></div>
+            <div class="nav-link" onclick="showSection('verifikasi')">✅ Verifikasi Pendaftar</div>
             <div class="nav-link" onclick="showSection('absensi')">📝 Rekap Absensi</div>
             <div class="nav-link" onclick="showSection('keuangan')">💰 Keuangan & Kas</div>
             <div class="nav-link" onclick="showSection('raport')">📊 Input Nilai Raport</div>
-            <div class="nav-link" onclick="showSection('saran')">📩 Saran & Masukan <span id="badgeSaran" class="badge-notif" style="display:none;">0</span></div>
+            <div class="nav-link" onclick="showSection('saran')">📩 Saran & Masukan</div>
             <div class="nav-link" onclick="showSection('jadwal')">📅 Kelola Jadwal</div>
         </div>
         <div class="logout-section">
@@ -95,8 +89,8 @@
                     </div>
                 </div>
                 <div class="filter-section">
-                    <div><label>Filter Kategori</label><select id="filterClass" onchange="renderAll()"><option value="">-- Semua Class --</option><option value="KU-8">KU-8</option><option value="KU-10">KU-10</option><option value="KU-12">KU-12</option><option value="KU-14">KU-14</option><option value="KU-16">KU-16</option><option value="KU-17">KU-17</option></select></div>
-                    <div><button class="btn btn-info" onclick="renderAll()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
+                    <div><label>Filter Kategori</label><select id="filterClass" onchange="renderSiswaAktif()"><option value="">-- Semua Class --</option><option value="KU-8">KU-8</option><option value="KU-10">KU-10</option><option value="KU-12">KU-12</option><option value="KU-14">KU-14</option><option value="KU-16">KU-16</option><option value="KU-17">KU-17</option></select></div>
+                    <div><button class="btn btn-info" onclick="renderSiswaAktif()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
                 </div>
                 <table><thead><tr><th>Foto</th><th>NISW</th><th>Nama</th><th>KU</th><th>Tipe</th><th>Posisi</th><th>Tgl Lahir</th><th>No HP</th><th>Nama Ortu</th><th>Alamat</th></tr></thead><tbody id="listSiswaAktif"></tbody></table>
             </div>
@@ -111,7 +105,7 @@
             <div class="card">
                 <h3>✅ Verifikasi Pendaftaran Baru</h3>
                 <div class="filter-section">
-                    <div style="flex: 1;"><button class="btn btn-info" onclick="renderAll()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
+                    <div style="flex: 1;"><button class="btn btn-info" onclick="renderPendaftar()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
                 </div>
                 <table><thead><tr><th>Foto</th><th>Nama / KU</th><th>Tipe Daftar</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="listAntrean"></tbody></table>
             </div>
@@ -122,8 +116,8 @@
             <div class="card">
                 <h3>📝 Rekap Kehadiran Latihan</h3>
                 <div class="filter-section">
-                    <div style="flex: 1;"><label>Filter Tanggal:</label><input type="date" id="searchTglAbsen" onchange="renderAll()"></div>
-                    <div><button class="btn btn-info" onclick="renderAll()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
+                    <div style="flex: 1;"><label>Filter Tanggal:</label><input type="date" id="searchTglAbsen" onchange="renderAbsensi()"></div>
+                    <div><button class="btn btn-info" onclick="renderAbsensi()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
                 </div>
                 <table><thead><tr><th>Tanggal</th><th>NISW</th><th>Nama</th><th>Status</th><th>Keterangan</th><th>Aksi</th></tr></thead><tbody id="listAbsensi"></tbody></table>
             </div>
@@ -165,13 +159,13 @@
                     <input type="number" id="nomKeluar" placeholder="Nominal Rp">
                     <label>Detail:</label>
                     <textarea id="catatanKeluar" placeholder="Detail" rows="2"></textarea>
-                    <button class="btn btn-danger" style="width:100%; justify-content: center;" onclick="transaksi('Keluar')"><i class="fas fa-save"></i> Simpan Pengeluaran</button>
+                    <button class="btn btn-danger" style="width:100%; justify-content: center;" onclick="transaksiKeluar()"><i class="fas fa-save"></i> Simpan Pengeluaran</button>
                 </div>
             </div>
             <div class="card">
-                <h3>Riwayat Keuangan</h3>
+                <h3>Riwayat Keuangan (20 Transaksi Terakhir)</h3>
                 <div class="filter-section">
-                    <div style="flex: 1;"><button class="btn btn-info" onclick="renderAll()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
+                    <div style="flex: 1;"><button class="btn btn-info" onclick="renderKeuangan()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
                 </div>
                 <table><thead><tr><th>Tanggal</th><th>Jenis</th><th>Keterangan</th><th>Nominal</th><th>Aksi</th></tr></thead><tbody id="listKeuangan"></tbody></table>
             </div>
@@ -206,9 +200,9 @@
                 </div>
                 <div style="margin-top:20px; padding:15px; background:#f8f9fa; border-radius:10px;">
                     <label>Rata-Rata:</label>
-                    <div class="avg-bar-container">
-                        <div id="avgFill" class="avg-bar-fill"></div>
-                        <div id="avgText" class="avg-text">0</div>
+                    <div style="background: #eee; border-radius: 10px; height: 30px; margin-top: 10px; overflow: hidden; position: relative;">
+                        <div id="avgFill" style="background: var(--success); height: 100%; width: 0%; transition: 0.5s;"></div>
+                        <div id="avgText" style="position: absolute; width: 100%; text-align: center; top: 0; font-weight: bold; font-size: 14px; line-height: 30px; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">0</div>
                     </div>
                 </div>
                 <div style="margin-top: 15px;"><label>Catatan Evaluasi:</label><textarea id="catatanPelatih" rows="3" placeholder="Saran perkembangan..."></textarea></div>
@@ -259,7 +253,7 @@
     <script src="db-sync.js"></script>
 
     <script>
-        // ==================== ADMIN PANEL - FULL WORKING CODE ====================
+        // ==================== ADMIN PANEL - FIXED & TESTED ====================
 
         function cekLoginAdmin() {
             const adminCode = sessionStorage.getItem("adminLogin");
@@ -267,21 +261,6 @@
                 alert("❌ Silakan login sebagai admin terlebih dahulu!");
                 window.location.href = "index.html";
             }
-        }
-
-        function renderAll() {
-            const activeSection = document.querySelector('.section.active');
-            if (!activeSection) return;
-
-            const sectionId = activeSection.id;
-            console.log("📊 Rendering section:", sectionId);
-
-            if (sectionId === 'db_siswa') renderSiswaAktif();
-            else if (sectionId === 'verifikasi') renderPendaftar();
-            else if (sectionId === 'absensi') renderAbsensi();
-            else if (sectionId === 'keuangan') renderKeuangan();
-            else if (sectionId === 'saran') renderSaran();
-            else if (sectionId === 'jadwal') renderJadwal();
         }
 
         // ===== 1. DATABASE SISWA =====
@@ -384,7 +363,7 @@
                 DBManager.addSiswaAktif(siswaBaru, function(berhasil) {
                     if (berhasil) {
                         alert(`✅ Siswa diterima!\nNISW: ${nisw}`);
-                        renderAll();
+                        renderPendaftar();
                     }
                 });
             });
@@ -428,21 +407,31 @@
             });
         }
 
-        // ===== 4. KEUANGAN =====
+        // ===== 4. KEUANGAN (FIXED!) =====
         function renderKeuangan() {
+            console.log("🔄 renderKeuangan() dipanggil - Fresh load dari Firestore");
+            
             DBManager.getKeuangan(function(keuanganList) {
+                console.log("📊 Total data keuangan dari DB:", keuanganList.length);
+                console.log("📋 Data keuangan:", keuanganList);
+
                 let totalMasuk = 0, totalKeluar = 0;
 
+                // STANDARDISASI: Cek field 'jenisMasukKeluar' yang konsisten
                 keuanganList.forEach(k => {
                     const nominal = parseInt(k.nominal) || 0;
-                    if (k.tipe === 'Pemasukan' || k.jenis === 'Masuk') {
+                    console.log(`💰 Item: ${k.keterangan || k.keperluan} | Nominal: ${nominal} | Jenis: ${k.jenisMasukKeluar}`);
+                    
+                    if (k.jenisMasukKeluar === 'Masuk') {
                         totalMasuk += nominal;
-                    } else {
+                    } else if (k.jenisMasukKeluar === 'Keluar') {
                         totalKeluar += nominal;
                     }
                 });
 
                 const saldo = totalMasuk - totalKeluar;
+
+                console.log(`✅ Total Masuk: ${totalMasuk} | Total Keluar: ${totalKeluar} | Saldo: ${saldo}`);
 
                 document.getElementById('totalMasuk').innerText = 'Rp ' + totalMasuk.toLocaleString('id-ID');
                 document.getElementById('totalKeluar').innerText = 'Rp ' + totalKeluar.toLocaleString('id-ID');
@@ -457,8 +446,8 @@
                 }
 
                 keuanganList.slice(0, 20).forEach(k => {
-                    const badgeColor = (k.tipe === 'Pemasukan' || k.jenis === 'Masuk') ? '#28a745' : '#dc3545';
-                    const badgeText = (k.tipe === 'Pemasukan' || k.jenis === 'Masuk') ? 'MASUK' : 'KELUAR';
+                    const badgeColor = k.jenisMasukKeluar === 'Masuk' ? '#28a745' : '#dc3545';
+                    const badgeText = k.jenisMasukKeluar === 'Masuk' ? 'MASUK' : 'KELUAR';
                     const row = `
                         <tr>
                             <td>${k.tanggal || '-'}</td>
@@ -471,7 +460,7 @@
                     tbody.innerHTML += row;
                 });
 
-                console.log("✅ Keuangan berhasil di-render");
+                console.log("✅ Riwayat keuangan berhasil di-render");
             });
         }
 
@@ -492,26 +481,35 @@
                 pengirim: pengirim,
                 nominal: nominal,
                 jenis: jenis,
-                keterangan: ket,
-                tipe: 'Pemasukan',
+                keterangan: `${ket || 'Pemasukan'} (${jenis})`,
+                jenisMasukKeluar: 'Masuk',  // ← STANDARDISASI!
                 tanggal: new Date().toLocaleString('id-ID')
             };
 
+            console.log("💰 Simpan pemasukan:", dataMasuk);
+
             DBManager.addKeuangan(dataMasuk, function(berhasil) {
                 if (berhasil) {
+                    console.log("✅ Pemasukan berhasil disimpan!");
                     alert('✅ Pemasukan berhasil disimpan!');
+                    
+                    // Clear form
                     document.getElementById('niswBayar').value = '';
                     document.getElementById('pengirimMasuk').value = '';
                     document.getElementById('nomBayar').value = '';
                     document.getElementById('ketMasuk').value = '';
-                    renderAll();
+                    
+                    // REFRESH langsung
+                    setTimeout(() => {
+                        renderKeuangan();
+                    }, 500);
                 } else {
                     alert('❌ Gagal simpan pemasukan');
                 }
             });
         }
 
-        function transaksi(jenis) {
+        function transaksiKeluar() {
             const keperluan = document.getElementById('ketKeluar')?.value.trim() || '';
             const nominal = parseInt(document.getElementById('nomKeluar')?.value) || 0;
             const catatan = document.getElementById('catatanKeluar')?.value.trim() || '';
@@ -524,19 +522,27 @@
             const dataKeluar = {
                 keperluan: keperluan,
                 nominal: nominal,
-                catatan: catatan,
-                tipe: 'Pengeluaran',
-                jenis: 'Keluar',
+                keterangan: catatan || keperluan,
+                jenisMasukKeluar: 'Keluar',  // ← STANDARDISASI!
                 tanggal: new Date().toLocaleString('id-ID')
             };
 
+            console.log("💸 Simpan pengeluaran:", dataKeluar);
+
             DBManager.addKeuangan(dataKeluar, function(berhasil) {
                 if (berhasil) {
+                    console.log("✅ Pengeluaran berhasil disimpan!");
                     alert('✅ Pengeluaran berhasil disimpan!');
+                    
+                    // Clear form
                     document.getElementById('ketKeluar').value = '';
                     document.getElementById('nomKeluar').value = '';
                     document.getElementById('catatanKeluar').value = '';
-                    renderAll();
+                    
+                    // REFRESH langsung
+                    setTimeout(() => {
+                        renderKeuangan();
+                    }, 500);
                 } else {
                     alert('❌ Gagal simpan pengeluaran');
                 }
@@ -624,8 +630,6 @@
                     document.getElementById('catatanPelatih').value = '';
                     document.getElementById('avgText').textContent = '0';
                     document.getElementById('avgFill').style.width = '0%';
-
-                    renderAll();
                 } else {
                     alert('❌ Gagal simpan evaluasi');
                 }
@@ -781,7 +785,14 @@
                 target.classList.add('active');
                 const navLink = event.target.closest('.nav-link');
                 if (navLink) navLink.classList.add('active');
-                renderAll();
+                
+                // Render sesuai section yang dibuka
+                if (id === 'db_siswa') renderSiswaAktif();
+                else if (id === 'verifikasi') renderPendaftar();
+                else if (id === 'absensi') renderAbsensi();
+                else if (id === 'keuangan') renderKeuangan();
+                else if (id === 'saran') renderSaran();
+                else if (id === 'jadwal') renderJadwal();
             }
         }
 
@@ -810,7 +821,7 @@
         // ===== INIT =====
         window.addEventListener('load', function() {
             cekLoginAdmin();
-            renderAll();
+            renderSiswaAktif();
             console.log("🚀 Admin Panel FULLY OPERATIONAL!");
         });
     </script>
