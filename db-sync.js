@@ -1,15 +1,18 @@
-// db-sync.js - PRODUCTION READY VERSION
-// All Firestore functions complete with error handling
+// ========================================
+// db-sync.js - COMPLETE FIREBASE INTEGRATION
+// SSB WIND SOCCER ADMIN PANEL
+// ========================================
 
 const DBManager = {
-    // ==================== SESSION MANAGEMENT ====================
+    // ===== UTILITY =====
     getTglSekarang: function() {
         const d = new Date();
         return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`;
     },
 
     setLoginUser: function(user) { 
-        sessionStorage.setItem("userAktif", JSON.stringify(user)); 
+        sessionStorage.setItem("userAktif", JSON.stringify(user));
+        console.log("💾 Login user set:", user.nama);
     },
 
     getLoginUser: function() {
@@ -18,452 +21,355 @@ const DBManager = {
     },
 
     clearLoginUser: function() { 
-        sessionStorage.removeItem("userAktif"); 
+        sessionStorage.removeItem("userAktif");
+        console.log("🗑️ Login user cleared");
     },
 
-    // ==================== SISWA QUERIES ====================
-    /**
-     * Cari siswa berdasarkan NISW
-     * Query: dataSiswa & dataBeasiswa
-     * @param {string} nisw - NISW siswa (format: R2026001 atau B2026001)
-     * @param {function} callback - callback(siswaObj || null)
-     */
+    // ===== 1. SISWA AKTIF =====
     findSiswa: function(nisw, callback) {
-        if (!nisw) {
-            callback(null);
-            return;
-        }
+        console.log("🔍 findSiswa:", nisw);
         
-        const niswUpper = nisw.toString().toUpperCase().trim();
-        
-        // Query dataSiswa DULU
-        firebase.firestore().collection("dataSiswa")
-            .where("nisw", "==", niswUpper)
-            .limit(1)
-            .get()
+        firebase.firestore().collection("dataSiswa").where("nisw", "==", nisw).get()
             .then(snapshot => {
-                if (snapshot.size > 0) {
-                    const siswa = snapshot.docs[0].data();
-                    siswa.docId = snapshot.docs[0].id; // Store doc ID untuk update
-                    callback(siswa);
+                if (!snapshot.empty) {
+                    callback(snapshot.docs[0].data());
                     return;
                 }
                 
-                // Jika tidak ketemu di reguler, cari di beasiswa
-                firebase.firestore().collection("dataBeasiswa")
-                    .where("nisw", "==", niswUpper)
-                    .limit(1)
-                    .get()
+                // Cek di dataBeasiswa
+                firebase.firestore().collection("dataBeasiswa").where("nisw", "==", nisw).get()
                     .then(snapshot2 => {
-                        if (snapshot2.size > 0) {
-                            const siswa = snapshot2.docs[0].data();
-                            siswa.docId = snapshot2.docs[0].id;
-                            callback(siswa);
+                        if (!snapshot2.empty) {
+                            callback(snapshot2.docs[0].data());
                         } else {
-                            console.warn("⚠️ NISW tidak ditemukan:", niswUpper);
                             callback(null);
                         }
                     })
-                    .catch(err => {
-                        console.error("❌ Error query dataBeasiswa:", err);
-                        callback(null);
-                    });
+                    .catch(() => callback(null));
             })
-            .catch(err => {
-                console.error("❌ Error query dataSiswa:", err);
-                callback(null);
-            });
+            .catch(() => callback(null));
     },
 
-    /**
-     * Cek absensi sudah dilakukan di tanggal yang sama
-     * @param {string} nisw - NISW siswa
-     * @param {string} tanggal - Format YYYY-MM-DD
-     * @param {function} callback - callback(isDuplicate: boolean)
-     */
-    cekDuplicateAbsensi: function(nisw, tanggal, callback) {
-        if (!nisw || !tanggal) {
-            callback(false);
-            return;
-        }
-
-        firebase.firestore().collection("dataAbsensi")
-            .where("nisw", "==", nisw.toUpperCase())
-            .where("tanggal", "==", tanggal)
-            .limit(1)
-            .get()
-            .then(snapshot => {
-                const isDuplicate = snapshot.size > 0;
-                callback(isDuplicate);
+    getSiswaAktif: function(callback) {
+        console.log("📂 getSiswaAktif");
+        
+        firebase.firestore().collection("dataSiswa").get()
+            .then(s1 => {
+                const reguler = s1.docs.map(d => d.data());
+                
+                firebase.firestore().collection("dataBeasiswa").get()
+                    .then(s2 => {
+                        const beasiswa = s2.docs.map(d => d.data());
+                        const all = [...reguler, ...beasiswa];
+                        console.log("✅ Total siswa:", all.length);
+                        callback(all);
+                    })
+                    .catch(() => callback(reguler));
             })
-            .catch(err => {
-                console.error("❌ Error cek duplicate absensi:", err);
+            .catch(() => callback([]));
+    },
+
+    addSiswaAktif: function(siswa, callback) {
+        console.log("💾 addSiswaAktif:", siswa.nisw);
+        
+        const collection = siswa.tipe === "Beasiswa" ? "dataBeasiswa" : "dataSiswa";
+        
+        firebase.firestore().collection(collection).add(siswa)
+            .then(() => {
+                console.log("✅ Siswa added:", siswa.nisw);
+                callback(true);
+            })
+            .catch((err) => {
+                console.error("❌ Error adding siswa:", err);
                 callback(false);
             });
     },
 
-    /**
-     * Ambil nilai siswa berdasarkan NISW
-     * @param {string} nisw - NISW siswa
-     * @param {function} callback - callback(arrayOfNilai)
-     */
-    getNilaiBySiswa: function(nisw, callback) {
-        if (!nisw) {
-            callback([]);
-            return;
-        }
-
-        firebase.firestore().collection("dataNilai")
-            .where("nisw", "==", nisw.toUpperCase())
-            .orderBy("createdAt", "desc")
-            .limit(1) // Ambil nilai terbaru
-            .get()
-            .then(snapshot => {
-                const nilaiList = snapshot.docs.map(doc => doc.data());
-                callback(nilaiList);
-            })
-            .catch(err => {
-                console.error("❌ Error get nilai siswa:", err);
-                callback([]);
-            });
-    },
-
-    // ==================== ADD/UPDATE SISWA ====================
-    getSiswaAktif: function(callback) {
-        firebase.firestore().collection("dataSiswa")
-            .get()
-            .then(s1 => {
-                firebase.firestore().collection("dataBeasiswa")
-                    .get()
-                    .then(s2 => {
-                        const allSiswa = [
-                            ...s1.docs.map(d => ({ ...d.data(), docId: d.id })),
-                            ...s2.docs.map(d => ({ ...d.data(), docId: d.id }))
-                        ];
-                        callback(allSiswa);
-                    })
-                    .catch(err => {
-                        console.error("❌ Error get dataBeasiswa:", err);
-                        callback(s1.docs.map(d => ({ ...d.data(), docId: d.id })));
-                    });
-            })
-            .catch(err => {
-                console.error("❌ Error get dataSiswa:", err);
-                callback([]);
-            });
-    },
-
-    addSiswaAktif: function(siswa, callback) {
-        const key = siswa.tipe === "Beasiswa" ? "dataBeasiswa" : "dataSiswa";
-        firebase.firestore().collection(key)
-            .add(siswa)
-            .then(() => {
-                console.log("✅ Siswa berhasil ditambahkan ke", key);
-                callback && callback(true);
-            })
-            .catch(err => {
-                console.error("❌ Error add siswa:", err);
-                callback && callback(false);
-            });
-    },
-
-    // ==================== PENDAFTAR ====================
+    // ===== 2. PENDAFTAR =====
     getPendaftar: function(callback) {
-        firebase.firestore().collection("dataPendaftar")
-            .get()
-            .then(s => {
-                const pendaftar = s.docs.map(d => ({ ...d.data(), docId: d.id }));
-                callback(pendaftar);
+        console.log("📂 getPendaftar");
+        
+        firebase.firestore().collection("dataPendaftar").get()
+            .then(snapshot => {
+                const data = snapshot.docs.map(d => d.data());
+                console.log("✅ Pendaftar count:", data.length);
+                callback(data);
             })
-            .catch(err => {
-                console.error("❌ Error get pendaftar:", err);
-                callback([]);
-            });
+            .catch(() => callback([]));
     },
 
-    /**
-     * Tambah pendaftar & auto-generate NISW
-     * Format NISW: R[TAHUN][URUTAN3DIGIT] atau B[TAHUN][URUTAN3DIGIT]
-     * @param {object} data - Data pendaftar
-     * @param {function} callback - callback(nisw)
-     */
     addPendaftar: function(data, callback) {
+        console.log("💾 addPendaftar:", data.nama);
+        
         const tahun = new Date().getFullYear();
         const prefix = data.tipe === "Beasiswa" ? "B" : "R";
-
-        // Count total siswa untuk generate urutan
-        firebase.firestore().collection("dataSiswa")
-            .get()
-            .then(s1 => {
-                firebase.firestore().collection("dataBeasiswa")
-                    .get()
-                    .then(s2 => {
-                        const totalSiswa = s1.size + s2.size + 1;
-                        const urut = totalSiswa.toString().padStart(3, '0');
-                        const nisw = prefix + tahun + urut;
-
-                        data.nisw = nisw;
-                        data.status = "Menunggu Verifikasi";
-                        data.tglDaftar = DBManager.getTglSekarang();
-
-                        firebase.firestore().collection("dataPendaftar")
-                            .add(data)
-                            .then(() => {
-                                console.log("✅ Pendaftar berhasil ditambahkan, NISW:", nisw);
-                                callback && callback(nisw);
-                            })
-                            .catch(err => {
-                                console.error("❌ Error add pendaftar:", err);
-                                callback && callback(null);
-                            });
-                    })
-                    .catch(err => {
-                        console.error("❌ Error count beasiswa:", err);
-                        callback && callback(null);
-                    });
-            })
-            .catch(err => {
-                console.error("❌ Error count siswa:", err);
-                callback && callback(null);
-            });
-    },
-
-    // ==================== ABSENSI ====================
-    addAbsensi: function(data, callback) {
-        data.tanggal = data.tanggal || new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-        data.waktuInput = new Date().toLocaleString('id-ID');
-
-        firebase.firestore().collection("dataAbsensi")
-            .add(data)
+        const urut = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+        const nisw = prefix + tahun + urut;
+        
+        data.nisw = nisw;
+        data.status = "Menunggu Verifikasi";
+        data.tglDaftar = new Date().toLocaleString('id-ID');
+        
+        firebase.firestore().collection("dataPendaftar").add(data)
             .then(() => {
-                console.log("✅ Absensi berhasil disimpan");
-                callback && callback(true);
+                console.log("✅ Pendaftar added:", nisw);
+                callback(nisw);
             })
-            .catch(err => {
-                console.error("❌ Error add absensi:", err);
-                callback && callback(false);
+            .catch((err) => {
+                console.error("❌ Error adding pendaftar:", err);
+                callback(null);
             });
     },
 
+    // ===== 3. ABSENSI =====
     getAbsensi: function(callback) {
-        firebase.firestore().collection("dataAbsensi")
-            .orderBy("tanggal", "desc")
-            .get()
-            .then(s => {
-                const absensi = s.docs.map(d => d.data());
-                callback(absensi);
+        console.log("📂 getAbsensi");
+        
+        firebase.firestore().collection("dataAbsensi").get()
+            .then(snapshot => {
+                const data = snapshot.docs.map(d => d.data());
+                console.log("✅ Absensi count:", data.length);
+                callback(data);
             })
-            .catch(err => {
-                console.error("❌ Error get absensi:", err);
-                callback([]);
+            .catch(() => callback([]));
+    },
+
+    addAbsensi: function(data, callback) {
+        console.log("💾 addAbsensi:", data.nisw, data.tanggal);
+        
+        firebase.firestore().collection("dataAbsensi").add(data)
+            .then(() => {
+                console.log("✅ Absensi added");
+                callback(true);
+            })
+            .catch((err) => {
+                console.error("❌ Error adding absensi:", err);
+                callback(false);
             });
     },
 
-    /**
-     * Ambil absensi berdasarkan tanggal
-     * @param {string} tanggal - Format YYYY-MM-DD
-     * @param {function} callback - callback(arrayOfAbsensi)
-     */
-    getAbsensiByTanggal: function(tanggal, callback) {
-        if (!tanggal) {
-            DBManager.getAbsensi(callback);
-            return;
-        }
-
+    cekDuplicateAbsensi: function(nisw, tanggal, callback) {
+        console.log("🔍 cekDuplicateAbsensi:", nisw, tanggal);
+        
         firebase.firestore().collection("dataAbsensi")
+            .where("nisw", "==", nisw)
             .where("tanggal", "==", tanggal)
             .get()
-            .then(s => {
-                callback(s.docs.map(d => d.data()));
+            .then(snapshot => {
+                const isDuplikat = !snapshot.empty;
+                console.log("✅ Duplicate check:", isDuplikat);
+                callback(isDuplikat);
             })
-            .catch(err => {
-                console.error("❌ Error get absensi by tanggal:", err);
+            .catch(() => callback(false));
+    },
+
+    // ===== 4. KEUANGAN =====
+    getKeuangan: function(callback) {
+        console.log("📂 getKeuangan - FRESH LOAD");
+        
+        firebase.firestore().collection("dataKeuangan")
+            .orderBy("tanggal", "desc")
+            .limit(100)
+            .get()
+            .then(snapshot => {
+                const data = snapshot.docs.map(d => {
+                    const docData = d.data();
+                    return {
+                        id: d.id,
+                        ...docData
+                    };
+                });
+                console.log("✅ Keuangan count:", data.length);
+                console.log("📊 Keuangan data:", data);
+                callback(data);
+            })
+            .catch((err) => {
+                console.error("❌ Error getting keuangan:", err);
                 callback([]);
             });
     },
 
-    // ==================== NILAI / EVALUASI ====================
-    /**
-     * Tambah/update nilai siswa
-     * @param {object} dataNilai - {nisw, passing, shooting, dribbling, control, positioning, speed, tb, bb, lingkarPerut, bmi, catatan}
-     * @param {function} callback - callback(berhasil)
-     */
-    addNilai: function(dataNilai, callback) {
-        dataNilai.nisw = dataNilai.nisw.toUpperCase();
-        dataNilai.createdAt = new Date().toISOString();
-
-        firebase.firestore().collection("dataNilai")
-            .add(dataNilai)
-            .then(() => {
-                console.log("✅ Nilai siswa berhasil disimpan");
-                callback && callback(true);
+    addKeuangan: function(data, callback) {
+        console.log("💾 addKeuangan:", data);
+        
+        // STANDARDISASI: Pastikan field jenisMasukKeluar ada
+        if (!data.jenisMasukKeluar) {
+            data.jenisMasukKeluar = data.jenis === 'Keluar' ? 'Keluar' : 'Masuk';
+        }
+        
+        data.createdAt = new Date().toISOString();
+        
+        firebase.firestore().collection("dataKeuangan").add(data)
+            .then((docRef) => {
+                console.log("✅ Keuangan added, ID:", docRef.id);
+                callback(true);
             })
-            .catch(err => {
-                console.error("❌ Error add nilai:", err);
-                callback && callback(false);
+            .catch((err) => {
+                console.error("❌ Error adding keuangan:", err);
+                callback(false);
             });
     },
 
+    // ===== 5. NILAI RAPORT =====
     getNilai: function(callback) {
+        console.log("📂 getNilai");
+        
         firebase.firestore().collection("dataNilai")
             .orderBy("createdAt", "desc")
             .get()
-            .then(s => {
-                callback(s.docs.map(d => d.data()));
+            .then(snapshot => {
+                const data = snapshot.docs.map(d => d.data());
+                console.log("✅ Nilai count:", data.length);
+                callback(data);
             })
-            .catch(err => {
-                console.error("❌ Error get nilai:", err);
-                callback([]);
-            });
+            .catch(() => callback([]));
     },
 
-    // ==================== KEUANGAN ====================
-    addKeuangan: function(data, callback) {
-        data.tanggal = new Date().toLocaleString('id-ID');
-        data.tipe = data.tipe || "Pemasukan"; // Default ke pemasukan
-
-        firebase.firestore().collection("dataKeuangan")
-            .add(data)
-            .then(() => {
-                console.log("✅ Transaksi keuangan berhasil disimpan");
-                callback && callback(true);
-            })
-            .catch(err => {
-                console.error("❌ Error add keuangan:", err);
-                callback && callback(false);
-            });
-    },
-
-    getKeuangan: function(callback) {
-        firebase.firestore().collection("dataKeuangan")
-            .orderBy("tanggal", "desc")
+    getNilaiBySiswa: function(nisw, callback) {
+        console.log("📂 getNilaiBySiswa:", nisw);
+        
+        firebase.firestore().collection("dataNilai")
+            .where("nisw", "==", nisw)
+            .orderBy("createdAt", "desc")
             .get()
-            .then(s => {
-                callback(s.docs.map(d => d.data()));
+            .then(snapshot => {
+                const data = snapshot.docs.map(d => d.data());
+                console.log("✅ Nilai siswa count:", data.length);
+                callback(data);
             })
-            .catch(err => {
-                console.error("❌ Error get keuangan:", err);
-                callback([]);
-            });
+            .catch(() => callback([]));
     },
 
-    // ==================== SARAN ====================
-    addSaran: function(data, callback) {
-        data.tanggal = new Date().toLocaleString('id-ID');
-
-        firebase.firestore().collection("dataSaran")
-            .add(data)
+    addNilai: function(data, callback) {
+        console.log("💾 addNilai:", data.nisw);
+        
+        data.createdAt = new Date().toISOString();
+        
+        firebase.firestore().collection("dataNilai").add(data)
             .then(() => {
-                console.log("✅ Saran berhasil disimpan");
-                callback && callback(true);
+                console.log("✅ Nilai added");
+                callback(true);
             })
-            .catch(err => {
-                console.error("❌ Error add saran:", err);
-                callback && callback(false);
+            .catch((err) => {
+                console.error("❌ Error adding nilai:", err);
+                callback(false);
             });
     },
 
+    // ===== 6. SARAN & MASUKAN =====
     getSaran: function(callback) {
+        console.log("📂 getSaran");
+        
         firebase.firestore().collection("dataSaran")
             .orderBy("tanggal", "desc")
             .get()
-            .then(s => {
-                callback(s.docs.map(d => d.data()));
+            .then(snapshot => {
+                const data = snapshot.docs.map(d => d.data());
+                console.log("✅ Saran count:", data.length);
+                callback(data);
             })
-            .catch(err => {
-                console.error("❌ Error get saran:", err);
-                callback([]);
-            });
+            .catch(() => callback([]));
     },
 
-    /**
-     * Ambil saran berdasarkan kategori
-     * @param {string} kategori - Kategori saran (Fasilitas, Pelatih, dll)
-     * @param {function} callback - callback(arrayOfSaran)
-     */
     getSaranByKategori: function(kategori, callback) {
-        if (!kategori) {
-            DBManager.getSaran(callback);
-            return;
-        }
-
+        console.log("📂 getSaranByKategori:", kategori);
+        
         firebase.firestore().collection("dataSaran")
             .where("kategori", "==", kategori)
             .orderBy("tanggal", "desc")
             .get()
-            .then(s => {
-                callback(s.docs.map(d => d.data()));
+            .then(snapshot => {
+                const data = snapshot.docs.map(d => d.data());
+                console.log("✅ Saran kategori count:", data.length);
+                callback(data);
             })
-            .catch(err => {
-                console.error("❌ Error get saran by kategori:", err);
-                callback([]);
+            .catch(() => callback([]));
+    },
+
+    addSaran: function(data, callback) {
+        console.log("💾 addSaran:", data.nisw);
+        
+        data.createdAt = new Date().toISOString();
+        
+        firebase.firestore().collection("dataSaran").add(data)
+            .then(() => {
+                console.log("✅ Saran added");
+                callback(true);
+            })
+            .catch((err) => {
+                console.error("❌ Error adding saran:", err);
+                callback(false);
             });
     },
 
-    // ==================== JADWAL ====================
+    // ===== 7. JADWAL LATIHAN =====
     getJadwalLatihan: function(callback) {
+        console.log("📂 getJadwalLatihan");
+        
         firebase.firestore().collection("db_latihan")
             .get()
-            .then(s => {
-                callback(s.docs.map(d => ({ ...d.data(), docId: d.id })));
+            .then(snapshot => {
+                const data = snapshot.docs.map(d => d.data());
+                console.log("✅ Jadwal latihan count:", data.length);
+                callback(data);
             })
-            .catch(err => {
-                console.error("❌ Error get jadwal latihan:", err);
-                callback([]);
-            });
+            .catch(() => callback([]));
     },
 
     addJadwalLatihan: function(data, callback) {
-        firebase.firestore().collection("db_latihan")
-            .add(data)
+        console.log("💾 addJadwalLatihan:", data.hari);
+        
+        firebase.firestore().collection("db_latihan").add(data)
             .then(() => {
-                console.log("✅ Jadwal latihan berhasil ditambahkan");
-                callback && callback(true);
+                console.log("✅ Jadwal latihan added");
+                callback(true);
             })
-            .catch(err => {
-                console.error("❌ Error add jadwal latihan:", err);
-                callback && callback(false);
+            .catch((err) => {
+                console.error("❌ Error adding jadwal latihan:", err);
+                callback(false);
             });
     },
 
+    // ===== 8. JADWAL TURNAMEN =====
     getJadwalTurnamen: function(callback) {
+        console.log("📂 getJadwalTurnamen");
+        
         firebase.firestore().collection("db_turnamen")
             .orderBy("tanggal", "asc")
             .get()
-            .then(s => {
-                callback(s.docs.map(d => ({ ...d.data(), docId: d.id })));
+            .then(snapshot => {
+                const data = snapshot.docs.map(d => d.data());
+                console.log("✅ Jadwal turnamen count:", data.length);
+                callback(data);
             })
-            .catch(err => {
-                console.error("❌ Error get jadwal turnamen:", err);
-                callback([]);
-            });
+            .catch(() => callback([]));
     },
 
     addJadwalTurnamen: function(data, callback) {
-        firebase.firestore().collection("db_turnamen")
-            .add(data)
+        console.log("💾 addJadwalTurnamen:", data.nama_event);
+        
+        firebase.firestore().collection("db_turnamen").add(data)
             .then(() => {
-                console.log("✅ Jadwal turnamen berhasil ditambahkan");
-                callback && callback(true);
+                console.log("✅ Jadwal turnamen added");
+                callback(true);
             })
-            .catch(err => {
-                console.error("❌ Error add jadwal turnamen:", err);
-                callback && callback(false);
+            .catch((err) => {
+                console.error("❌ Error adding jadwal turnamen:", err);
+                callback(false);
             });
     },
 
-    // ==================== UTILITY ====================
+    // ===== INIT =====
     initData: function() {
         console.log("✅ Firebase Firestore SIAP - Full Cloud Mode");
     }
 };
 
-// ==================== INITIALIZATION ====================
+// Initialize
 function startApp() {
     DBManager.initData();
     window.DBManager = DBManager;
-    console.log("🚀 DBManager PRODUCTION READY - Semua fungsi Firestore aktif!");
+    console.log("🚀 DBManager READY!");
 }
 
-// Auto-start saat script load
 startApp();
