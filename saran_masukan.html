@@ -177,6 +177,27 @@
       border: 1px solid #f5c6cb;
       display: block;
     }
+
+    .alert.warning {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeaa7;
+      display: block;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      border-top: 2px solid transparent;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -191,7 +212,7 @@
     <div id="alertBox" class="alert"></div>
 
     <div class="info-user" id="userInfo">
-      Memuat data pengirim...
+      ⏳ Memuat data pengirim...
     </div>
 
     <form id="formSaran">
@@ -218,74 +239,118 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
   <script src="db-sync.js"></script>
+
   <script>
     console.log("📩 Saran page loading...");
 
+    // ===== PERBAIKAN: Alert Function dengan Auto-Close =====
     function showAlert(message, type) {
+      console.log(`📢 Alert [${type}]:`, message);
+      
       const box = document.getElementById('alertBox');
       box.textContent = message;
       box.className = 'alert ' + type;
-      setTimeout(() => {
-        if (type !== 'error') box.className = 'alert';
-      }, 4000);
+      
+      if (type !== 'error') {
+        setTimeout(() => {
+          box.className = 'alert';
+        }, 4000);
+      }
     }
 
-    const user = DBManager.getLoginUser();
+    // ===== LOAD USER DATA =====
+    function loadUserData() {
+      console.log("👤 Loading user data...");
+      
+      const user = DBManager.getLoginUser();
 
-    if (!user) {
-      alert("❌ Sesi berakhir, silakan login kembali.");
-      window.location.href = "index.html";
-    } else {
+      if (!user) {
+        console.error("❌ User not logged in");
+        alert("❌ Sesi berakhir, silakan login kembali.");
+        window.location.href = "index.html";
+        return false;
+      }
+
+      console.log("✅ User data loaded:", user);
+
+      // ===== PERBAIKAN: Validasi data user =====
+      const nama = user.nama || 'Siswa';
+      const nisw = user.nisw || 'N/A';
+      const kategori = user.kategori || 'Tidak Diketahui';
+
       document.getElementById("userInfo").innerHTML = `
-        <strong>Pengirim:</strong> ${user.nama} <br>
-        <strong>NISW:</strong> ${user.nisw} <br>
-        <strong>Kategori:</strong> ${user.kategori || '-'}
+        <strong>📝 Pengirim:</strong> ${nama} <br>
+        <strong>🆔 NISW:</strong> ${nisw} <br>
+        <strong>📊 Kategori:</strong> ${kategori}
       `;
+
+      return user;
     }
 
+    // ===== SUBMIT FORM SARAN =====
     document.getElementById("formSaran").onsubmit = function(e) {
       e.preventDefault();
 
+      console.log("🚀 Saran form submitted");
+
       const btn = document.getElementById('btnSubmit');
+      const user = DBManager.getLoginUser();
+
+      // ===== VALIDASI =====
+      if (!user) {
+        showAlert('❌ Sesi berakhir, silakan login kembali.', 'error');
+        return false;
+      }
+
+      const kategori = document.getElementById("kategori").value;
+      const pesan = document.getElementById("pesan").value.trim();
+
+      if (!kategori) {
+        console.warn("⚠️ Kategori belum dipilih");
+        showAlert('❌ Pilih kategori terlebih dahulu!', 'error');
+        return false;
+      }
+
+      if (!pesan || pesan.length < 10) {
+        console.warn("⚠️ Pesan terlalu pendek:", pesan.length);
+        showAlert('❌ Pesan minimal 10 karakter!', 'error');
+        return false;
+      }
+
+      if (pesan.length > 500) {
+        console.warn("⚠️ Pesan terlalu panjang:", pesan.length);
+        showAlert('❌ Pesan maksimal 500 karakter!', 'error');
+        return false;
+      }
+
+      // ===== DISABLE BUTTON & SHOW LOADING =====
       btn.disabled = true;
-      btn.innerHTML = '⌛ Mengirim...';
+      btn.innerHTML = '<span class="loading-spinner"></span> Mengirim...';
 
       try {
-        const kategori = document.getElementById("kategori").value;
-        const pesan = document.getElementById("pesan").value;
-        const tglPesan = new Date().toLocaleString('id-ID');
-
-        if (!kategori) {
-          showAlert('❌ Pilih kategori terlebih dahulu!', 'error');
-          btn.disabled = false;
-          btn.innerHTML = '📤 KIRIM MASUKAN';
-          return;
-        }
-
-        if (!pesan || pesan.trim().length < 10) {
-          showAlert('❌ Pesan minimal 10 karakter!', 'error');
-          btn.disabled = false;
-          btn.innerHTML = '📤 KIRIM MASUKAN';
-          return;
-        }
-
         const saraBaru = {
           nama: user.nama,
           nisw: user.nisw,
           kategori: kategori,
           pesan: pesan,
-          tanggal: tglPesan
+          tanggal: new Date().toLocaleString('id-ID'),
+          createdAt: new Date().toISOString()
         };
 
+        console.log("💾 Saving saran:", saraBaru);
+
+        // ===== PERBAIKAN: Add error handling =====
         DBManager.addSaran(saraBaru, function(berhasil) {
           if (berhasil) {
-            console.log("✅ Saran berhasil disimpan:", saraBaru);
+            console.log("✅ Saran berhasil disimpan!");
             showAlert('✅ Terima kasih! Masukan Anda telah terkirim.', 'success');
+            
             setTimeout(() => {
               document.getElementById("formSaran").reset();
               window.location.href = "beranda.html";
             }, 2000);
           } else {
+            console.error("❌ Gagal menyimpan saran");
             showAlert('❌ Gagal mengirim masukan. Coba lagi.', 'error');
             btn.disabled = false;
             btn.innerHTML = '📤 KIRIM MASUKAN';
@@ -298,6 +363,12 @@
         btn.innerHTML = '📤 KIRIM MASUKAN';
       }
     };
+
+    // ===== INIT HALAMAN =====
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log("🌐 Saran page loaded");
+      loadUserData();
+    });
   </script>
 
 </body>
