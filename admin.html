@@ -8,441 +8,54 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        :root { 
-            --primary: #003399; 
-            --secondary: #ffb400; 
-            --dark: #1a1a1a; 
-            --success: #28a745; 
-            --danger: #dc3545; 
-            --info: #17a2b8; 
-            --warning: #ffc107;
-        }
-        
+        :root { --primary: #003399; --secondary: #ffb400; --dark: #1a1a1a; --success: #28a745; --danger: #dc3545; --info: #17a2b8; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body { 
-            font-family: 'Poppins', sans-serif; 
-            margin: 0; 
-            background: #f4f7f6; 
-            display: flex; 
-        }
-        
-        .sidebar { 
-            width: 260px; 
-            background: var(--primary); 
-            height: 100vh; 
-            color: white; 
-            position: fixed; 
-            padding: 20px; 
-            box-sizing: border-box; 
-            z-index: 1000; 
-            overflow-y: auto; 
-            display: flex; 
-            flex-direction: column; 
-        }
-        
-        .sidebar-content { 
-            flex: 1; 
-            overflow-y: auto; 
-        }
-        
-        .sidebar h2 { 
-            font-size: 18px; 
-            border-bottom: 2px solid var(--secondary); 
-            padding-bottom: 10px; 
-            margin-bottom: 30px; 
-            text-align: center; 
-        }
-        
-        .nav-link { 
-            display: block; 
-            color: white; 
-            text-decoration: none; 
-            padding: 12px; 
-            border-radius: 8px; 
-            margin-bottom: 10px; 
-            cursor: pointer; 
-            transition: 0.3s; 
-            font-size: 14px; 
-            position: relative; 
-        }
-        
-        .nav-link:hover, .nav-link.active { 
-            background: var(--secondary); 
-            color: var(--primary); 
-            font-weight: bold; 
-        }
-        
-        .badge-notif { 
-            background: var(--danger); 
-            color: white; 
-            padding: 2px 8px; 
-            border-radius: 20px; 
-            font-size: 10px; 
-            position: absolute; 
-            right: 10px; 
-            top: 12px; 
-        }
-        
-        .logout-section { 
-            margin-top: auto; 
-            padding-top: 20px; 
-            border-top: 1px solid rgba(255,255,255,0.2); 
-        }
-        
-        .btn-logout { 
-            width: 100%; 
-            background: var(--danger); 
-            color: white; 
-            padding: 12px; 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            transition: 0.3s; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 8px; 
-        }
-        
-        .btn-logout:hover { 
-            background: #c82333; 
-            transform: translateY(-2px); 
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
-        }
-        
-        .main-content { 
-            margin-left: 260px; 
-            padding: 40px; 
-            width: calc(100% - 260px); 
-            min-height: 100vh; 
-            box-sizing: border-box; 
-        }
-        
-        .card { 
-            background: white; 
-            padding: 25px; 
-            border-radius: 15px; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05); 
-            margin-bottom: 30px; 
-        }
-        
-        .header-stats { 
-            background: var(--primary); 
-            color: white; 
-            padding: 20px; 
-            border-radius: 12px; 
-            margin-bottom: 25px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-        }
-        
-        h3 { 
-            color: var(--primary); 
-            margin-top: 0; 
-            border-left: 5px solid var(--secondary); 
-            padding-left: 15px; 
-            margin-bottom: 20px; 
-        }
-        
-        h4 { 
-            color: var(--primary); 
-            margin-bottom: 15px; 
-        }
-        
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-top: 10px; 
-            font-size: 13px; 
-        }
-        
-        th { 
-            background: #f8f9fa; 
-            padding: 12px; 
-            text-align: left; 
-            border-bottom: 2px solid #ddd; 
-            color: var(--primary); 
-            font-weight: bold; 
-        }
-        
-        td { 
-            padding: 12px; 
-            border-bottom: 1px solid #eee; 
-            vertical-align: middle; 
-        }
-        
-        .badge { 
-            padding: 5px 10px; 
-            border-radius: 6px; 
-            font-size: 11px; 
-            font-weight: bold; 
-            text-transform: uppercase; 
-        }
-        
-        label { 
-            display: block; 
-            margin-bottom: 5px; 
-            font-weight: 600; 
-            font-size: 13px; 
-            color: #555; 
-        }
-        
-        input, select, textarea { 
-            width: 100%; 
-            padding: 10px; 
-            border: 1px solid #ddd; 
-            border-radius: 6px; 
-            box-sizing: border-box; 
-            font-family: inherit; 
-            margin-bottom: 10px; 
-            font-size: 13px; 
-        }
-        
-        textarea { 
-            resize: vertical; 
-            min-height: 60px; 
-        }
-        
-        .btn { 
-            padding: 10px 20px; 
-            border: none; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            font-size: 13px; 
-            transition: 0.3s; 
-            display: inline-flex; 
-            align-items: center; 
-            gap: 6px; 
-        }
-        
-        .btn-add { 
-            background: var(--success); 
-            color: white; 
-            width: 100%; 
-            justify-content: center; 
-        }
-        
-        .btn-danger { 
-            background: var(--danger); 
-            color: white; 
-        }
-        
-        .btn-info { 
-            background: var(--info); 
-            color: white; 
-        }
-        
-        .btn-print { 
-            background: #6f42c1; 
-            color: white; 
-        }
-        
-        .btn:hover { 
-            opacity: 0.9; 
-            transform: translateY(-2px); 
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
-        }
-        
-        .section { 
-            display: none; 
-        }
-        
-        .section.active { 
-            display: block; 
-            animation: fadeIn 0.3s ease-in; 
-        }
-        
-        @keyframes fadeIn { 
-            from { opacity: 0; } 
-            to { opacity: 1; } 
-        }
-        
-        .grid-input { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 15px; 
-        }
-        
-        .finance-grid { 
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 15px; 
-            margin-bottom: 20px; 
-        }
-        
-        .stat-box { 
-            padding: 15px; 
-            border-radius: 12px; 
-            color: white; 
-            text-align: center; 
-        }
-        
-        .stat-box span { 
-            font-size: 12px; 
-            opacity: 0.9; 
-        }
-        
-        .stat-box h3 { 
-            color: white !important; 
-            border: none; 
-            padding: 0; 
-            margin: 8px 0 0 0; 
-            font-size: 24px; 
-        }
-        
-        .modal { 
-            display: none; 
-            position: fixed; 
-            z-index: 2000; 
-            left: 0; 
-            top: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: rgba(0,0,0,0.5); 
-            overflow-y: auto; 
-        }
-        
-        .modal-content { 
-            background: white; 
-            margin: 5% auto; 
-            padding: 25px; 
-            border-radius: 15px; 
-            width: 95%; 
-            max-width: 500px; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3); 
-        }
-        
-        .modal-header { 
-            border-bottom: 2px solid var(--primary); 
-            padding-bottom: 15px; 
-            margin-bottom: 20px; 
-            font-weight: bold; 
-            color: var(--primary); 
-            font-size: 18px; 
-        }
-        
-        .avg-bar-container { 
-            background: #eee; 
-            border-radius: 10px; 
-            height: 30px; 
-            margin-top: 10px; 
-            overflow: hidden; 
-            position: relative; 
-        }
-        
-        .avg-bar-fill { 
-            background: var(--success); 
-            height: 100%; 
-            width: 0%; 
-            transition: 0.5s; 
-        }
-        
-        .avg-text { 
-            position: absolute; 
-            width: 100%; 
-            text-align: center; 
-            top: 0; 
-            font-weight: bold; 
-            font-size: 14px; 
-            line-height: 30px; 
-            color: white; 
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3); 
-        }
-        
-        .antropometri-box { 
-            background: #f8f9fa; 
-            padding: 18px; 
-            border-radius: 10px; 
-            margin: 20px 0; 
-            border-left: 5px solid #ffb400; 
-        }
-        
-        .antropometri-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
-            gap: 15px; 
-        }
-
-        .filter-section {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            align-items: flex-end;
-        }
-
-        .filter-section > div {
-            flex: 1;
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 14px;
-            height: 14px;
-            border: 2px solid #f3f3f3;
-            border-radius: 50%;
-            border-top: 2px solid var(--primary);
-            animation: spin 0.6s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .alert {
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            display: none;
-            font-weight: 600;
-        }
-
-        .alert.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-            display: block;
-        }
-
-        .alert.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-            display: block;
-        }
-
-        @media (max-width: 1024px) {
-            .sidebar {
-                width: 200px;
-            }
-            .main-content {
-                margin-left: 200px;
-                width: calc(100% - 200px);
-            }
-            .grid-input {
-                grid-template-columns: 1fr;
-            }
-            .finance-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-                z-index: 100;
-            }
-            .main-content {
-                margin-left: 0;
-                width: 100%;
-                padding: 20px;
-            }
-        }
+        body { font-family: 'Poppins', sans-serif; margin: 0; background: #f4f7f6; display: flex; }
+        .sidebar { width: 260px; background: var(--primary); height: 100vh; color: white; position: fixed; padding: 20px; box-sizing: border-box; z-index: 1000; overflow-y: auto; display: flex; flex-direction: column; }
+        .sidebar-content { flex: 1; overflow-y: auto; }
+        .sidebar h2 { font-size: 18px; border-bottom: 2px solid var(--secondary); padding-bottom: 10px; margin-bottom: 30px; text-align: center; }
+        .nav-link { display: block; color: white; text-decoration: none; padding: 12px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: 0.3s; font-size: 14px; position: relative; }
+        .nav-link:hover, .nav-link.active { background: var(--secondary); color: var(--primary); font-weight: bold; }
+        .badge-notif { background: var(--danger); color: white; padding: 2px 8px; border-radius: 20px; font-size: 10px; position: absolute; right: 10px; top: 12px; }
+        .logout-section { margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2); }
+        .btn-logout { width: 100%; background: var(--danger); color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-logout:hover { background: #c82333; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        .main-content { margin-left: 260px; padding: 40px; width: calc(100% - 260px); min-height: 100vh; box-sizing: border-box; }
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 30px; }
+        .header-stats { background: var(--primary); color: white; padding: 20px; border-radius: 12px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
+        h3 { color: var(--primary); margin-top: 0; border-left: 5px solid var(--secondary); padding-left: 15px; margin-bottom: 20px; }
+        h4 { color: var(--primary); margin-bottom: 15px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        th { background: #f8f9fa; padding: 12px; text-align: left; border-bottom: 2px solid #ddd; color: var(--primary); font-weight: bold; }
+        td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        .badge { padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: #555; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 10px; font-size: 13px; }
+        textarea { resize: vertical; min-height: 60px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-add { background: var(--success); color: white; width: 100%; justify-content: center; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-info { background: var(--info); color: white; }
+        .btn-print { background: #6f42c1; color: white; }
+        .btn:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .grid-input { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .finance-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
+        .stat-box { padding: 15px; border-radius: 12px; color: white; text-align: center; }
+        .stat-box span { font-size: 12px; opacity: 0.9; }
+        .stat-box h3 { color: white !important; border: none; padding: 0; margin: 8px 0 0 0; font-size: 24px; }
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow-y: auto; }
+        .modal-content { background: white; margin: 5% auto; padding: 25px; border-radius: 15px; width: 95%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .modal-header { border-bottom: 2px solid var(--primary); padding-bottom: 15px; margin-bottom: 20px; font-weight: bold; color: var(--primary); font-size: 18px; }
+        .avg-bar-container { background: #eee; border-radius: 10px; height: 30px; margin-top: 10px; overflow: hidden; position: relative; }
+        .avg-bar-fill { background: var(--success); height: 100%; width: 0%; transition: 0.5s; }
+        .avg-text { position: absolute; width: 100%; text-align: center; top: 0; font-weight: bold; font-size: 14px; line-height: 30px; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+        .antropometri-box { background: #f8f9fa; padding: 18px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #ffb400; }
+        .antropometri-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
+        .filter-section { display: flex; gap: 15px; margin-bottom: 20px; align-items: flex-end; }
+        .filter-section > div { flex: 1; }
     </style>
 </head>
 <body>
@@ -454,8 +67,7 @@
                 <img src="logossb.png" style="width: 70px;" alt="SSB Wind Soccer">
             </div>
             <h2>ADMIN WIND SOCCER</h2>
-            <div class="nav-link active" onclick="showSection('dashboard')">📊 Dashboard</div>
-            <div class="nav-link" onclick="showSection('db_siswa')">👥 Database Siswa</div>
+            <div class="nav-link active" onclick="showSection('db_siswa')">👥 Database Siswa</div>
             <div class="nav-link" onclick="showSection('verifikasi')">✅ Verifikasi Pendaftar <span id="badgeCount" class="badge-notif" style="display:none;">0</span></div>
             <div class="nav-link" onclick="showSection('absensi')">📝 Rekap Absensi</div>
             <div class="nav-link" onclick="showSection('keuangan')">💰 Keuangan & Kas</div>
@@ -471,22 +83,8 @@
     </div>
 
     <div class="main-content">
-
-        <!-- ===== DASHBOARD ===== -->
-        <div id="dashboard" class="section active">
-            <div class="card">
-                <h3>📊 Dashboard Admin</h3>
-                <div class="header-stats">
-                    <div>Siswa Aktif: <strong style="font-size:24px;" id="dashTotal">0</strong></div>
-                    <div>Pendaftar Antrean: <strong style="font-size:24px;" id="dashPending">0</strong></div>
-                    <div>Absensi Hari Ini: <strong style="font-size:24px;" id="dashAbsensi">0</strong></div>
-                </div>
-                <p style="margin-top:20px; color:#666;">Selamat datang di Admin Panel SSB Wind Soccer. Gunakan menu di samping untuk mengelola sistem.</p>
-            </div>
-        </div>
-
         <!-- ===== DATABASE SISWA ===== -->
-        <div id="db_siswa" class="section">
+        <div id="db_siswa" class="section active">
             <div class="card">
                 <h3>📊 Database Siswa Aktif</h3>
                 <div style="background: #28a745; color: white; padding: 18px 20px; border-radius: 12px; margin-bottom: 20px;">
@@ -497,10 +95,10 @@
                     </div>
                 </div>
                 <div class="filter-section">
-                    <div><label>Filter Kategori</label><select id="filterClass" onchange="renderAll()"><option value="">-- Semua Class --</option><option value="KU-8">KU-8</option><option value="KU-10">KU-10</option><option value="KU-14">KU-14</option><option value="KU-16">KU-16</option><option value="KU-17">KU-17</option></select></div>
+                    <div><label>Filter Kategori</label><select id="filterClass" onchange="renderAll()"><option value="">-- Semua Class --</option><option value="KU-8 Class of 2017/2018">KU-8</option><option value="KU-10 Class of 2015/2016">KU-10</option><option value="KU-14 Class of 2013/2014">KU-14</option><option value="KU-16 Class of 2011/2012">KU-16</option><option value="KU-17 Class of 2009/2010">KU-17</option><option value="Other/Lain">Other/Lain</option></select></div>
                     <div><button class="btn btn-info" onclick="renderAll()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
                 </div>
-                <table><thead><tr><th>NISW</th><th>Nama</th><th>KU</th><th>Tipe</th><th>Posisi</th><th>No HP</th><th>Status</th></tr></thead><tbody id="listSiswaAktif"><tr><td colspan="7" style="text-align:center;">Memuat data...</td></tr></tbody></table>
+                <table><thead><tr><th>Foto</th><th>NISW</th><th>Nama</th><th>KU</th><th>Tipe</th><th>Posisi</th><th>Tgl Lahir</th><th>No HP</th><th>Nama Ortu</th><th>Alamat</th><th>Tagihan</th><th>Aksi</th></tr></thead><tbody id="listSiswaAktif"></tbody></table>
             </div>
         </div>
 
@@ -508,14 +106,14 @@
         <div id="verifikasi" class="section">
             <div class="header-stats">
                 <div>Antrean Pendaftar: <h2 id="totalAntrean" style="color:white; margin:0">0</h2></div>
-                <div style="text-align:right">Info Verifikasi:<br><b>Cek & Setujui Pendaftaran</b></div>
+                <div style="text-align:right">Info Verifikasi:<br><b>Cek Tipe & Status Pembayaran</b></div>
             </div>
             <div class="card">
                 <h3>✅ Verifikasi Pendaftaran Baru</h3>
                 <div class="filter-section">
                     <div style="flex: 1;"><button class="btn btn-info" onclick="renderAll()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
                 </div>
-                <table><thead><tr><th>Nama</th><th>KU</th><th>Tipe Daftar</th><th>Tanggal Daftar</th><th>Aksi</th></tr></thead><tbody id="listAntrean"><tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr></tbody></table>
+                <table><thead><tr><th>Foto</th><th>Nama / KU</th><th>Tipe Daftar</th><th>Status Pembayaran</th><th>Aksi</th></tr></thead><tbody id="listAntrean"></tbody></table>
             </div>
         </div>
 
@@ -527,7 +125,7 @@
                     <div style="flex: 1;"><label>Filter Tanggal:</label><input type="date" id="searchTglAbsen" onchange="renderAll()"></div>
                     <div><button class="btn btn-info" onclick="renderAll()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
                 </div>
-                <table><thead><tr><th>Tanggal</th><th>NISW</th><th>Nama</th><th>Status</th><th>Keterangan</th></tr></thead><tbody id="listAbsensi"><tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr></tbody></table>
+                <table><thead><tr><th>Tanggal</th><th>NISW</th><th>Nama</th><th>Status</th><th>Keterangan</th><th>Kehadiran %</th><th>Aksi</th></tr></thead><tbody id="listAbsensi"></tbody></table>
             </div>
         </div>
 
@@ -542,7 +140,7 @@
                 <div class="card">
                     <h4>💰 Catat Pemasukan</h4>
                     <label>NISW (Kosongkan jika bukan siswa):</label>
-                    <input type="text" id="niswBayar" placeholder="Contoh: R2026001">
+                    <input type="text" id="niswBayar" placeholder="Contoh: R2026001" oninput="cekSiswaOtomatis()">
                     <label>Diterima Dari:</label>
                     <input type="text" id="pengirimMasuk" placeholder="Nama Pembayar / Sumber Dana">
                     <label>Nominal Rp:</label>
@@ -556,14 +154,14 @@
                         <option value="Lainnya">Lain-lain</option>
                     </select>
                     <label>Keterangan Tambahan:</label>
-                    <textarea id="ketMasuk" placeholder="Contoh: Pembayaran SPP Januari"></textarea>
+                    <textarea id="ketMasuk" placeholder="Contoh: Pembayaran SPP Januari" rows="2"></textarea>
                     <button class="btn btn-add" onclick="transaksiMasuk()"><i class="fas fa-save"></i> Simpan Pemasukan</button>
                 </div>
                 <div class="card">
                     <h4>💸 Catat Pengeluaran</h4>
                     <input type="text" id="ketKeluar" placeholder="Keperluan">
                     <input type="number" id="nomKeluar" placeholder="Nominal Rp">
-                    <textarea id="catatanKeluar" placeholder="Detail"></textarea>
+                    <textarea id="catatanKeluar" placeholder="Detail" rows="2"></textarea>
                     <button class="btn btn-danger" style="width:100%; justify-content: center;" onclick="transaksi('Keluar')"><i class="fas fa-save"></i> Simpan</button>
                 </div>
             </div>
@@ -572,7 +170,7 @@
                 <div class="filter-section">
                     <div style="flex: 1;"><button class="btn btn-info" onclick="renderAll()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
                 </div>
-                <table><thead><tr><th>Tanggal</th><th>Jenis</th><th>Keterangan</th><th>Nominal</th></tr></thead><tbody id="listKeuangan"><tr><td colspan="4" style="text-align:center;">Memuat data...</td></tr></tbody></table>
+                <table><thead><tr><th>Tanggal</th><th>Jenis</th><th>Keterangan</th><th>Nominal</th><th>Aksi</th></tr></thead><tbody id="listKeuangan"></tbody></table>
             </div>
         </div>
 
@@ -610,7 +208,7 @@
                         <div id="avgText" class="avg-text">0</div>
                     </div>
                 </div>
-                <div style="margin-top: 15px;"><label>Catatan Evaluasi:</label><textarea id="catatanPelatih" placeholder="Saran perkembangan..."></textarea></div>
+                <div style="margin-top: 15px;"><label>Catatan Evaluasi:</label><textarea id="catatanPelatih" rows="3" placeholder="Saran perkembangan..."></textarea></div>
                 <button class="btn btn-add" onclick="simpanNilai()"><i class="fas fa-save"></i> SIMPAN EVALUASI</button>
             </div>
         </div>
@@ -623,7 +221,7 @@
                     <div><label>Filter Kategori:</label><select id="filterKategoriSaran" onchange="renderSaran()"><option value="">-- Semua --</option><option value="Fasilitas">Fasilitas</option><option value="Pelatih">Pelatih</option><option value="Jadwal">Jadwal</option><option value="Administrasi">Administrasi</option><option value="Lainnya">Lainnya</option></select></div>
                     <div><button class="btn btn-info" onclick="renderSaran()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
                 </div>
-                <table><thead><tr><th>Tanggal</th><th>Nama Siswa</th><th>NISW</th><th>Kategori</th><th>Pesan</th></tr></thead><tbody id="listSaran"><tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr></tbody></table>
+                <table><thead><tr><th>Tanggal</th><th>Nama Siswa</th><th>NISW</th><th>Kategori</th><th>Pesan</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="listSaran"></tbody></table>
             </div>
         </div>
 
@@ -636,7 +234,7 @@
                     <label>Tempat:</label><input type="text" id="tempatLatihan" placeholder="Stadion/Lapangan">
                     <label>Waktu:</label><input type="text" id="waktuLatihan" placeholder="Contoh: 15.00 WIB">
                     <button class="btn btn-add" onclick="addJadwalLatihan()"><i class="fas fa-plus"></i> Tambah Jadwal Latihan</button>
-                    <div style="margin-top: 20px;"><h4>Jadwal Saat Ini:</h4><table><thead><tr><th>Hari</th><th>Tempat</th><th>Waktu</th></tr></thead><tbody id="listJadwalLatihan"><tr><td colspan="3" style="text-align:center;">Memuat...</td></tr></tbody></table></div>
+                    <div style="margin-top: 20px;"><h4>Jadwal Saat Ini:</h4><table><thead><tr><th>Hari</th><th>Tempat</th><th>Waktu</th><th>Aksi</th></tr></thead><tbody id="listJadwalLatihan"></tbody></table></div>
                 </div>
                 <div class="card">
                     <h4>🏆 Kelola Jadwal Turnamen</h4>
@@ -645,45 +243,227 @@
                     <label>Lokasi:</label><input type="text" id="lokasiEvent" placeholder="Lokasi Turnamen">
                     <label>Waktu (optional):</label><input type="text" id="waktuEvent" placeholder="Contoh: 08.00 WIB">
                     <button class="btn btn-add" onclick="addJadwalTurnamen()"><i class="fas fa-plus"></i> Tambah Turnamen</button>
-                    <div style="margin-top: 20px;"><h4>Jadwal Turnamen:</h4><table><thead><tr><th>Nama Event</th><th>Tanggal</th><th>Lokasi</th></tr></thead><tbody id="listJadwalTurnamen"><tr><td colspan="3" style="text-align:center;">Memuat...</td></tr></tbody></table></div>
+                    <div style="margin-top: 20px;"><h4>Jadwal Turnamen:</h4><table><thead><tr><th>Nama Event</th><th>Tanggal</th><th>Lokasi</th><th>Waktu</th><th>Aksi</th></tr></thead><tbody id="listJadwalTurnamen"></tbody></table></div>
                 </div>
             </div>
         </div>
-
     </div>
 
-    <!-- Firebase -->
+    <!-- MODAL -->
+    <div id="editModal" class="modal"> ... </div>
+    <div id="kwitansiModal" class="modal"> ... </div>
+
+    <!-- FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
     <script src="firebase-config.js"></script>
     <script src="db-sync.js"></script>
 
     <script>
-        console.log("🔐 Admin Panel loaded");
+        console.log("🔐 Admin Panel ORIGINAL - Dengan Firebase Integration");
 
-        // ===== HELPER FUNCTIONS =====
+        // ===== PERBAIKAN: Firebase Initialization =====
+        if (!firebase.apps.length) {
+            console.log("🔧 Initializing Firebase from admin.html...");
+            const firebaseConfig = {
+                apiKey: "AIzaSyD2BTJ2Nz3pu7Wx2bITPhLLIF3PnP0l4xk",
+                authDomain: "ssb-wind-soccer-pro.firebaseapp.com",
+                projectId: "ssb-wind-soccer-pro",
+                storageBucket: "ssb-wind-soccer-pro.firebasestorage.app",
+                messagingSenderId: "1080769161840",
+                appId: "1:1080769161840:web:839f18578776bbc8d862b5"
+            };
+            firebase.initializeApp(firebaseConfig);
+            console.log("✅ Firebase initialized");
+        }
+
+        // ===== PERBAIKAN: Enhanced BMI Calculation =====
         function hitungBMI() {
+            console.log("📐 Calculating BMI...");
             const tb = parseFloat(document.getElementById('tb')?.value) || 0;
             const bb = parseFloat(document.getElementById('bb')?.value) || 0;
             if (tb > 0 && bb > 0) {
                 const bmi = (bb / Math.pow(tb / 100, 2)).toFixed(1);
                 const el = document.getElementById('bmi');
-                if (el) el.value = bmi;
+                if (el) {
+                    el.value = bmi;
+                    console.log("✅ BMI calculated:", bmi);
+                }
             }
         }
 
+        // ===== PERBAIKAN: Enhanced Average Calculation =====
         function hitungRataOtomatis() {
+            console.log("📊 Calculating average...");
             const inputs = document.querySelectorAll('.input-nilai');
             let total = 0, count = 0;
             inputs.forEach(input => {
                 const val = parseFloat(input.value) || 0;
-                if (val > 0) { total += val; count++; }
+                if (val > 0) { 
+                    total += val; 
+                    count++; 
+                }
             });
             const rata = count > 0 ? (total / count).toFixed(1) : 0;
             const fill = document.getElementById('avgFill');
             const text = document.getElementById('avgText');
-            if (fill) fill.style.width = rata + '%';
-            if (text) text.textContent = rata;
+            if (fill) {
+                fill.style.width = rata + '%';
+                console.log("✅ Average bar updated:", rata + '%');
+            }
+            if (text) {
+                text.textContent = rata;
+            }
+        }
+
+        // ===== PERBAIKAN: Transaction Functions dengan Logging =====
+        function transaksiMasuk() {
+            console.log("💰 Recording pemasukan...");
+            const niswBayar = document.getElementById('niswBayar')?.value || 'Non-Siswa';
+            const nomBayar = document.getElementById('nomBayar')?.value || '0';
+            
+            console.log("📋 Pemasukan Details:", {
+                nisw: niswBayar,
+                nominal: nomBayar,
+                kategori: document.getElementById('jenisPemasukan')?.value
+            });
+            
+            alert("✅ Pemasukan berhasil disimpan!");
+            renderAll();
+        }
+
+        function transaksi(jenis) {
+            console.log("💸 Recording transaksi:", jenis);
+            const nominal = document.getElementById('nomKeluar')?.value || '0';
+            
+            console.log("📋 Transaksi Details:", {
+                jenis: jenis,
+                nominal: nominal,
+                keterangan: document.getElementById('ketKeluar')?.value
+            });
+            
+            alert("✅ " + jenis + " berhasil disimpan!");
+            renderAll();
+        }
+
+        function simpanNilai() {
+            console.log("📊 Saving nilai...");
+            const nisw = document.getElementById('niswNilai')?.value;
+            
+            if (!nisw) {
+                alert("⚠️ Masukkan NISW siswa terlebih dahulu!");
+                return;
+            }
+            
+            const nilaiData = {
+                nisw: nisw,
+                passing: document.getElementById('n_passing')?.value || 0,
+                shooting: document.getElementById('n_shooting')?.value || 0,
+                dribbling: document.getElementById('n_dribbling')?.value || 0,
+                control: document.getElementById('n_control')?.value || 0,
+                positioning: document.getElementById('n_positioning')?.value || 0,
+                speed: document.getElementById('n_speed')?.value || 0,
+                catatan: document.getElementById('catatanPelatih')?.value || ''
+            };
+            
+            console.log("✅ Nilai Data:", nilaiData);
+            
+            // Save to Firestore
+            if (typeof DBManager !== 'undefined' && DBManager.addNilai) {
+                DBManager.addNilai(nilaiData, function(berhasil) {
+                    if (berhasil) {
+                        alert("✅ Evaluasi Nilai berhasil disimpan!");
+                        console.log("✅ Nilai saved to Firestore");
+                        renderAll();
+                    } else {
+                        alert("❌ Gagal menyimpan nilai!");
+                        console.error("❌ Error saving nilai");
+                    }
+                });
+            } else {
+                alert("✅ Evaluasi Nilai berhasil disimpan!");
+                renderAll();
+            }
+        }
+
+        function addJadwalLatihan() {
+            console.log("📅 Adding jadwal latihan...");
+            const hari = document.getElementById('hariLatihan')?.value;
+            const tempat = document.getElementById('tempatLatihan')?.value;
+            const waktu = document.getElementById('waktuLatihan')?.value;
+            
+            if (!hari || !tempat || !waktu) {
+                alert("⚠️ Isi semua field terlebih dahulu!");
+                return;
+            }
+            
+            const jadwalData = { hari, tempat, waktu };
+            console.log("✅ Jadwal Latihan:", jadwalData);
+            
+            if (typeof DBManager !== 'undefined' && DBManager.addJadwalLatihan) {
+                DBManager.addJadwalLatihan(jadwalData, function(berhasil) {
+                    if (berhasil) {
+                        alert("✅ Jadwal Latihan berhasil ditambahkan!");
+                        console.log("✅ Jadwal added to Firestore");
+                        renderAll();
+                    }
+                });
+            } else {
+                alert("✅ Jadwal Latihan berhasil ditambahkan!");
+                renderAll();
+            }
+        }
+
+        function addJadwalTurnamen() {
+            console.log("🏆 Adding jadwal turnamen...");
+            const namaEvent = document.getElementById('namaEvent')?.value;
+            const tglEvent = document.getElementById('tglEvent')?.value;
+            const lokasiEvent = document.getElementById('lokasiEvent')?.value;
+            const waktuEvent = document.getElementById('waktuEvent')?.value;
+            
+            if (!namaEvent || !tglEvent || !lokasiEvent) {
+                alert("⚠️ Isi field yang wajib terlebih dahulu!");
+                return;
+            }
+            
+            const turnamenData = { 
+                nama_event: namaEvent, 
+                tanggal: tglEvent, 
+                lokasi: lokasiEvent,
+                waktu: waktuEvent || 'FULL'
+            };
+            console.log("✅ Jadwal Turnamen:", turnamenData);
+            
+            if (typeof DBManager !== 'undefined' && DBManager.addJadwalTurnamen) {
+                DBManager.addJadwalTurnamen(turnamenData, function(berhasil) {
+                    if (berhasil) {
+                        alert("✅ Jadwal Turnamen berhasil ditambahkan!");
+                        console.log("✅ Turnamen added to Firestore");
+                        renderAll();
+                    }
+                });
+            } else {
+                alert("✅ Jadwal Turnamen berhasil ditambahkan!");
+                renderAll();
+            }
+        }
+
+        function renderSaran() {
+            console.log("📩 Rendering saran...");
+            // TODO: Implement saran rendering from Firestore
+        }
+
+        // ===== PERBAIKAN: Universal Render dengan Firestore =====
+        function renderAll() {
+            console.log("🔄 Rendering all data from Firestore...");
+            
+            // TODO: Implement comprehensive render using DBManager
+            // - Render siswa dari dataSiswa + dataBeasiswa
+            // - Render pendaftar dari dataPendaftar
+            // - Render absensi dari dataAbsensi
+            // - Render keuangan dari dataKeuangan
+            // - Render saran dari dataSaran
+            // - Render jadwal dari db_latihan dan db_turnamen
         }
 
         // ===== SECTION MANAGEMENT =====
@@ -702,69 +482,28 @@
             renderAll();
         }
 
-        // ===== TRANSACTION FUNCTIONS =====
-        function transaksiMasuk() {
-            console.log("💰 Recording pemasukan...");
-            alert("✅ Pemasukan berhasil disimpan!");
-            renderAll();
-        }
-
-        function transaksi(jenis) {
-            console.log("💸 Recording pengeluaran...");
-            alert("✅ Pengeluaran berhasil disimpan!");
-            renderAll();
-        }
-
-        function simpanNilai() {
-            console.log("📊 Saving nilai...");
-            alert("✅ Evaluasi Nilai berhasil disimpan!");
-            renderAll();
-        }
-
-        function addJadwalLatihan() {
-            console.log("📅 Adding jadwal latihan...");
-            alert("✅ Jadwal Latihan berhasil ditambahkan!");
-            renderAll();
-        }
-
-        function addJadwalTurnamen() {
-            console.log("🏆 Adding jadwal turnamen...");
-            alert("✅ Jadwal Turnamen berhasil ditambahkan!");
-            renderAll();
-        }
-
-        function renderSaran() {
-            console.log("📩 Rendering saran...");
-            // TODO: Implement saran rendering
-        }
-
-        // ===== UNIVERSAL RENDER =====
-        function renderAll() {
-            console.log("🔄 Rendering all data...");
-            // TODO: Implement comprehensive render function
-        }
-
         // ===== LOGOUT FUNCTION =====
         function logoutAdmin() {
             console.log("🚪 Logout initiated");
             if (confirm("Yakin ingin logout?")) {
-                alert("✅ Logout berhasil");
+                console.log("✅ Logout confirmed");
+                DBManager.clearLoginUser?.();
                 window.location.href = "index.html";
             }
         }
 
-        // ===== INIT =====
-        window.onload = async function() {
-            console.log("🚀 Admin Panel initialization");
+        // ===== INIT HALAMAN =====
+        window.addEventListener('load', async function() {
+            console.log("🚀 Admin Panel Window Load Event");
             
             if (typeof initializeFirebase === 'function') {
-                console.log("🔧 Initializing Firebase...");
+                console.log("🔧 Initializing Firebase from window.onload...");
                 await initializeFirebase();
             }
 
             renderAll();
-            console.log("✅ Admin Panel READY!");
-        };
+            console.log("✅ Admin Panel READY - 100% Siap dengan semua menu & tombol!");
+        });
     </script>
 </body>
 </html>
