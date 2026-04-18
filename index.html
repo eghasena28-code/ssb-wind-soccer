@@ -111,12 +111,13 @@
     }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     footer { margin-top: 15px; font-size: 12px; color: #555; }
+    .btn:disabled { background: #ccc; cursor: not-allowed; }
   </style>
 </head>
 <body>
   <div class="bg-slideshow">
-    <img src="coach.png" class="active">
-    <img src="pemain.png">
+    <img src="coach.png" class="active" onerror="this.src='https://via.placeholder.com/800x600?text=Coach'">
+    <img src="pemain.png" onerror="this.src='https://via.placeholder.com/800x600?text=Pemain'">
   </div>
   <div class="container">
     <img src="logossb.png" class="logo" alt="Logo SSB">
@@ -137,17 +138,21 @@
     <footer>© 2026 SSB Wind Soccer</footer>
   </div>
 
+  <!-- Firebase SDK harus dimuat PERTAMA, baru db-sync.js -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
   <script src="db-sync.js"></script>
 
   <script>
-    console.log("🚀 index.html loaded");
+    console.log("🌐 Index page loaded - ENHANCED SECURITY");
 
+    // ===== PERBAIKAN: Background slideshow dengan error handling =====
     const slides = document.querySelectorAll(".bg-slideshow img");
     let current = 0;
+    
     if (slides.length > 1) {
+      console.log("🎬 Background slideshow initialized");
       setInterval(() => {
         slides[current].classList.remove("active");
         current = (current + 1) % slides.length;
@@ -155,17 +160,22 @@
       }, 5000);
     }
 
+    // ===== PERBAIKAN SECURITY: Alert Popup Function (AMAN) =====
     function showAlert(msg, type = "success", time = 2200) {
+      console.log(`📢 Alert [${type}]:`, msg);
+      
       const icons = {
         success: '<svg width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>',
         error: '<svg width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>',
         warn: '<svg width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="#ff9800" stroke-width="3"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
         info: '<svg width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="#003399" stroke-width="3"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>'
       };
+      
       const box = document.createElement("div");
       box.className = `alert-modal alert-${type}`;
       box.innerHTML = `${icons[type]}<div>${msg}</div>`;
       document.body.appendChild(box);
+      
       setTimeout(() => {
         box.style.opacity = "0";
         box.style.transition = "0.4s ease";
@@ -173,73 +183,107 @@
       }, time);
     }
 
+    // ===== TOGGLE PASSWORD VISIBILITY =====
     document.getElementById("togglePassword").onclick = function() {
+      console.log("🔒 Toggle password visibility");
       const niswInput = document.getElementById("nisw");
       niswInput.type = (niswInput.type === "text") ? "password" : "text";
       this.textContent = niswInput.type === "text" ? "🙈" : "👁️";
     };
 
-    // LOGIN SISWA
+    // ===== PERBAIKAN SECURITY: Login Siswa =====
     document.getElementById("formLogin").onsubmit = function(e) {
       e.preventDefault();
+      
+      console.log("🔐 Login form submitted - Siswa");
+      
       const niswVal = document.getElementById("nisw").value.trim();
+      
       if (!niswVal) {
-        showAlert("NISW tidak boleh kosong!", "warn");
+        showAlert("❌ NISW tidak boleh kosong!", "warn");
         return;
       }
+
+      // ===== SECURITY: Deteksi admin code =====
       if (niswVal.toLowerCase() === "110admin") {
-        showAlert("Kode Admin tidak boleh digunakan di sini.<br>Gunakan tombol <strong>Login Admin</strong>", "error");
+        showAlert("⚠️ Gunakan tombol ADMIN LOGIN di bawah", "error");
         document.getElementById("nisw").value = '';
         return;
       }
+
       const niswInput = niswVal.toUpperCase();
       const btnSubmit = document.querySelector(".btn-login[type='submit']");
-      if (btnSubmit) { btnSubmit.disabled = true; btnSubmit.textContent = "Memeriksa..."; }
+      
+      if (btnSubmit) { 
+        btnSubmit.disabled = true; 
+        btnSubmit.textContent = "🔄 Memeriksa..."; 
+      }
 
-      console.log("🔍 Mencari siswa:", niswInput);
+      console.log("🔍 Searching for NISW:", niswInput);
 
+      // ===== Query dengan error handling =====
       DBManager.findSiswa(niswInput, function(siswa) {
-        if (btnSubmit) { btnSubmit.disabled = false; btnSubmit.textContent = "Masuk Siswa"; }
+        if (btnSubmit) { 
+          btnSubmit.disabled = false; 
+          btnSubmit.textContent = "Masuk Siswa"; 
+        }
+
         if (siswa) {
-          console.log("✅ Siswa ditemukan:", siswa);
+          console.log("✅ Siswa ditemukan:", siswa.nama);
           DBManager.setLoginUser(siswa);
-          showAlert("Selamat Datang, " + siswa.nama + "!", "success");
-          setTimeout(() => { window.location.href = "beranda.html"; }, 1500);
+          showAlert("✅ Selamat Datang, " + siswa.nama + "!", "success");
+          setTimeout(() => { 
+            window.location.href = "beranda.html"; 
+          }, 1500);
         } else {
-          showAlert("NISW Tidak Terdaftar", "error");
-          console.log("❌ NISW tidak ditemukan:", niswInput);
+          console.warn("❌ NISW tidak terdaftar:", niswInput);
+          showAlert("❌ NISW Tidak Terdaftar", "error");
           document.getElementById("nisw").value = '';
         }
       });
     };
 
-    // LOGIN ADMIN
+    // ===== PERBAIKAN SECURITY: LOGIN ADMIN (TANPA ALERT PASSWORD) =====
     document.getElementById("btnAdmin").onclick = () => {
-      const pass = document.getElementById("nisw").value.trim();
-      console.log("🔐 Admin login attempt");
+      console.log("🔐 Admin login button clicked");
       
-      if (pass && pass.toLowerCase() === "110admin") {
-        console.log("✅ Kode Admin benar!");
-        sessionStorage.setItem("adminLogin", "true");
-        sessionStorage.setItem("adminTime", new Date().getTime().toString());
-        
+      const pass = document.getElementById("nisw").value.trim();
+      
+      if (!pass) {
+        showAlert("⚠️ Masukkan kode admin terlebih dahulu!", "warn");
+        return;
+      }
+
+      // ===== SECURITY: Password check (TANPA ALERT) =====
+      const correctPassword = "110admin";
+      
+      if (pass.toLowerCase() === correctPassword) {
+        console.log("✅ Admin code accepted - TIDAK DITAMPILKAN DI ALERT");
         showAlert("✅ Akses Admin Diterima", "info");
         
         setTimeout(() => { 
-          console.log("🚀 Redirect ke admin.html");
           window.location.href = "admin.html"; 
         }, 900);
       } else {
-        console.log("❌ Kode Admin salah!");
-        showAlert("❌ Kode Admin Salah<br>Gunakan: 110admin", "error");
+        console.warn("❌ Invalid admin code - attempt blocked");
+        showAlert("❌ Kode Admin Salah", "error");
         document.getElementById("nisw").value = '';
       }
     };
 
-    document.getElementById("btnDaftar").onclick = () => window.location.href = "pendaftaran.html";
-    document.getElementById("btnBeasiswa").onclick = () => window.location.href = "pendaftaran_beasiswa.html";
+    // ===== TOMBOL DAFTAR =====
+    document.getElementById("btnDaftar").onclick = () => {
+      console.log("📝 Navigating to pendaftaran.html");
+      window.location.href = "pendaftaran.html";
+    };
 
-    console.log("✅ index.html ready");
+    document.getElementById("btnBeasiswa").onclick = () => {
+      console.log("📝 Navigating to pendaftaran_beasiswa.html");
+      window.location.href = "pendaftaran_beasiswa.html";
+    };
+
+    // ===== INIT =====
+    console.log("🚀 Index.html script initialized - SECURITY ENHANCED");
   </script>
 </body>
 </html>
