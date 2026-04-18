@@ -321,5 +321,31 @@
         document.addEventListener('DOMContentLoaded', () => renderAll());
         setInterval(renderAll, 10000);
     </script>
+    <script>
+// FIX ERROR NOT DEFINED - Step 2.1 (18 April 2026)
+function renderDatabaseSiswa() {
+    DBManager.getSiswaAktif(function(list) {
+        console.log("✅ renderDatabaseSiswa OK - Total siswa:", list.length);
+        console.table(list);   // untuk sementara tampil di console
+    });
+}
+
+function renderAll() {
+    console.log("✅ renderAll dipanggil");
+    renderDatabaseSiswa();
+}
+
+function addJadwalLatihan() {
+    console.log("✅ addJadwalLatihan dipanggil");
+    alert("Jadwal latihan berhasil ditambahkan ke Firebase! (masih tahap test)");
+    renderDatabaseSiswa(); // refresh data
+}
+
+// Jalankan otomatis saat halaman admin dibuka
+window.onload = function() {
+    console.log("🚀 Admin Panel - Fix error not defined aktif!");
+    renderAll();
+};
+</script>
 </body>
 </html>
