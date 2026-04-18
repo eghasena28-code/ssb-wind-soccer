@@ -1,52 +1,20 @@
-// ==================== DBManager HYBRID FINAL - SSB Wind Soccer ====================
-// Satu Database Firebase + localStorage Backup | Versi Stabil
+// ==================== DBManager FULL FIREBASE REALTIME - SSB Wind Soccer ====================
+// Versi Pure Cloud - Siap Publish 18 April 2026
+const firebaseConfig = {
+    apiKey: "AIzaSyD2BTJ2Nz3pu7Wx2bITPhLLIF3PnP0l4xk",
+    authDomain: "ssb-wind-soccer-pro.firebaseapp.com",
+    projectId: "ssb-wind-soccer-pro",
+    storageBucket: "ssb-wind-soccer-pro.firebasestorage.app",
+    messagingSenderId: "1080769161840",
+    appId: "1:1080769161840:web:839f18578776bbc8d862b5"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
 const DBManager = {
-    db: null,
-    isFirebaseReady: false,
-
-    initFirebase: async function() {
-        if (this.isFirebaseReady) return true;
-
-        // Tunggu Firebase SDK siap
-        let attempts = 0;
-        while ((!firebase || !firebase.firestore) && attempts < 20) {
-            await new Promise(r => setTimeout(r, 400));
-            attempts++;
-        }
-
-        try {
-            this.db = firebase.firestore();
-            this.isFirebaseReady = true;
-            console.log("✅ Firebase Firestore terhubung");
-            return true;
-        } catch (e) {
-            console.error("Gagal init Firebase:", e);
-            return false;
-        }
-    },
-
-    saveToBoth: async function(key, data) {
-        localStorage.setItem(key, JSON.stringify(data));
-
-        if (this.isFirebaseReady) {
-            try {
-                await this.db.collection(key).doc("main").set({
-                    data: data,
-                    lastUpdated: new Date().toISOString()
-                });
-            } catch (e) {}
-        }
-    },
-
-    // ====================== INIT ======================
-    initData: async function() {
-        const keys = ["dataSiswa","dataBeasiswa","dataPendaftar","dataAbsensi","dataKeuangan","dataNilai","dataSaran","db_latihan","db_turnamen"];
-        keys.forEach(key => {
-            if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify([]));
-        });
-
-        await this.initFirebase();
+    initData: function() {
+        console.log("✅ Firebase Realtime Database SIAP - Full Cloud Mode");
     },
 
     getTglSekarang: function() {
@@ -54,7 +22,7 @@ const DBManager = {
         return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`;
     },
 
-    // Semua fungsi lain tetap sama seperti versi sebelumnya
+    // Login Session
     setLoginUser: function(user) { sessionStorage.setItem("userAktif", JSON.stringify(user)); },
     getLoginUser: function() {
         const data = sessionStorage.getItem("userAktif");
@@ -62,137 +30,193 @@ const DBManager = {
     },
     clearLoginUser: function() { sessionStorage.removeItem("userAktif"); },
 
-    findSiswa: function(nisw) {
-        const semua = this.getSiswaAktif();
-        return semua.find(s => String(s.nisw).toUpperCase() === String(nisw).toUpperCase());
+    // ====================== SISWA ======================
+    getSiswaAktif: function(callback) {
+        Promise.all([
+            db.ref('dataSiswa').once('value'),
+            db.ref('dataBeasiswa').once('value')
+        ]).then(([snap1, snap2]) => {
+            const reguler = snap1.val() ? Object.values(snap1.val()) : [];
+            const beasiswa = snap2.val() ? Object.values(snap2.val()) : [];
+            callback([...reguler, ...beasiswa]);
+        });
     },
 
-    getSiswaAktif: function() {
-        const reguler = JSON.parse(localStorage.getItem("dataSiswa") || "[]");
-        const beasiswa = JSON.parse(localStorage.getItem("dataBeasiswa") || "[]");
-        return [...reguler, ...beasiswa];
-    },
-
-    addSiswaAktif: async function(siswa) {
+    addSiswaAktif: function(siswa, callback) {
         const key = siswa.tipe === "Beasiswa" ? "dataBeasiswa" : "dataSiswa";
-        let list = JSON.parse(localStorage.getItem(key) || "[]");
-        list.push(siswa);
-        await this.saveToBoth(key, list);
+        db.ref(key).push(siswa).then(() => {
+            if (callback) callback(true);
+        });
     },
 
-    updateSiswaAktif: async function(nisw, updateData) {
-        for (let key of ["dataSiswa", "dataBeasiswa"]) {
-            let list = JSON.parse(localStorage.getItem(key) || "[]");
-            const idx = list.findIndex(s => String(s.nisw).toUpperCase() === String(nisw).toUpperCase());
-            if (idx > -1) {
-                list[idx] = {...list[idx], ...updateData};
-                await this.saveToBoth(key, list);
-            }
-        }
+    updateSiswaAktif: function(nisw, updateData, callback) {
+        const keys = ["dataSiswa", "dataBeasiswa"];
+        let updated = false;
+        keys.forEach(key => {
+            db.ref(key).once('value', snap => {
+                snap.forEach(child => {
+                    if (String(child.val().nisw).toUpperCase() === String(nisw).toUpperCase()) {
+                        child.ref.update(updateData).then(() => {
+                            updated = true;
+                            if (callback) callback(true);
+                        });
+                    }
+                });
+            });
+        });
     },
 
-    deleteSiswaAktif: async function(nisw) {
-        for (let key of ["dataSiswa", "dataBeasiswa"]) {
-            let list = JSON.parse(localStorage.getItem(key) || "[]");
-            list = list.filter(s => String(s.nisw).toUpperCase() !== String(nisw).toUpperCase());
-            await this.saveToBoth(key, list);
-        }
+    deleteSiswaAktif: function(nisw, callback) {
+        const keys = ["dataSiswa", "dataBeasiswa"];
+        let deleted = false;
+        keys.forEach(key => {
+            db.ref(key).once('value', snap => {
+                snap.forEach(child => {
+                    if (String(child.val().nisw).toUpperCase() === String(nisw).toUpperCase()) {
+                        child.ref.remove().then(() => {
+                            deleted = true;
+                            if (callback) callback(true);
+                        });
+                    }
+                });
+            });
+        });
     },
 
-    getPendaftar: function() { return JSON.parse(localStorage.getItem("dataPendaftar") || "[]"); },
-
-    addPendaftar: async function(data) {
-        let list = this.getPendaftar();
-        const total = this.getSiswaAktif().length + list.length + 1;
-        const prefix = data.tipe === "Beasiswa" ? "B" : "R";
-        data.nisw = prefix + new Date().getFullYear() + total.toString().padStart(3, '0');
-        data.status = "Menunggu Verifikasi";
-        data.tglDaftar = this.getTglSekarang();
-        list.push(data);
-        await this.saveToBoth("dataPendaftar", list);
-        return data.nisw;
+    // ====================== PENDAFTAR ======================
+    getPendaftar: function(callback) {
+        db.ref('dataPendaftar').once('value').then(snap => {
+            callback(snap.val() ? Object.values(snap.val()) : []);
+        });
     },
 
-    addAbsensi: async function(data) {
-        let list = JSON.parse(localStorage.getItem("dataAbsensi") || "[]");
-        list.push(data);
-        await this.saveToBoth("dataAbsensi", list);
+    addPendaftar: function(data, callback) {
+        this.getSiswaAktif(siswaList => {
+            const total = siswaList.length + 1;
+            const prefix = data.tipe === "Beasiswa" ? "B" : "R";
+            data.nisw = prefix + new Date().getFullYear() + total.toString().padStart(3, '0');
+            data.status = "Menunggu Verifikasi";
+            data.tglDaftar = this.getTglSekarang();
+
+            db.ref('dataPendaftar').push(data).then(() => {
+                if (callback) callback(data.nisw);
+            });
+        });
     },
 
-    getAbsensi: function() { return JSON.parse(localStorage.getItem("dataAbsensi") || "[]"); },
-
-    addKeuangan: async function(data) {
-        let list = JSON.parse(localStorage.getItem("dataKeuangan") || "[]");
+    // ====================== ABSENSI ======================
+    addAbsensi: function(data, callback) {
         data.tgl = data.tgl || this.getTglSekarang();
-        list.push(data);
-        await this.saveToBoth("dataKeuangan", list);
+        db.ref('dataAbsensi').push(data).then(() => {
+            if (callback) callback(true);
+        });
     },
 
-    getKeuangan: function() { return JSON.parse(localStorage.getItem("dataKeuangan") || "[]"); },
-
-    updateNilai: async function(nisw, dataNilai) {
-        let list = JSON.parse(localStorage.getItem("dataNilai") || "[]");
-        const idx = list.findIndex(n => String(n.nisw).toUpperCase() === String(nisw).toUpperCase());
-        if (idx > -1) list[idx] = {...list[idx], ...dataNilai};
-        else list.push(dataNilai);
-        await this.saveToBoth("dataNilai", list);
+    getAbsensi: function(callback) {
+        db.ref('dataAbsensi').once('value').then(snap => {
+            callback(snap.val() ? Object.values(snap.val()) : []);
+        });
     },
 
-    getNilai: function() { return JSON.parse(localStorage.getItem("dataNilai") || "[]"); },
+    // ====================== KEUANGAN ======================
+    addKeuangan: function(data, callback) {
+        data.tgl = data.tgl || this.getTglSekarang();
+        db.ref('dataKeuangan').push(data).then(() => {
+            if (callback) callback(true);
+        });
+    },
 
-    addSaran: async function(data) {
-        let list = JSON.parse(localStorage.getItem("dataSaran") || "[]");
+    getKeuangan: function(callback) {
+        db.ref('dataKeuangan').once('value').then(snap => {
+            callback(snap.val() ? Object.values(snap.val()) : []);
+        });
+    },
+
+    // ====================== NILAI / RAPORT ======================
+    updateNilai: function(nisw, dataNilai, callback) {
+        db.ref('dataNilai').once('value', snap => {
+            let found = false;
+            snap.forEach(child => {
+                if (String(child.val().nisw).toUpperCase() === String(nisw).toUpperCase()) {
+                    child.ref.update(dataNilai).then(() => {
+                        found = true;
+                        if (callback) callback(true);
+                    });
+                }
+            });
+            if (!found) {
+                db.ref('dataNilai').push(dataNilai).then(() => {
+                    if (callback) callback(true);
+                });
+            }
+        });
+    },
+
+    getNilai: function(callback) {
+        db.ref('dataNilai').once('value').then(snap => {
+            callback(snap.val() ? Object.values(snap.val()) : []);
+        });
+    },
+
+    // ====================== SARAN ======================
+    addSaran: function(data, callback) {
         data.id = Date.now();
         data.waktu = this.getTglSekarang();
         data.dibaca = false;
-        list.push(data);
-        await this.saveToBoth("dataSaran", list);
-    },
-
-    getSaran: function() { return JSON.parse(localStorage.getItem("dataSaran") || "[]"); },
-
-    getJadwalLatihan: function() { return JSON.parse(localStorage.getItem("db_latihan") || "[]"); },
-
-    addJadwalLatihan: async function(data) {
-        let list = this.getJadwalLatihan();
-        data.id = Date.now();
-        list.push(data);
-        await this.saveToBoth("db_latihan", list);
-    },
-
-    getJadwalTurnamen: function() { return JSON.parse(localStorage.getItem("db_turnamen") || "[]"); },
-
-    addJadwalTurnamen: async function(data) {
-        let list = this.getJadwalTurnamen();
-        data.id = Date.now();
-        list.push(data);
-        await this.saveToBoth("db_turnamen", list);
-    },
-
-    getTotalSiswa: function() { return this.getSiswaAktif().length; },
-
-    exportDataToFile: function() {
-        const backup = {};
-        ["dataSiswa","dataBeasiswa","dataPendaftar","dataAbsensi","dataKeuangan","dataNilai","dataSaran","db_latihan","db_turnamen"].forEach(key => {
-            backup[key] = JSON.parse(localStorage.getItem(key) || "[]");
+        db.ref('dataSaran').push(data).then(() => {
+            if (callback) callback(true);
         });
-        const dataStr = JSON.stringify(backup, null, 2);
-        const blob = new Blob([dataStr], {type: 'application/json'});
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `SSB_Backup_${new Date().toISOString().split('T')[0]}.json`;
-        link.click();
-        URL.revokeObjectURL(url);
+    },
+
+    getSaran: function(callback) {
+        db.ref('dataSaran').once('value').then(snap => {
+            callback(snap.val() ? Object.values(snap.val()) : []);
+        });
+    },
+
+    // ====================== JADWAL ======================
+    getJadwalLatihan: function(callback) {
+        db.ref('db_latihan').once('value').then(snap => {
+            callback(snap.val() ? Object.values(snap.val()) : []);
+        });
+    },
+
+    addJadwalLatihan: function(data, callback) {
+        data.id = Date.now();
+        db.ref('db_latihan').push(data).then(() => {
+            if (callback) callback(true);
+        });
+    },
+
+    getJadwalTurnamen: function(callback) {
+        db.ref('db_turnamen').once('value').then(snap => {
+            callback(snap.val() ? Object.values(snap.val()) : []);
+        });
+    },
+
+    addJadwalTurnamen: function(data, callback) {
+        data.id = Date.now();
+        db.ref('db_turnamen').push(data).then(() => {
+            if (callback) callback(true);
+        });
+    },
+
+    getTotalSiswa: function(callback) {
+        this.getSiswaAktif(list => callback(list.length));
+    },
+
+    // Backup (opsional)
+    exportDataToFile: function() {
+        // Bisa dikembangkan nanti
+        alert("Export backup akan ditambahkan di step berikutnya");
     }
 };
 
 // ====================== START APP ======================
-async function startApp() {
-    await DBManager.initData();
+function startApp() {
+    DBManager.initData();
     window.DBManager = DBManager;
-    console.log("🚀 DBManager HYBRID AKTIF - Siap Publish!");
-    console.log("✅ Satu Database Firebase sudah aktif");
+    console.log("🚀 DBManager FULL FIREBASE AKTIF - Siap Publish!");
 }
 
 startApp();
