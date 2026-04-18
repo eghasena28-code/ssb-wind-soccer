@@ -1,4 +1,9 @@
-// firebase-config.js - Versi Stabil untuk GitHub Pages
+// ============================================
+// firebase-config.js - IMPROVED VERSION
+// ============================================
+
+console.log("🔧 Loading firebase-config.js...");
+
 const firebaseConfig = {
     apiKey: "AIzaSyD2BTJ2Nz3pu7Wx2bITPhLLIF3PnP0l4xk",
     authDomain: "ssb-wind-soccer-pro.firebaseapp.com",
@@ -8,32 +13,59 @@ const firebaseConfig = {
     appId: "1:1080769161840:web:839f18578776bbc8d862b5"
 };
 
-// Inisialisasi Firebase dengan cara yang lebih aman
+// ===== PERBAIKAN: Global Firebase instances =====
 let app = null;
 let db = null;
 
+// ===== PERBAIKAN: Initialize Firebase dengan Error Handling =====
 function initializeFirebase() {
     return new Promise((resolve, reject) => {
-        if (app && db) {
-            console.log("✅ Firebase sudah diinisialisasi sebelumnya");
-            resolve();
-            return;
-        }
-
         try {
-            // Load Firebase jika belum ada
-            if (typeof firebase === "undefined") {
-                console.warn("Firebase SDK belum dimuat, tunggu...");
-                setTimeout(() => initializeFirebase().then(resolve).catch(reject), 500);
+            // Jika sudah diinisialisasi, resolve saja
+            if (app && db) {
+                console.log("✅ Firebase sudah diinisialisasi sebelumnya");
+                resolve();
                 return;
             }
 
+            // Cek apakah Firebase SDK sudah dimuat
+            if (typeof firebase === "undefined") {
+                console.warn("⚠️ Firebase SDK belum dimuat, tunggu...");
+                setTimeout(() => {
+                    initializeFirebase().then(resolve).catch(reject);
+                }, 500);
+                return;
+            }
+
+            // Prevent multiple initializations
+            if (firebase.apps.length > 0) {
+                app = firebase.app();
+                db = firebase.firestore();
+                console.log("✅ Firebase sudah diinisialisasi oleh instance lain");
+                resolve();
+                return;
+            }
+
+            // Initialize Firebase
+            console.log("🔧 Initializing Firebase...");
             app = firebase.initializeApp(firebaseConfig);
             db = firebase.firestore();
 
-            console.log("✅ Firebase berhasil diinisialisasi");
-            window.firebaseDB = db;   // agar bisa diakses global
+            // Enable offline persistence
+            db.enablePersistence().catch((err) => {
+                if (err.code === 'failed-precondition') {
+                    console.warn("⚠️ Multiple tabs detected, offline persistence disabled");
+                } else if (err.code === 'unimplemented') {
+                    console.warn("⚠️ Browser doesn't support offline persistence");
+                }
+            });
+
+            console.log("✅ Firebase berhasil diinisialisasi dengan Firestore");
+            window.firebaseDB = db;
+            window.firebaseApp = app;
+            
             resolve();
+
         } catch (error) {
             console.error("❌ Gagal initialize Firebase:", error);
             reject(error);
@@ -41,8 +73,9 @@ function initializeFirebase() {
     });
 }
 
-// Export ke global scope
+// ===== PERBAIKAN: Export ke Global Scope =====
 window.initializeFirebase = initializeFirebase;
 window.getFirestoreDB = () => db;
+window.getFirebaseApp = () => app;
 
-console.log("🔧 firebase-config.js loaded successfully");
+console.log("✅ firebase-config.js loaded successfully");
