@@ -182,230 +182,88 @@
             </div>
         </div>
 
-       // ===== KEUANGAN FUNCTIONS - PERBAIKAN 100% LENGKAP =====
+        <!-- ===== 4. KEUANGAN ===== DIPERBAIKI 100% SEMPURNA ===== -->
+        <div id="keuangan" class="section">
+            <!-- STATISTIK KEUANGAN -->
+            <div class="finance-grid">
+                <div class="stat-box" style="background: var(--success);">
+                    <span>💵 Total Pemasukan</span>
+                    <h3 id="totalMasuk">Rp 0</h3>
+                </div>
+                <div class="stat-box" style="background: var(--danger);">
+                    <span>💸 Total Pengeluaran</span>
+                    <h3 id="totalKeluar">Rp 0</h3>
+                </div>
+                <div class="stat-box" style="background: var(--primary);">
+                    <span>💰 Saldo Akhir</span>
+                    <h3 id="saldoAkhir">Rp 0</h3>
+                </div>
+            </div>
 
-// Load Keuangan
-function loadKeuangan() {
-    const stored = localStorage.getItem('keuanganData');
-    if (stored) {
-        keuanganData = JSON.parse(stored);
-    } else {
-        keuanganData = [];
-    }
-    console.log("📊 Keuangan Data Loaded:", keuanganData.length, "items");
-    hitungSaldoKeuangan();
-    renderKeuangan();
-}
+            <!-- FORM INPUT -->
+            <div class="grid-input">
+                <!-- FORM PEMASUKAN -->
+                <div class="card">
+                    <h4>💰 Catat Pemasukan</h4>
+                    <label>NISW (Kosongkan jika bukan siswa):</label>
+                    <input type="text" id="niswBayar" placeholder="R2026001">
+                    <label>Diterima Dari:</label>
+                    <input type="text" id="pengirimMasuk" placeholder="Nama Pembayar">
+                    <label>Nominal Rp:</label>
+                    <input type="number" id="nomBayar" placeholder="Nominal" min="0">
+                    <label>Kategori:</label>
+                    <select id="jenisPemasukan">
+                        <option value="SPP">Pembayaran SPP</option>
+                        <option value="Daftar">Uang Pendaftaran</option>
+                        <option value="Sponsor">Sponsor</option>
+                        <option value="Kompetisi">Biaya Kompetisi</option>
+                        <option value="Lainnya">Lain-lain</option>
+                    </select>
+                    <label>Keterangan:</label>
+                    <textarea id="ketMasuk" placeholder="Keterangan..." rows="2"></textarea>
+                    <button class="btn btn-add" onclick="simpanPemasukan()"><i class="fas fa-save"></i> Simpan Pemasukan</button>
+                </div>
 
-// Hitung Saldo
-function hitungSaldoKeuangan() {
-    const totalMasuk = keuanganData
-        .filter(k => k.jenisMasukKeluar === 'Masuk')
-        .reduce((sum, k) => sum + (parseInt(k.nominal) || 0), 0);
-    
-    const totalKeluar = keuanganData
-        .filter(k => k.jenisMasukKeluar === 'Keluar')
-        .reduce((sum, k) => sum + (parseInt(k.nominal) || 0), 0);
-    
-    const saldo = totalMasuk - totalKeluar;
+                <!-- FORM PENGELUARAN -->
+                <div class="card">
+                    <h4>💸 Catat Pengeluaran</h4>
+                    <label>Keperluan:</label>
+                    <input type="text" id="ketKeluar" placeholder="Keperluan">
+                    <label>Nominal Rp:</label>
+                    <input type="number" id="nomKeluar" placeholder="Nominal" min="0">
+                    <label>Catatan:</label>
+                    <textarea id="catatanKeluar" placeholder="Detail..." rows="2"></textarea>
+                    <button class="btn btn-danger" style="width:100%; justify-content: center;" onclick="simpanPengeluaran()"><i class="fas fa-save"></i> Simpan</button>
+                </div>
+            </div>
 
-    console.log("💰 Saldo: Masuk=", totalMasuk, "Keluar=", totalKeluar, "Saldo=", saldo);
-
-    document.getElementById('totalMasuk').textContent = formatRupiah(totalMasuk);
-    document.getElementById('totalKeluar').textContent = formatRupiah(totalKeluar);
-    document.getElementById('saldoAkhir').textContent = formatRupiah(saldo);
-}
-
-// Render Keuangan - DIPERBAIKI AGAR SEMUA KOLOM TERISI
-function renderKeuangan() {
-    const tbody = document.getElementById('listKeuangan');
-
-    if (keuanganData.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 40px; color: #999;">📭 Belum ada transaksi</td></tr>`;
-        return;
-    }
-
-    const sorted = [...keuanganData].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-    console.log("📋 Rendering", sorted.length, "transaksi:");
-
-    tbody.innerHTML = sorted.map((k, idx) => {
-        const jenisBg = k.jenisMasukKeluar === 'Masuk' ? '#d4edda' : '#f8d7da';
-        const jenisText = k.jenisMasukKeluar === 'Masuk' ? '#155724' : '#721c24';
-        const jenisColor = k.jenisMasukKeluar === 'Masuk' ? '#28a745' : '#dc3545';
-        
-        console.log(`  ${idx+1}. [${k.tanggal}] ${k.jenisMasukKeluar} - ${k.kategori} - Rp${k.nominal}`);
-        
-        return `
-            <tr>
-                <td><strong>${k.tanggal || '-'}</strong></td>
-                <td><span style="background: ${jenisBg}; color: ${jenisText}; padding: 6px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; display: block; text-align: center;">${k.jenisMasukKeluar || '-'}</span></td>
-                <td><span style="background: #e3f2fd; color: #003399; padding: 6px 8px; border-radius: 4px; font-size: 11px; display: block; text-align: center;">${k.kategori || '-'}</span></td>
-                <td title="${k.keterangan || '-'}" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${k.keterangan || '-'}</td>
-                <td class="nominal-cell" style="color: ${jenisColor}; font-weight: bold;">${k.jenisMasukKeluar === 'Masuk' ? '+' : '-'} ${formatRupiah(k.nominal || 0)}</td>
-                <td style="text-align: center;">
-                    <button class="btn btn-warning btn-sm" onclick="editTransaksi('${k.id}')"><i class="fas fa-edit"></i> Edit</button>
-                    <button class="btn btn-danger btn-sm" onclick="hapusTransaksi('${k.id}')"><i class="fas fa-trash"></i> Hapus</button>
-                </td>
-            </tr>
-        `;
-    }).join('');
-}
-
-// Simpan Pemasukan - DIPERBAIKI AGAR DATA LENGKAP
-function simpanPemasukan() {
-    const nisw = document.getElementById('niswBayar')?.value?.trim() || '';
-    const sumber = document.getElementById('pengirimMasuk')?.value?.trim() || '';
-    const nominal = parseInt(document.getElementById('nomBayar')?.value) || 0;
-    const kategori = document.getElementById('jenisPemasukan')?.value || 'SPP';
-    const keterangan = document.getElementById('ketMasuk')?.value?.trim() || '';
-
-    if (nominal <= 0) {
-        showAlert("⚠️ Nominal harus lebih dari 0!", "warn");
-        return;
-    }
-
-    if (!sumber) {
-        showAlert("⚠️ Masukkan sumber pemasukan!", "warn");
-        return;
-    }
-
-    const transaksi = {
-        id: Date.now().toString(),
-        tanggal: new Date().toLocaleDateString('id-ID'),
-        jenisMasukKeluar: 'Masuk',
-        kategori: kategori,
-        keterangan: `${sumber}${keterangan ? ' - ' + keterangan : ''}${nisw ? ' (' + nisw + ')' : ''}`,
-        nominal: nominal,
-        createdAt: new Date().toISOString()
-    };
-
-    keuanganData.push(transaksi);
-    localStorage.setItem('keuanganData', JSON.stringify(keuanganData));
-
-    console.log("✅ Pemasukan disimpan:", transaksi);
-    showAlert("✅ Pemasukan " + formatRupiah(nominal) + " dari " + sumber + " disimpan!", "success");
-
-    // Reset form
-    document.getElementById('niswBayar').value = '';
-    document.getElementById('pengirimMasuk').value = '';
-    document.getElementById('nomBayar').value = '';
-    document.getElementById('ketMasuk').value = '';
-    document.getElementById('jenisPemasukan').value = 'SPP';
-
-    hitungSaldoKeuangan();
-    renderKeuangan();
-}
-
-// Simpan Pengeluaran - DIPERBAIKI AGAR DATA LENGKAP
-function simpanPengeluaran() {
-    const keperluan = document.getElementById('ketKeluar')?.value?.trim();
-    const nominal = parseInt(document.getElementById('nomKeluar')?.value) || 0;
-    const catatan = document.getElementById('catatanKeluar')?.value?.trim() || '';
-
-    if (!keperluan) {
-        showAlert("⚠️ Masukkan keperluan pengeluaran!", "warn");
-        return;
-    }
-
-    if (nominal <= 0) {
-        showAlert("⚠️ Nominal harus lebih dari 0!", "warn");
-        return;
-    }
-
-    const transaksi = {
-        id: Date.now().toString(),
-        tanggal: new Date().toLocaleDateString('id-ID'),
-        jenisMasukKeluar: 'Keluar',
-        kategori: 'Pengeluaran',
-        keterangan: `${keperluan}${catatan ? ' - ' + catatan : ''}`,
-        nominal: nominal,
-        createdAt: new Date().toISOString()
-    };
-
-    keuanganData.push(transaksi);
-    localStorage.setItem('keuanganData', JSON.stringify(keuanganData));
-
-    console.log("✅ Pengeluaran disimpan:", transaksi);
-    showAlert("✅ Pengeluaran " + formatRupiah(nominal) + " untuk " + keperluan + " disimpan!", "success");
-
-    // Reset form
-    document.getElementById('ketKeluar').value = '';
-    document.getElementById('nomKeluar').value = '';
-    document.getElementById('catatanKeluar').value = '';
-
-    hitungSaldoKeuangan();
-    renderKeuangan();
-}
-
-// Edit Transaksi
-function editTransaksi(id) {
-    const transaksi = keuanganData.find(k => k.id === id);
-    if (!transaksi) return;
-    
-    console.log("✏️ Edit Transaksi:", transaksi);
-    showAlert("✏️ Edit Transaksi ID: " + id + "\n\nKeterangan: " + transaksi.keterangan + "\nNominal: " + formatRupiah(transaksi.nominal), "info", 3000);
-}
-
-// Hapus Transaksi
-function hapusTransaksi(id) {
-    const transaksi = keuanganData.find(k => k.id === id);
-    if (!transaksi) return;
-
-    if (confirm("⚠️ Yakin hapus transaksi ini?\n\n" + transaksi.jenisMasukKeluar + " - " + formatRupiah(transaksi.nominal) + "\n" + transaksi.keterangan)) {
-        keuanganData = keuanganData.filter(k => k.id !== id);
-        localStorage.setItem('keuanganData', JSON.stringify(keuanganData));
-        
-        console.log("✅ Transaksi dihapus:", id);
-        showAlert("✅ Transaksi dihapus!", "success");
-        
-        hitungSaldoKeuangan();
-        renderKeuangan();
-    }
-}
-
-// Refresh Keuangan
-function refreshKeuangan() {
-    console.log("🔄 Refresh Keuangan");
-    loadKeuangan();
-    showAlert("✅ Data diperbarui!", "success");
-}
-
-// Export Keuangan ke CSV
-function exportKeuangan() {
-    if (keuanganData.length === 0) {
-        showAlert("⚠️ Tidak ada data untuk di-export!", "warn");
-        return;
-    }
-
-    let csv = 'Tanggal,Jenis,Kategori,Keterangan,Nominal\n';
-    keuanganData.forEach(k => {
-        csv += `"${k.tanggal}","${k.jenisMasukKeluar}","${k.kategori}","${k.keterangan}","Rp${k.nominal}"\n`;
-    });
-
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `Keuangan_SSB_${new Date().toLocaleDateString('id-ID')}.csv`;
-    link.click();
-
-    console.log("📥 Export CSV berhasil");
-    showAlert("✅ File CSV berhasil di-download!\nNama: Keuangan_SSB_" + new Date().toLocaleDateString('id-ID') + ".csv", "success", 3000);
-}
-
-// Reset Keuangan
-function resetKeuangan() {
-    if (confirm("⚠️⚠️⚠️ PERHATIAN SERIUS! ⚠️⚠️⚠️\n\nIni akan menghapus SEMUA data keuangan (" + keuanganData.length + " transaksi)!\n\nYakin ingin melanjutkan?\n\n(Tekan OK untuk CONFIRM, Cancel untuk BATAL)")) {
-        keuanganData = [];
-        localStorage.setItem('keuanganData', JSON.stringify(keuanganData));
-        
-        console.log("🗑️ Semua data keuangan dihapus!");
-        showAlert("✅ Semua data keuangan berhasil dihapus!", "success");
-        
-        hitungSaldoKeuangan();
-        renderKeuangan();
-    }
-}
+            <!-- TABEL REKAP KEUANGAN -->
+            <div class="card">
+                <h3>Riwayat Keuangan</h3>
+                <div class="btn-group" style="margin-bottom: 20px;">
+                    <button class="btn btn-info" onclick="refreshKeuangan()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    <button class="btn btn-print" onclick="exportKeuangan()"><i class="fas fa-download"></i> Export</button>
+                    <button class="btn btn-danger" onclick="resetKeuangan()"><i class="fas fa-trash"></i> Hapus Semua</button>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 100px;">Tanggal</th>
+                                <th style="width: 90px;">Jenis</th>
+                                <th>Keterangan</th>
+                                <th style="width: 120px;">Kategori</th>
+                                <th class="nominal-cell">Nominal</th>
+                                <th style="width: 180px; text-align: center;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listKeuangan">
+                            <tr><td colspan="6" style="text-align:center; padding: 40px;"><span class="loading-spinner"></span> Memuat data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
         <!-- ===== 5. INPUT NILAI RAPORT ===== -->
         <div id="raport" class="section">
