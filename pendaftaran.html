@@ -5,77 +5,144 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pendaftaran Reguler - SSB Wind Soccer</title>
   <style>
-    body { font-family: 'Segoe UI', sans-serif; background: #003399; margin: 0; display: flex; justify-content: center; padding: 20px; }
-    .card { background: white; width: 100%; max-width: 520px; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border-top: 8px solid #ffb400; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #003399; margin: 0; display: flex; justify-content: center; padding: 20px; min-height: 100vh; }
+    .card { background: white; width: 100%; max-width: 540px; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border-top: 8px solid #ffb400; }
     .header { text-align: center; margin-bottom: 25px; }
-    .logo { width: 85px; }
-    h2 { color: #003399; margin: 10px 0; text-transform: uppercase; font-size: 22px; }
+    .logo { width: 85px; height: auto; }
+    h2 { color: #003399; margin: 10px 0; text-transform: uppercase; font-size: 22px; font-weight: bold; }
+    .subtitle { color: #666; font-size: 12px; margin-bottom: 20px; }
     section { background: #f9f9f9; border: 1px solid #eee; padding: 18px; border-radius: 12px; margin-bottom: 18px; }
+    .info-box { background: #e7f3ff; border-left: 4px solid #003399; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 12px; color: #003399; line-height: 1.6; }
+    .info-box strong { color: #003399; }
     label { display: block; font-size: 13.5px; font-weight: bold; margin-bottom: 6px; color: #003399; }
-    input, select, textarea { width: 100%; padding: 11px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14.5px; }
-    .btn-submit { width: 100%; padding: 15px; background: #ffb400; color: #003399; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; }
-    .btn-submit:disabled { background: #999; cursor: not-allowed; }
+    .required { color: #dc3545; }
+    input, select, textarea { width: 100%; padding: 11px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14.5px; font-family: inherit; margin-bottom: 12px; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #003399; box-shadow: 0 0 5px rgba(0,51,153,0.3); }
+    input[readonly] { background: #f0f0f0; color: #666; }
+    textarea { resize: vertical; min-height: 80px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .btn-submit { width: 100%; padding: 15px; background: #ffb400; color: #003399; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .btn-submit:hover { background: #ffc107; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .btn-submit:disabled { background: #999; cursor: not-allowed; transform: none; }
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 3px solid #003399; border-radius: 50%; border-top: 3px solid transparent; animation: spin 0.6s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .alert { padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; display: none; }
+    .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; display: block; }
+    .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; display: block; }
+    .auto-fill-info { background: #e8f5e9; padding: 8px; border-radius: 6px; font-size: 12px; color: #27ae60; margin-top: 4px; }
   </style>
 </head>
 <body>
 <div class="card">
   <div class="header">
-    <img src="logossb.png" class="logo">
-    <h2>PENDAFTARAN SISWA BARU</h2>
+    <img src="logossb.png" class="logo" alt="SSB Wind Soccer">
+    <h2>Pendaftaran Siswa Reguler</h2>
+    <div class="subtitle">SSB Wind Soccer - Akademi Sepak Bola Profesional</div>
+  </div>
+
+  <!-- ALERT SECTION -->
+  <div id="alertError" class="alert alert-error"></div>
+  <div id="alertSuccess" class="alert alert-success"></div>
+
+  <div class="info-box">
+    ℹ️ <strong>INFORMASI PENTING:</strong><br>
+    • Isi semua field yang ditandai (<span class="required">*</span>)<br>
+    • Kategori akan otomatis sesuai usia<br>
+    • Nominal SPP Reguler: <strong>Rp 500.000/bulan</strong><br>
+    • Setelah daftar, tunggu verifikasi admin ✓
   </div>
 
   <form id="formPendaftaran">
+    <!-- SECTION 1: DATA SISWA -->
     <section>
-      <label>Nama Lengkap Siswa</label>
-      <input type="text" id="nama" required placeholder="Nama Lengkap">
+      <h3 style="color: #003399; margin-bottom: 15px; border-bottom: 2px solid #ffb400; padding-bottom: 10px;">👤 Data Siswa</h3>
+      
+      <label>Nama Lengkap Siswa <span class="required">*</span></label>
+      <input type="text" id="nama" required placeholder="Nama lengkap sesuai identitas">
 
-      <label>Tanggal Lahir</label>
-      <input type="date" id="tglLahir" required oninput="hitungOtomatis()">
+      <div class="grid-2">
+        <div>
+          <label>Tanggal Lahir <span class="required">*</span></label>
+          <input type="date" id="tglLahir" required onchange="hitungOtomatis()">
+        </div>
+        <div>
+          <label>Usia (Otomatis)</label>
+          <input type="text" id="usia" readonly>
+          <div class="auto-fill-info">ℹ️ Terisi otomatis saat pilih tgl lahir</div>
+        </div>
+      </div>
 
-      <label>Usia (Otomatis)</label>
-      <input type="text" id="usia" readonly>
-
-      <label>Kategori Umur (Otomatis)</label>
-      <input type="text" id="kategori" readonly>
+      <div class="grid-2">
+        <div>
+          <label>Kategori Umur (KU) - Otomatis</label>
+          <input type="text" id="kategori" readonly style="background: #fff3cd; color: #856404; font-weight: bold;">
+          <div class="auto-fill-info">📋 Sesuai usia: KU-6, KU-8, ... KU-17</div>
+        </div>
+        <div>
+          <label>Posisi Favorit <span class="required">*</span></label>
+          <select id="posisi" required>
+            <option value="">-- Pilih Posisi --</option>
+            <option value="Kiper">🧤 Kiper (GK)</option>
+            <option value="Bek">🛡️ Bek (DF)</option>
+            <option value="Gelandang">⚽ Gelandang (MF)</option>
+            <option value="Penyerang">⚔️ Penyerang (FW)</option>
+          </select>
+        </div>
+      </div>
     </section>
 
+    <!-- SECTION 2: DATA ORANG TUA & KONTAK -->
     <section>
-      <label>Posisi Favorit</label>
-      <select id="posisi" required>
-        <option value="">-- Pilih Posisi --</option>
-        <option value="Kiper">Kiper (GK)</option>
-        <option value="Bek">Bek (DF)</option>
-        <option value="Gelandang">Gelandang (MF)</option>
-        <option value="Penyerang">Penyerang (FW)</option>
-      </select>
+      <h3 style="color: #003399; margin-bottom: 15px; border-bottom: 2px solid #ffb400; padding-bottom: 10px;">👨‍👩‍👧 Data Orang Tua & Kontak</h3>
 
-      <label>Nama Orang Tua / Wali</label>
-      <input type="text" id="namaOrtu" required placeholder="Nama Ibu/Ayah">
+      <label>Nama Orang Tua / Wali <span class="required">*</span></label>
+      <input type="text" id="namaOrtu" required placeholder="Nama Ibu/Ayah/Wali">
 
-      <label>No. WhatsApp</label>
-      <input type="tel" id="noHp" required placeholder="0812xxxxxxxx">
+      <label>No. WhatsApp (Wali) <span class="required">*</span></label>
+      <input type="tel" id="noHp" required placeholder="08xxxxxxxxxx" pattern="^08[0-9]{8,11}$" title="No. harus dimulai 08 dan minimal 10 digit">
+      <div class="auto-fill-info">💬 Digunakan untuk komunikasi penting</div>
 
-      <label>Alamat Lengkap</label>
-      <textarea id="alamat" rows="2" required placeholder="Alamat lengkap..."></textarea>
+      <label>Alamat Lengkap <span class="required">*</span></label>
+      <textarea id="alamat" required placeholder="Jalan, No. Rumah, Kelurahan, Kecamatan, Kota, Provinsi"></textarea>
     </section>
 
+    <!-- SECTION 3: UPLOAD FOTO -->
     <section>
-      <label>Upload Foto Siswa</label>
+      <h3 style="color: #003399; margin-bottom: 15px; border-bottom: 2px solid #ffb400; padding-bottom: 10px;">📷 Foto Identitas</h3>
+      
+      <label>Upload Foto Siswa <span class="required">*</span></label>
       <input type="file" id="foto" accept="image/*" required>
+      <div class="auto-fill-info">
+        📸 Format: JPG, PNG | Ukuran maks 5MB | Foto berupa potret (3x4 atau close-up wajah)
+      </div>
     </section>
 
-    <button type="submit" class="btn-submit" id="btnSubmit">KIRIM PENDAFTARAN</button>
+    <!-- SECTION 4: PERSETUJUAN -->
+    <section style="background: #f0f4ff; border: 2px solid #003399;">
+      <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
+        <input type="checkbox" id="agreeTerms" required style="margin-top: 4px; width: 20px; height: 20px; cursor: pointer;">
+        <span>Saya setuju dengan <strong>Syarat & Ketentuan</strong> pendaftaran SSB Wind Soccer dan data saya telah benar sesuai identitas</span>
+      </label>
+    </section>
+
+    <button type="submit" class="btn-submit" id="btnSubmit">
+      <span>✓ KIRIM PENDAFTARAN</span>
+    </button>
   </form>
 </div>
 
-<!-- Firebase SDK harus dimuat sebelum db-sync.js -->
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js"></script>
 <script src="db-sync.js"></script>
+
 <script>
-// ===== PERBAIKAN: Helper Function untuk Kategori KU-XX =====
-function getKategoriUmur(usia) {
+  console.log("📝 Pendaftaran Reguler - Loaded");
+
+  // ===== HELPER: HITUNG KATEGORI UMUR =====
+  function getKategoriUmur(usia) {
     if (usia >= 17) return "KU-17";
     if (usia >= 15) return "KU-16";
     if (usia >= 13) return "KU-14";
@@ -83,66 +150,152 @@ function getKategoriUmur(usia) {
     if (usia >= 9) return "KU-10";
     if (usia >= 7) return "KU-8";
     return "KU-6";
-}
+  }
 
-// HITUNG OTOMATIS - PERBAIKAN: Gunakan KU-XX bukan "Class of"
-function hitungOtomatis() {
-    const tgl = document.getElementById("tglLahir").value;
-    if (!tgl) return;
+  // ===== HITUNG USIA & KATEGORI OTOMATIS =====
+  function hitungOtomatis() {
+    const tglInput = document.getElementById("tglLahir").value;
+    if (!tglInput) return;
 
-    const tahunLahir = new Date(tgl).getFullYear();
-    const usia = new Date().getFullYear() - tahunLahir;
+    const tgl = new Date(tglInput);
+    const sekarang = new Date();
+    const tahunSekarang = sekarang.getFullYear();
+    const bulanSekarang = sekarang.getMonth();
+    const hariSekarang = sekarang.getDate();
 
-    // Usia
-    document.getElementById("usia").value = usia + " Tahun";
+    const tahunLahir = tgl.getFullYear();
+    const bulanLahir = tgl.getMonth();
+    const hariLahir = tgl.getDate();
 
-    // ✅ PERBAIKAN: Format KU-XX (konsisten dengan beasiswa & admin)
-    const kategori = getKategoriUmur(usia);
-    document.getElementById("kategori").value = kategori;
-}
-
-// SUBMIT FORM
-document.getElementById("formPendaftaran").onsubmit = async function(e) {
-    e.preventDefault();
-
-    const btn = document.getElementById("btnSubmit");
-    btn.disabled = true;
-    btn.textContent = "Mengirim...";
-
-    // Pastikan Firebase sudah siap
-    if (typeof initializeFirebase === 'function') {
-        await initializeFirebase();
+    let usia = tahunSekarang - tahunLahir;
+    if (bulanSekarang < bulanLahir || (bulanSekarang === bulanLahir && hariSekarang < hariLahir)) {
+      usia--;
     }
 
-    const tglLahir = document.getElementById("tglLahir").value;
-    const tahunLahir = new Date(tglLahir).getFullYear();
-    const usia = new Date().getFullYear() - tahunLahir;
+    // UPDATE FIELDS
+    document.getElementById("usia").value = usia + " Tahun";
+    const kategori = getKategoriUmur(usia);
+    document.getElementById("kategori").value = kategori;
 
-    const dataBaru = {
+    console.log("✅ Usia:", usia, "| Kategori:", kategori);
+  }
+
+  // ===== SHOW ALERT =====
+  function showAlert(msg, type = "error") {
+    const alertEl = type === "error" ? document.getElementById("alertError") : document.getElementById("alertSuccess");
+    alertEl.textContent = msg;
+    alertEl.style.display = "block";
+    
+    if (type === "success") {
+      setTimeout(() => { alertEl.style.display = "none"; }, 4000);
+    }
+  }
+
+  // ===== VALIDASI FORM =====
+  function validateForm() {
+    const nama = document.getElementById("nama").value.trim();
+    const tglLahir = document.getElementById("tglLahir").value;
+    const posisi = document.getElementById("posisi").value;
+    const namaOrtu = document.getElementById("namaOrtu").value.trim();
+    const noHp = document.getElementById("noHp").value.trim();
+    const alamat = document.getElementById("alamat").value.trim();
+    const foto = document.getElementById("foto").files[0];
+    const agree = document.getElementById("agreeTerms").checked;
+
+    if (!nama) { showAlert("❌ Nama siswa tidak boleh kosong!"); return false; }
+    if (nama.length < 3) { showAlert("❌ Nama minimal 3 karakter!"); return false; }
+    if (!tglLahir) { showAlert("❌ Pilih tanggal lahir!"); return false; }
+    if (!posisi) { showAlert("❌ Pilih posisi favorit!"); return false; }
+    if (!namaOrtu) { showAlert("❌ Nama orang tua/wali tidak boleh kosong!"); return false; }
+    if (!noHp) { showAlert("❌ No. WhatsApp tidak boleh kosong!"); return false; }
+    if (!/^08[0-9]{8,11}$/.test(noHp)) { showAlert("❌ No. WhatsApp harus dimulai 08 dan minimal 10 digit!"); return false; }
+    if (!alamat) { showAlert("❌ Alamat tidak boleh kosong!"); return false; }
+    if (!foto) { showAlert("❌ Upload foto siswa!"); return false; }
+    if (foto.size > 5 * 1024 * 1024) { showAlert("❌ Ukuran foto maksimal 5MB!"); return false; }
+    if (!/image\/(jpeg|jpg|png)/.test(foto.type)) { showAlert("❌ Format foto hanya JPG atau PNG!"); return false; }
+    if (!agree) { showAlert("❌ Setujui syarat & ketentuan!"); return false; }
+
+    return true;
+  }
+
+  // ===== SUBMIT FORM =====
+  document.getElementById("formPendaftaran").onsubmit = async function(e) {
+    e.preventDefault();
+
+    // VALIDASI
+    if (!validateForm()) return;
+
+    const btn = document.getElementById("btnSubmit");
+    const origText = btn.innerHTML;
+
+    // LOADING STATE
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> <span>Mengirim...</span>';
+
+    try {
+      // INIT FIREBASE
+      if (typeof initializeFirebase === 'function') {
+        await initializeFirebase();
+      }
+
+      const tglLahir = document.getElementById("tglLahir").value;
+      const tahunLahir = new Date(tglLahir).getFullYear();
+      const usia = new Date().getFullYear() - tahunLahir;
+      const kategori = getKategoriUmur(usia);
+
+      // DATA YANG AKAN DIKIRIM
+      const dataBaru = {
         nama: document.getElementById("nama").value.trim(),
         tglLahir: tglLahir,
         tahunLahir: tahunLahir,
         usia: usia,
-        kategori: getKategoriUmur(usia),  // ✅ PERBAIKAN: Gunakan KU-XX
+        kategori: kategori,
         posisi: document.getElementById("posisi").value,
         namaOrtu: document.getElementById("namaOrtu").value.trim(),
         noHp: document.getElementById("noHp").value.trim(),
         alamat: document.getElementById("alamat").value.trim(),
         tipe: "Reguler",
         status: "Menunggu Verifikasi",
-        tglDaftar: DBManager.getTglSekarang()
-    };
+        tglDaftar: new Date().toLocaleDateString('id-ID'),
+        tglDaftarFull: new Date().toISOString()
+      };
 
-    try {
-        const niswBaru = await DBManager.addPendaftar(dataBaru);
-        alert(`✅ Pendaftaran Berhasil!\nNISW: ${niswBaru}\nKategori: ${dataBaru.kategori}`);
+      console.log("📤 Mengirim data:", dataBaru);
+
+      // KIRIM KE DATABASE
+      const niswBaru = await DBManager.addPendaftar(dataBaru);
+
+      // TAMBAH KE LOCALSTORAGE (untuk admin panel)
+      let pendaftarData = [];
+      const stored = localStorage.getItem('pendaftarData');
+      if (stored) {
+        pendaftarData = JSON.parse(stored);
+      }
+      
+      dataBaru.nisw = niswBaru;
+      dataBaru.foto = "default-foto"; // Placeholder
+      pendaftarData.push(dataBaru);
+      localStorage.setItem('pendaftarData', JSON.stringify(pendaftarData));
+
+      console.log("✅ Data berhasil disimpan - NISW:", niswBaru);
+
+      // SUCCESS ALERT
+      showAlert(`✅ PENDAFTARAN BERHASIL!\n\nNISW: ${niswBaru}\nKategori: ${kategori}\nNama: ${dataBaru.nama}\n\nSilakan tunggu verifikasi dari admin. Notifikasi akan dikirim ke WhatsApp.`, "success");
+
+      // REDIRECT
+      setTimeout(() => {
         window.location.href = "index.html";
+      }, 3500);
+
     } catch (err) {
-        alert("❌ Gagal: " + err.message);
-        btn.disabled = false;
-        btn.textContent = "KIRIM PENDAFTARAN";
+      console.error("❌ Error:", err);
+      showAlert("❌ Pendaftaran Gagal!\n\n" + (err.message || "Silakan coba lagi atau hubungi admin"));
+      btn.disabled = false;
+      btn.innerHTML = origText;
     }
-};
+  };
+
+  console.log("✅ Pendaftaran Reguler - Ready");
 </script>
 </body>
 </html>
