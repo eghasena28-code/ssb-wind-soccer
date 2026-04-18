@@ -14,7 +14,7 @@
         .sidebar { width: 260px; background: var(--primary); height: 100vh; color: white; position: fixed; padding: 20px; box-sizing: border-box; z-index: 1000; overflow-y: auto; display: flex; flex-direction: column; }
         .sidebar-content { flex: 1; overflow-y: auto; }
         .sidebar h2 { font-size: 18px; border-bottom: 2px solid var(--secondary); padding-bottom: 10px; margin-bottom: 30px; text-align: center; }
-        .nav-link { display: block; color: white; text-decoration: none; padding: 12px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: 0.3s; font-size: 14px; position: relative; border: none; background: transparent; width: 100%; text-align: left; }
+        .nav-link { display: block; color: white; text-decoration: none; padding: 12px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: 0.3s; font-size: 14px; position: relative; border: none; background: none; width: 100%; text-align: left; }
         .nav-link:hover, .nav-link.active { background: var(--secondary); color: var(--primary); font-weight: bold; }
         .badge-notif { background: var(--danger); color: white; padding: 2px 8px; border-radius: 20px; font-size: 10px; position: absolute; right: 10px; top: 12px; }
         .logout-section { margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2); }
@@ -96,7 +96,7 @@
     <div class="sidebar">
         <div class="sidebar-content">
             <div style="text-align: center; margin-bottom: 15px;">
-                <img src="logossb.png" style="width: 70px;" alt="SSB Wind Soccer" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2270%22 height=%2270%22%3E%3Ctext x=%2210%22 y=%2250%22 font-size=%2240%22 fill=%22white%22%3ESSB%3C/text%3E%3C/svg%3E'">
+                <img src="logossb.png" style="width: 70px;" alt="SSB Wind Soccer">
             </div>
             <h2>ADMIN WIND SOCCER</h2>
             <button class="nav-link active" data-section="db_siswa">👥 Database Siswa</button>
@@ -539,7 +539,7 @@
     <script src="db-sync.js"></script>
 
     <script>
-        console.log("🔐 Admin Panel v2.1 - FIXED NAVIGATION");
+        console.log("🔐 Admin Panel v3.0 - FULLY FIXED WITH NAVIGATION LISTENERS");
 
         // ===== GLOBAL DATA DECLARATION (EARLY) =====
         let allSiswaData = [];
@@ -574,50 +574,118 @@
             }, time);
         }
 
-        // ===== CORE NAVIGATION FUNCTION (FIX #1) =====
+        // ===== FIX #1: SIDEBAR NAVIGATION EVENT LISTENER =====
+        function initializeNavigation() {
+            console.log("🔧 Initializing Navigation System...");
+            
+            const navLinks = document.querySelectorAll('.nav-link');
+            console.log("📌 Found", navLinks.length, "nav links");
+            
+            navLinks.forEach((link, index) => {
+                const sectionId = link.getAttribute('data-section');
+                console.log(`  [${index}] nav-link found: data-section="${sectionId}"`);
+                
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log("🖱️ Nav-link clicked:", sectionId);
+                    
+                    if (sectionId) {
+                        showSection(sectionId);
+                    } else {
+                        console.warn("⚠️ No data-section attribute found");
+                    }
+                });
+            });
+            
+            console.log("✅ Navigation listeners registered!");
+        }
+
+        // ===== FIX #2: CORE NAVIGATION FUNCTION (ENHANCED) =====
         function showSection(sectionId) {
-            console.log("🔄 Navigating to:", sectionId);
-            
-            // Hide all sections
-            document.querySelectorAll('.section').forEach(s => {
-                s.classList.remove('active');
-            });
-            
-            // Remove active from all nav links
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active');
-            });
-            
-            // Show target section
-            const section = document.getElementById(sectionId);
-            if (section) {
+            try {
+                console.log("🔄 showSection() called with:", sectionId);
+                
+                if (!sectionId) {
+                    console.error("❌ sectionId is empty!");
+                    showAlert("Error: Section ID kosong", "error");
+                    return;
+                }
+                
+                // Hide all sections
+                const allSections = document.querySelectorAll('.section');
+                console.log("📦 Hiding", allSections.length, "sections");
+                allSections.forEach(s => {
+                    s.classList.remove('active');
+                });
+                
+                // Remove active from all nav links
+                const allLinks = document.querySelectorAll('.nav-link');
+                allLinks.forEach(link => {
+                    link.classList.remove('active');
+                });
+                
+                // Show target section
+                const section = document.getElementById(sectionId);
+                if (!section) {
+                    console.error("❌ Section not found:", sectionId);
+                    showAlert("❌ Halaman '" + sectionId + "' tidak ditemukan", "error");
+                    return;
+                }
+                
                 section.classList.add('active');
                 console.log("✅ Section activated:", sectionId);
+                
+                // Mark nav link as active
+                const activeLink = document.querySelector(`[data-section="${sectionId}"]`);
+                if (activeLink) {
+                    activeLink.classList.add('active');
+                    console.log("✅ Nav link marked active");
+                }
+                
+                // Load data based on section
+                console.log("📊 Loading data for section:", sectionId);
+                switch(sectionId) {
+                    case 'db_siswa':
+                        renderAllSiswa();
+                        break;
+                    case 'verifikasi':
+                        renderVerifikasi();
+                        break;
+                    case 'absensi':
+                        renderAbsensi();
+                        break;
+                    case 'keuangan':
+                        loadKeuangan();
+                        break;
+                    case 'saran':
+                        renderSaran();
+                        break;
+                    case 'jadwal':
+                        loadJadwalLatihan();
+                        loadJadwalTurnamen();
+                        break;
+                }
+                
+            } catch (error) {
+                console.error("❌ Error in showSection:", error);
+                showAlert("Error navigasi: " + error.message, "error");
+            }
+        }
+
+        // ===== FIX #3: DBManager READY CHECK WITH RETRY =====
+        function checkDBManagerReady(callback, attempt = 1, maxAttempts = 10) {
+            if (typeof DBManager !== 'undefined' && DBManager.getSiswaAktif) {
+                console.log("✅ DBManager ready on attempt:", attempt);
+                callback();
+            } else if (attempt < maxAttempts) {
+                console.log("⏳ DBManager not ready, retry", attempt, "of", maxAttempts);
+                setTimeout(() => {
+                    checkDBManagerReady(callback, attempt + 1, maxAttempts);
+                }, 300);
             } else {
-                console.error("❌ Section not found:", sectionId);
-                return;
-            }
-            
-            // Mark nav link as active
-            const navLink = document.querySelector(`[data-section="${sectionId}"]`);
-            if (navLink) {
-                navLink.classList.add('active');
-            }
-            
-            // Load data for specific sections
-            if (sectionId === 'db_siswa') {
-                renderAllSiswa();
-            } else if (sectionId === 'verifikasi') {
-                renderVerifikasi();
-            } else if (sectionId === 'absensi') {
-                renderAbsensi();
-            } else if (sectionId === 'keuangan') {
-                loadKeuangan();
-            } else if (sectionId === 'saran') {
-                renderSaran();
-            } else if (sectionId === 'jadwal') {
-                loadJadwalLatihan();
-                loadJadwalTurnamen();
+                console.error("❌ DBManager failed to load after", maxAttempts, "attempts");
+                console.warn("⚠️ Using fallback to localStorage");
+                callback();
             }
         }
 
@@ -653,11 +721,15 @@
             
             const saldo = totalMasuk - totalKeluar;
 
-            document.getElementById('totalMasuk').textContent = formatRupiah(totalMasuk);
-            document.getElementById('totalKeluar').textContent = formatRupiah(totalKeluar);
-            document.getElementById('saldoAkhir').textContent = formatRupiah(saldo);
+            const elMasuk = document.getElementById('totalMasuk');
+            const elKeluar = document.getElementById('totalKeluar');
+            const elSaldo = document.getElementById('saldoAkhir');
             
-            console.log("💰 Saldo Updated");
+            if (elMasuk) elMasuk.textContent = formatRupiah(totalMasuk);
+            if (elKeluar) elKeluar.textContent = formatRupiah(totalKeluar);
+            if (elSaldo) elSaldo.textContent = formatRupiah(saldo);
+            
+            console.log("💰 Saldo Updated - Masuk: Rp" + formatRupiah(totalMasuk) + " | Keluar: Rp" + formatRupiah(totalKeluar) + " | Saldo: Rp" + formatRupiah(saldo));
         }
 
         function updateSummaryKeuangan() {
@@ -665,25 +737,36 @@
             const totalMasukCount = keuanganData.filter(k => k.jenisMasukKeluar === 'Masuk').length;
             const totalKeluarCount = keuanganData.filter(k => k.jenisMasukKeluar === 'Keluar').length;
 
-            document.getElementById('totalTransaksiCount').textContent = totalTransaksi;
-            document.getElementById('totalMasukCount').textContent = totalMasukCount;
-            document.getElementById('totalKeluarCount').textContent = totalKeluarCount;
+            const elTransaksi = document.getElementById('totalTransaksiCount');
+            const elMasukCount = document.getElementById('totalMasukCount');
+            const elKeluarCount = document.getElementById('totalKeluarCount');
+            
+            if (elTransaksi) elTransaksi.textContent = totalTransaksi;
+            if (elMasukCount) elMasukCount.textContent = totalMasukCount;
+            if (elKeluarCount) elKeluarCount.textContent = totalKeluarCount;
         }
 
         // ===== VERIFIKASI FUNCTIONS =====
         function renderVerifikasi() {
+            console.log("📋 renderVerifikasi() called");
             loadPendaftarData();
             
-            if (typeof DBManager === 'undefined') {
-                console.warn("⚠️ DBManager not ready");
-                document.getElementById('listVerifikasi').innerHTML = '<tr><td colspan="9" style="text-align:center; padding: 20px;">DBManager loading...</td></tr>';
-                return;
-            }
-            
-            DBManager.getPendaftar(function(data) {
-                console.log("📋 Pendaftar received:", data.length);
+            checkDBManagerReady(function() {
+                if (typeof DBManager === 'undefined') {
+                    console.warn("⚠️ DBManager undefined, using localStorage");
+                    pendaftarData = JSON.parse(localStorage.getItem('pendaftarData') || '[]');
+                    
+                    if (pendaftarData.length === 0) {
+                        document.getElementById('listVerifikasi').innerHTML = '<tr><td colspan="9" style="text-align:center;">📭 Tidak ada data</td></tr>';
+                        return;
+                    }
+                } else {
+                    DBManager.getPendaftar(function(data) {
+                        console.log("📋 Pendaftar received:", data.length);
+                        pendaftarData = data.length > 0 ? data : pendaftarData;
+                    });
+                }
                 
-                pendaftarData = data.length > 0 ? data : pendaftarData;
                 const belumDisetujui = pendaftarData.filter(p => p.status !== 'DISETUJUI');
                 
                 document.getElementById('totalAntrean').textContent = belumDisetujui.length;
@@ -717,7 +800,7 @@
                     `;
                 }).join('');
 
-                console.log("✅ Verifikasi table rendered");
+                console.log("✅ Verifikasi table rendered:", belumDisetujui.length);
             });
         }
 
@@ -786,7 +869,7 @@
 
             const isDuplicate = verifikasiLog.find(v => v.referensi === referensi);
             if (isDuplicate) {
-                showAlert("⚠️ Sudah pernah diverifikasi!", "warn");
+                showAlert("⚠️ Pendaftar " + pendaftar.nama + " sudah pernah diverifikasi!", "warn");
                 closeModalVerifikasi();
                 return;
             }
@@ -797,6 +880,7 @@
                 if (idx !== -1) {
                     pendaftarData[idx].status = 'DISETUJUI';
                     localStorage.setItem('pendaftarData', JSON.stringify(pendaftarData));
+                    console.log("✅ Status pendaftar updated");
                 }
 
                 // CATAT KE KEUANGAN
@@ -815,6 +899,7 @@
 
                 keuanganData.push(transaksi);
                 localStorage.setItem('keuanganData', JSON.stringify(keuanganData));
+                console.log("✅ Transaksi keuangan ditambahkan");
 
                 // LOG
                 const logEntry = {
@@ -830,11 +915,12 @@
 
                 verifikasiLog.push(logEntry);
                 localStorage.setItem('verifikasiLog', JSON.stringify(verifikasiLog));
+                console.log("📋 Log verifikasi disimpan");
 
                 hitungSaldoKeuangan();
                 updateSummaryKeuangan();
 
-                showAlert(`✅ ${pendaftar.nama} DISETUJUI!\n💰 Rp ${formatRupiah(nominal)} tercatat`, "success", 3500);
+                showAlert(`✅ ${pendaftar.nama} DISETUJUI!\n💰 Rp ${formatRupiah(nominal)} tercatat ke Keuangan`, "success", 3500);
 
                 closeModalVerifikasi();
                 renderVerifikasi();
@@ -923,7 +1009,7 @@
             const keterangan = document.getElementById('ketMasuk')?.value?.trim() || '';
 
             if (!jenis) { showAlert("⚠️ Pilih jenis!", "warn"); return; }
-            if (nominal <= 0) { showAlert("⚠️ Nominal > 0!", "warn"); return; }
+            if (nominal <= 0) { showAlert("⚠️ Nominal harus > 0!", "warn"); return; }
             if (!keterangan) { showAlert("⚠️ Isi keterangan!", "warn"); return; }
 
             let sumber = '';
@@ -960,7 +1046,7 @@
             keuanganData.push(transaksi);
             localStorage.setItem('keuanganData', JSON.stringify(keuanganData));
 
-            showAlert("✅ Pemasukan disimpan!", "success");
+            showAlert("✅ Pemasukan Rp " + formatRupiah(nominal) + " disimpan!", "success");
 
             document.getElementById('jenisPemasukan').value = '';
             document.getElementById('niswBayar').value = '';
@@ -999,7 +1085,7 @@
             keuanganData.push(transaksi);
             localStorage.setItem('keuanganData', JSON.stringify(keuanganData));
 
-            showAlert("✅ Pengeluaran disimpan!", "success");
+            showAlert("✅ Pengeluaran Rp " + formatRupiah(nominal) + " disimpan!", "success");
 
             document.getElementById('ketKeluar').value = '';
             document.getElementById('nomKeluar').value = '';
@@ -1011,17 +1097,17 @@
         }
 
         function editTransaksi(id) {
-            showAlert("✏️ Edit - Coming Soon", "info");
+            showAlert("✏️ Edit Transaksi - Coming Soon", "info");
         }
 
         function hapusTransaksi(id) {
             const transaksi = keuanganData.find(k => k.id === id);
             if (!transaksi) return;
 
-            if (confirm("⚠️ Yakin hapus?\n\n" + formatRupiah(transaksi.nominal))) {
+            if (confirm("⚠️ Yakin hapus transaksi?\n\n" + transaksi.jenisMasukKeluar + " - " + transaksi.sumber + "\n" + formatRupiah(transaksi.nominal))) {
                 keuanganData = keuanganData.filter(k => k.id !== id);
                 localStorage.setItem('keuanganData', JSON.stringify(keuanganData));
-                showAlert("✅ Dihapus!", "success");
+                showAlert("✅ Transaksi dihapus!", "success");
                 hitungSaldoKeuangan();
                 updateSummaryKeuangan();
                 renderKeuangan();
@@ -1030,17 +1116,18 @@
 
         function refreshKeuangan() {
             loadKeuangan();
-            showAlert("✅ Diperbarui!", "success");
+            showAlert("✅ Data diperbarui!", "success");
         }
 
         function hitungUlangSaldo() {
+            console.log("🔄 Hitung ulang saldo...");
             hitungSaldoKeuangan();
-            showAlert("✅ Saldo dihitung ulang!", "success");
+            showAlert("✅ Saldo berhasil dihitung ulang!", "success");
         }
 
         function exportKeuangan() {
             if (keuanganData.length === 0) {
-                showAlert("⚠️ Tidak ada data!", "warn");
+                showAlert("⚠️ Tidak ada data untuk di-export!", "warn");
                 return;
             }
 
@@ -1050,7 +1137,11 @@
 
             let csv = 'LAPORAN KEUANGAN SSB WIND SOCCER\n';
             csv += 'Tanggal Export: ' + new Date().toLocaleString('id-ID') + '\n\n';
-            csv += 'Total Masuk,Rp' + totalMasuk + '\nTotal Keluar,Rp' + totalKeluar + '\nSaldo,Rp' + saldo + '\n\n';
+            csv += 'RINGKASAN:\n';
+            csv += 'Total Masuk,Rp' + totalMasuk + '\n';
+            csv += 'Total Keluar,Rp' + totalKeluar + '\n';
+            csv += 'Saldo Akhir,Rp' + saldo + '\n\n';
+            csv += 'DETAIL TRANSAKSI:\n';
             csv += 'Tanggal,Jenis,Sumber,Kategori,Keterangan,Nominal\n';
 
             keuanganData.forEach(k => {
@@ -1063,22 +1154,188 @@
             link.download = `Keuangan_SSB_${new Date().toLocaleDateString('id-ID')}.csv`;
             link.click();
 
-            showAlert("✅ Export berhasil!", "success");
+            showAlert("✅ File CSV berhasil di-download!", "success", 3000);
         }
 
         function resetKeuangan() {
-            if (confirm("⚠️ Hapus SEMUA " + keuanganData.length + " transaksi?")) {
+            if (confirm("⚠️⚠️⚠️ PERHATIAN! Ini akan menghapus SEMUA " + keuanganData.length + " transaksi!\n\nYakin?")) {
                 keuanganData = [];
                 localStorage.setItem('keuanganData', JSON.stringify(keuanganData));
-                showAlert("✅ Dihapus!", "success");
+                showAlert("✅ Semua data dihapus!", "success");
                 hitungSaldoKeuangan();
                 updateSummaryKeuangan();
                 renderKeuangan();
             }
         }
 
+        // ===== DATABASE SISWA FUNCTIONS =====
+        function renderAllSiswa() {
+            console.log("📊 renderAllSiswa() called");
+            const filterKategori = document.getElementById('filterKategori')?.value || '';
+            const filterTipe = document.getElementById('filterTipe')?.value || '';
+            const filterStatusBayar = document.getElementById('filterStatusBayar')?.value || '';
+            const searchText = document.getElementById('searchNiswNama')?.value?.toLowerCase() || '';
+
+            checkDBManagerReady(function() {
+                if (typeof DBManager === 'undefined') {
+                    console.warn("⚠️ DBManager undefined, using fallback");
+                    allSiswaData = [];
+                    const tbody = document.getElementById('listSiswaAktif');
+                    tbody.innerHTML = '<tr><td colspan="14" style="text-align:center;">📭 Database belum terhubung</td></tr>';
+                    return;
+                }
+
+                try {
+                    DBManager.getSiswaAktif(function(siswaList) {
+                        if (!siswaList || siswaList.length === 0) {
+                            siswaList = [];
+                            console.warn("⚠️ No siswa data received");
+                        }
+                        
+                        allSiswaData = siswaList;
+                        let filteredData = siswaList.filter(siswa => {
+                            const matchKategori = !filterKategori || siswa.kategori === filterKategori;
+                            const matchTipe = !filterTipe || siswa.tipe === filterTipe;
+                            const matchStatusBayar = !filterStatusBayar || siswa.statusPembayaran === filterStatusBayar;
+                            const matchSearch = !searchText || siswa.nisw?.toLowerCase().includes(searchText) || siswa.nama?.toLowerCase().includes(searchText);
+                            return matchKategori && matchTipe && matchStatusBayar && matchSearch;
+                        });
+
+                        const totalReguler = siswaList.filter(s => s.tipe === 'Reguler').length;
+                        const totalBeasiswa = siswaList.filter(s => s.tipe === 'Beasiswa').length;
+                        document.getElementById('totalReguler').textContent = totalReguler;
+                        document.getElementById('totalBeasiswa').textContent = totalBeasiswa;
+                        document.getElementById('totalSiswaAktif').textContent = siswaList.length;
+
+                        const tbody = document.getElementById('listSiswaAktif');
+                        if (filteredData.length === 0) {
+                            tbody.innerHTML = `<tr><td colspan="14" style="text-align: center; padding: 30px;">📭 Tidak ada data</td></tr>`;
+                            return;
+                        }
+
+                        tbody.innerHTML = filteredData.map((siswa, index) => `
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td><img src="${siswa.foto || 'https://via.placeholder.com/40?text=Foto'}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" onerror="this.src='https://via.placeholder.com/40?text=No'"></td>
+                                <td><strong style="color: #003399;">${siswa.nisw || '-'}</strong></td>
+                                <td><strong>${siswa.nama || '-'}</strong></td>
+                                <td><span style="background: #e3f2fd; color: #003399; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${siswa.kategori || '-'}</span></td>
+                                <td><span style="background: ${siswa.tipe === 'Beasiswa' ? '#e8f5e9' : '#fff3cd'}; color: ${siswa.tipe === 'Beasiswa' ? '#27ae60' : '#f57c00'}; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${siswa.tipe || 'Reguler'}</span></td>
+                                <td>${siswa.posisi || '-'}</td>
+                                <td>${formatTanggal(siswa.tglLahir) || '-'}</td>
+                                <td><a href="https://wa.me/${siswa.noHp}" target="_blank" style="color: #28a745; font-weight: bold;">${siswa.noHp || '-'}</a></td>
+                                <td>${siswa.namaOrtu || '-'}</td>
+                                <td title="${siswa.alamat || '-'}" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis;">${siswa.alamat || '-'}</td>
+                                <td><span style="background: ${getStatusBayarColor(siswa.statusPembayaran)}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${siswa.statusPembayaran || 'Belum Bayar'}</span></td>
+                                <td style="text-align: right; color: #dc3545; font-weight: bold;">${formatRupiah(siswa.tagihan || 0)}</td>
+                                <td><div class="row-action"><button class="btn btn-info btn-sm"><i class="fas fa-edit"></i></button><button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></td>
+                            </tr>
+                        `).join('');
+                        
+                        console.log("✅ Siswa table rendered:", filteredData.length);
+                    });
+                } catch (error) {
+                    console.error("❌ Error rendering siswa:", error);
+                    showAlert("Error memuat data siswa", "error");
+                }
+            });
+        }
+
+        function printDataSiswa() { 
+            showAlert("🖨️ Print - Coming Soon", "info"); 
+        }
+
+        function resetFilterSiswa() {
+            document.getElementById('filterKategori').value = '';
+            document.getElementById('filterTipe').value = '';
+            document.getElementById('filterStatusBayar').value = '';
+            document.getElementById('searchNiswNama').value = '';
+            renderAllSiswa();
+        }
+
+        // ===== ABSENSI FUNCTIONS =====
+        function renderAbsensi() {
+            console.log("📝 renderAbsensi() called");
+            const tgl = document.getElementById('searchTglAbsen')?.value || '';
+            const nisw = document.getElementById('filterNiswAbsen')?.value?.toLowerCase() || '';
+
+            checkDBManagerReady(function() {
+                if (typeof DBManager === 'undefined') {
+                    console.warn("⚠️ DBManager undefined");
+                    return;
+                }
+
+                try {
+                    DBManager.getAbsensi(function(data) {
+                        let filtered = data.filter(a => (!tgl || a.tanggal === tgl) && (!nisw || a.nisw?.toLowerCase().includes(nisw)));
+
+                        const tbody = document.getElementById('listAbsensi');
+                        if (filtered.length === 0) {
+                            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 20px;">Tidak ada data</td></tr>`;
+                            return;
+                        }
+
+                        tbody.innerHTML = filtered.map(a => `
+                            <tr>
+                                <td>${a.tanggal || '-'}</td>
+                                <td><strong style="color: #003399;">${a.nisw || '-'}</strong></td>
+                                <td>${a.nama || '-'}</td>
+                                <td><span style="background: ${a.status === 'Hadir' ? '#d4edda' : '#fff3cd'}; color: ${a.status === 'Hadir' ? '#155724' : '#856404'}; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${a.status || '-'}</span></td>
+                                <td>${a.alasan || '-'}</td>
+                                <td style="text-align: center; font-weight: bold;">75%</td>
+                                <td><button class="btn btn-info btn-sm"><i class="fas fa-edit"></i> Edit</button></td>
+                            </tr>
+                        `).join('');
+                    });
+                } catch (error) {
+                    console.error("❌ Error:", error);
+                }
+            });
+        }
+
+        // ===== SARAN FUNCTIONS =====
+        function renderSaran() {
+            console.log("📩 renderSaran() called");
+            const filter = document.getElementById('filterKategoriSaran')?.value || '';
+
+            checkDBManagerReady(function() {
+                if (typeof DBManager === 'undefined') {
+                    console.warn("⚠️ DBManager undefined");
+                    return;
+                }
+
+                try {
+                    DBManager.getSaran(function(data) {
+                        document.getElementById('badgeSaran').textContent = data.length;
+                        document.getElementById('badgeSaran').style.display = data.length > 0 ? 'block' : 'none';
+
+                        let filtered = data.filter(s => !filter || s.kategori === filter);
+                        const tbody = document.getElementById('listSaran');
+                        if (filtered.length === 0) {
+                            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 20px;">Tidak ada saran</td></tr>`;
+                            return;
+                        }
+
+                        tbody.innerHTML = filtered.map(s => `
+                            <tr>
+                                <td>${s.tanggal || '-'}</td>
+                                <td><strong>${s.nama || '-'}</strong></td>
+                                <td>${s.nisw || '-'}</td>
+                                <td><span style="background: #e3f2fd; color: #003399; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${s.kategori || '-'}</span></td>
+                                <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${s.pesan || '-'}</td>
+                                <td><button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td>
+                            </tr>
+                        `).join('');
+                    });
+                } catch (error) {
+                    console.error("❌ Error:", error);
+                }
+            });
+        }
+
         // ===== JADWAL FUNCTIONS =====
         function loadJadwalLatihan() {
+            console.log("📅 loadJadwalLatihan() called");
             const stored = localStorage.getItem('jadwalLatihan');
             if (stored) {
                 jadwalLatihan = JSON.parse(stored);
@@ -1137,7 +1394,7 @@
             const newJadwal = { id: Date.now(), hari, tempat, waktu };
             jadwalLatihan.push(newJadwal);
             localStorage.setItem('jadwalLatihan', JSON.stringify(jadwalLatihan));
-            showAlert("✅ Jadwal ditambahkan!", "success");
+            showAlert("✅ Jadwal " + hari + " ditambahkan!", "success");
 
             document.getElementById('inputHari').value = '';
             document.getElementById('inputTempat').value = '';
@@ -1147,15 +1404,16 @@
         }
 
         function hapusJadwalLatihan(id) {
-            if (confirm("⚠️ Yakin hapus?")) {
+            if (confirm("⚠️ Yakin hapus jadwal ini?")) {
                 jadwalLatihan = jadwalLatihan.filter(j => j.id !== id);
                 localStorage.setItem('jadwalLatihan', JSON.stringify(jadwalLatihan));
-                showAlert("✅ Dihapus!", "success");
+                showAlert("✅ Jadwal dihapus!", "success");
                 renderJadwalLatihan();
             }
         }
 
         function loadJadwalTurnamen() {
+            console.log("🏆 loadJadwalTurnamen() called");
             const stored = localStorage.getItem('jadwalTurnamen');
             jadwalTurnamen = stored ? JSON.parse(stored) : [];
             renderJadwalTurnamen();
@@ -1212,7 +1470,7 @@
             const newTurnamen = { id: Date.now(), namaEvent: nama, tanggal: tgl, lokasi, waktu, status: 'Upcoming' };
             jadwalTurnamen.push(newTurnamen);
             localStorage.setItem('jadwalTurnamen', JSON.stringify(jadwalTurnamen));
-            showAlert("✅ Turnamen ditambahkan!", "success");
+            showAlert("✅ Turnamen " + nama + " ditambahkan!", "success");
 
             document.getElementById('namaEvent').value = '';
             document.getElementById('tglEvent').value = '';
@@ -1223,118 +1481,21 @@
         }
 
         function hapusTurnamen(id) {
-            if (confirm("⚠️ Yakin hapus?")) {
+            if (confirm("⚠️ Yakin hapus turnamen ini?")) {
                 jadwalTurnamen = jadwalTurnamen.filter(t => t.id !== id);
                 localStorage.setItem('jadwalTurnamen', JSON.stringify(jadwalTurnamen));
-                showAlert("✅ Dihapus!", "success");
+                showAlert("✅ Turnamen dihapus!", "success");
                 renderJadwalTurnamen();
             }
         }
 
-        // ===== DATABASE SISWA =====
-        function renderAllSiswa() {
-            const filterKategori = document.getElementById('filterKategori')?.value || '';
-            const filterTipe = document.getElementById('filterTipe')?.value || '';
-            const filterStatusBayar = document.getElementById('filterStatusBayar')?.value || '';
-            const searchText = document.getElementById('searchNiswNama')?.value?.toLowerCase() || '';
-
-            if (typeof DBManager === 'undefined') {
-                document.getElementById('listSiswaAktif').innerHTML = '<tr><td colspan="14">DBManager loading...</td></tr>';
-                return;
-            }
-
-            DBManager.getSiswaAktif(function(siswaList) {
-                allSiswaData = siswaList;
-                let filteredData = siswaList.filter(siswa => {
-                    const matchKategori = !filterKategori || siswa.kategori === filterKategori;
-                    const matchTipe = !filterTipe || siswa.tipe === filterTipe;
-                    const matchStatusBayar = !filterStatusBayar || siswa.statusPembayaran === filterStatusBayar;
-                    const matchSearch = !searchText || siswa.nisw?.toLowerCase().includes(searchText) || siswa.nama?.toLowerCase().includes(searchText);
-                    return matchKategori && matchTipe && matchStatusBayar && matchSearch;
-                });
-
-                const totalReguler = siswaList.filter(s => s.tipe === 'Reguler').length;
-                const totalBeasiswa = siswaList.filter(s => s.tipe === 'Beasiswa').length;
-                document.getElementById('totalReguler').textContent = totalReguler;
-                document.getElementById('totalBeasiswa').textContent = totalBeasiswa;
-                document.getElementById('totalSiswaAktif').textContent = siswaList.length;
-
-                const tbody = document.getElementById('listSiswaAktif');
-                if (filteredData.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="14" style="text-align: center; padding: 30px;">📭 Tidak ada data</td></tr>`;
-                    return;
-                }
-
-                tbody.innerHTML = filteredData.map((siswa, index) => `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td><img src="${siswa.foto || 'https://via.placeholder.com/40?text=Foto'}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" onerror="this.src='https://via.placeholder.com/40?text=No'"></td>
-                        <td><strong style="color: #003399;">${siswa.nisw || '-'}</strong></td>
-                        <td><strong>${siswa.nama || '-'}</strong></td>
-                        <td><span style="background: #e3f2fd; color: #003399; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${siswa.kategori || '-'}</span></td>
-                        <td><span style="background: ${siswa.tipe === 'Beasiswa' ? '#e8f5e9' : '#fff3cd'}; color: ${siswa.tipe === 'Beasiswa' ? '#27ae60' : '#f57c00'}; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${siswa.tipe || 'Reguler'}</span></td>
-                        <td>${siswa.posisi || '-'}</td>
-                        <td>${formatTanggal(siswa.tglLahir) || '-'}</td>
-                        <td><a href="https://wa.me/${siswa.noHp}" target="_blank" style="color: #28a745; font-weight: bold;">${siswa.noHp || '-'}</a></td>
-                        <td>${siswa.namaOrtu || '-'}</td>
-                        <td title="${siswa.alamat || '-'}" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis;">${siswa.alamat || '-'}</td>
-                        <td><span style="background: ${getStatusBayarColor(siswa.statusPembayaran)}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${siswa.statusPembayaran || 'Belum Bayar'}</span></td>
-                        <td style="text-align: right; color: #dc3545; font-weight: bold;">${formatRupiah(siswa.tagihan || 0)}</td>
-                        <td><div class="row-action"><button class="btn btn-info btn-sm"><i class="fas fa-edit"></i></button><button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></td>
-                    </tr>
-                `).join('');
-            });
-        }
-
-        function printDataSiswa() { showAlert("🖨️ Print - Coming Soon", "info"); }
-        function resetFilterSiswa() {
-            document.getElementById('filterKategori').value = '';
-            document.getElementById('filterTipe').value = '';
-            document.getElementById('filterStatusBayar').value = '';
-            document.getElementById('searchNiswNama').value = '';
-            renderAllSiswa();
-        }
-
-        // ===== ABSENSI =====
-        function renderAbsensi() {
-            const tgl = document.getElementById('searchTglAbsen')?.value || '';
-            const nisw = document.getElementById('filterNiswAbsen')?.value?.toLowerCase() || '';
-
-            if (typeof DBManager === 'undefined') {
-                document.getElementById('listAbsensi').innerHTML = '<tr><td colspan="7">DBManager loading...</td></tr>';
-                return;
-            }
-
-            DBManager.getAbsensi(function(data) {
-                let filtered = data.filter(a => (!tgl || a.tanggal === tgl) && (!nisw || a.nisw?.toLowerCase().includes(nisw)));
-
-                const tbody = document.getElementById('listAbsensi');
-                if (filtered.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 20px;">Tidak ada data</td></tr>`;
-                    return;
-                }
-
-                tbody.innerHTML = filtered.map(a => `
-                    <tr>
-                        <td>${a.tanggal || '-'}</td>
-                        <td><strong style="color: #003399;">${a.nisw || '-'}</strong></td>
-                        <td>${a.nama || '-'}</td>
-                        <td><span style="background: ${a.status === 'Hadir' ? '#d4edda' : '#fff3cd'}; color: ${a.status === 'Hadir' ? '#155724' : '#856404'}; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${a.status || '-'}</span></td>
-                        <td>${a.alasan || '-'}</td>
-                        <td style="text-align: center; font-weight: bold;">75%</td>
-                        <td><button class="btn btn-info btn-sm"><i class="fas fa-edit"></i> Edit</button></td>
-                    </tr>
-                `).join('');
-            });
-        }
-
-        // ===== RAPORT =====
+        // ===== RAPORT FUNCTIONS =====
         function loadSiswaForRaport() {
             const nisw = document.getElementById('niswNilai')?.value?.toUpperCase() || '';
             if (!nisw) return;
-            
+
             if (typeof DBManager === 'undefined') {
-                showAlert("DBManager loading...", "info");
+                showAlert("❌ DBManager belum siap", "error");
                 return;
             }
 
@@ -1376,39 +1537,6 @@
             showAlert("✅ Nilai disimpan!", "success");
         }
 
-        // ===== SARAN =====
-        function renderSaran() {
-            const filter = document.getElementById('filterKategoriSaran')?.value || '';
-            
-            if (typeof DBManager === 'undefined') {
-                document.getElementById('listSaran').innerHTML = '<tr><td colspan="6">DBManager loading...</td></tr>';
-                return;
-            }
-
-            DBManager.getSaran(function(data) {
-                document.getElementById('badgeSaran').textContent = data.length;
-                document.getElementById('badgeSaran').style.display = data.length > 0 ? 'block' : 'none';
-
-                let filtered = data.filter(s => !filter || s.kategori === filter);
-                const tbody = document.getElementById('listSaran');
-                if (filtered.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 20px;">Tidak ada saran</td></tr>`;
-                    return;
-                }
-
-                tbody.innerHTML = filtered.map(s => `
-                    <tr>
-                        <td>${s.tanggal || '-'}</td>
-                        <td><strong>${s.nama || '-'}</strong></td>
-                        <td>${s.nisw || '-'}</td>
-                        <td><span style="background: #e3f2fd; color: #003399; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${s.kategori || '-'}</span></td>
-                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${s.pesan || '-'}</td>
-                        <td><button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td>
-                    </tr>
-                `).join('');
-            });
-        }
-
         // ===== HELPER FUNCTIONS =====
         function formatTanggal(tgl) {
             if (!tgl) return '-';
@@ -1431,34 +1559,54 @@
 
         function logoutAdmin() {
             if (confirm("Yakin logout?")) {
-                showAlert("✅ Logout!", "success");
+                showAlert("✅ Logout berhasil!", "success");
                 setTimeout(() => window.location.href = "index.html", 1000);
             }
         }
 
-        // ===== INIT NAVIGATION (FIX #2) =====
+        // ===== INITIALIZE ALL =====
         document.addEventListener('DOMContentLoaded', function() {
-            console.log("🚀 DOM Ready - Setting up navigation...");
-
-            // Setup nav link listeners
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const sectionId = this.dataset.section;
-                    console.log("👆 Nav clicked:", sectionId);
-                    showSection(sectionId);
+            console.log("🚀 DOMContentLoaded - Initializing Admin Panel");
+            
+            try {
+                // Initialize Navigation Listeners
+                initializeNavigation();
+                
+                // Load Initial Data
+                loadPendaftarData();
+                loadKeuangan();
+                loadJadwalLatihan();
+                loadJadwalTurnamen();
+                
+                // Render First Section
+                checkDBManagerReady(function() {
+                    renderAllSiswa();
+                    console.log("✅ Initial render complete");
                 });
-            });
-
-            // Init data
-            loadPendaftarData();
-            loadKeuangan();
-            loadJadwalLatihan();
-            loadJadwalTurnamen();
-            renderAllSiswa();
-
-            console.log("✅ Admin Panel READY - All navigation working!");
+                
+                console.log("✅ Admin Panel FULLY INITIALIZED AND READY");
+                
+            } catch (error) {
+                console.error("❌ Initialization error:", error);
+                showAlert("Error inisialisasi panel: " + error.message, "error");
+            }
         });
+
+        // Fallback for old browsers
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log("🔄 DOMContentLoaded fired");
+            });
+        } else {
+            console.log("⚠️ Document already loaded, checking if setup needed");
+            if (document.querySelectorAll('.nav-link').length > 0) {
+                initializeNavigation();
+                loadPendaftarData();
+                loadKeuangan();
+                loadJadwalLatihan();
+                loadJadwalTurnamen();
+            }
+        }
     </script>
 </body>
 </html>
