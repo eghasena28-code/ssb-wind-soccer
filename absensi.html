@@ -287,6 +287,9 @@
     </footer>
   </div>
 
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
   <script src="db-sync.js"></script>
   <script>
     let statusSekarang = "";
@@ -416,6 +419,7 @@
       btnSubmit.disabled = true;
       btnSubmit.innerHTML = '<span class="loading-spinner"></span> Memeriksa...';
 
+      // ✅ PERBAIKAN: Gunakan DBManager.cekDuplicateAbsensi dengan error handling
       DBManager.cekDuplicateAbsensi(siswaLoginAktif.nisw, tgl, function(isDuplikat) {
         if (isDuplikat) {
           showAlert('⚠️ Anda sudah mengisi absensi untuk tanggal ' + tgl + '!', 'warning');
@@ -427,49 +431,50 @@
         btnSubmit.innerHTML = '<span class="loading-spinner"></span> Memproses...';
 
         try {
-        // Buat object absensi
-        const absenBaru = {
-          id: Date.now(),
-          nisw: siswaLoginAktif.nisw,
-          nama: siswaLoginAktif.nama,
-          kategori: siswaLoginAktif.kategori || '-',
-          tanggal: tgl,
-          status: status,
-          alasan: status === 'Izin' ? alasan : '-',
-          waktuInput: new Date().toLocaleString('id-ID'),
-          tipeJalur: siswaLoginAktif.tipe || 'Reguler'
-        };
+          // Buat object absensi
+          const absenBaru = {
+            id: Date.now(),
+            nisw: siswaLoginAktif.nisw,
+            nama: siswaLoginAktif.nama,
+            kategori: siswaLoginAktif.kategori || '-',
+            tanggal: tgl,
+            status: status,
+            alasan: status === 'Izin' ? alasan : '-',
+            waktuInput: new Date().toLocaleString('id-ID'),
+            tipeJalur: siswaLoginAktif.tipe || 'Reguler'
+          };
 
-        console.log("💾 Menyimpan absensi:", absenBaru);
+          console.log("💾 Menyimpan absensi:", absenBaru);
 
-        // Simpan ke database (async callback)
-        DBManager.addAbsensi(absenBaru, function(berhasil) {
-          if (berhasil) {
-            console.log("✅ Absensi berhasil disimpan!");
-            showAlert('✅ Absensi berhasil disimpan!', 'success');
-            setTimeout(() => {
-              document.getElementById("formAbsensi").reset();
-              document.getElementById("statusPilihan").value = '';
-              statusSekarang = '';
-              setTanggalDefault();
-              document.getElementById("btnHadir").classList.remove("active-hadir");
-              document.getElementById("btnIzin").classList.remove("active-izin");
-              document.getElementById("kolomIzin").style.display = "none";
-              setTimeout(() => { window.location.href = "beranda.html"; }, 1000);
-            }, 500);
-          } else {
-            console.log("❌ Gagal menyimpan absensi");
-            showAlert('❌ Gagal menyimpan absensi. Coba lagi.', 'error');
-            btnSubmit.disabled = false;
-            btnSubmit.innerHTML = '💾 SIMPAN ABSENSI';
-          }
-        });
-      } catch (error) {
-        console.error('❌ Error:', error);
-        showAlert('❌ Terjadi kesalahan: ' + error.message, 'error');
-        btnSubmit.disabled = false;
-        btnSubmit.innerHTML = '💾 SIMPAN ABSENSI';
-      }
+          // ✅ PERBAIKAN: Simpan ke database dengan error handling
+          DBManager.addAbsensi(absenBaru, function(berhasil) {
+            if (berhasil) {
+              console.log("✅ Absensi berhasil disimpan!");
+              showAlert('✅ Absensi berhasil disimpan!', 'success');
+              setTimeout(() => {
+                document.getElementById("formAbsensi").reset();
+                document.getElementById("statusPilihan").value = '';
+                statusSekarang = '';
+                setTanggalDefault();
+                document.getElementById("btnHadir").classList.remove("active-hadir");
+                document.getElementById("btnIzin").classList.remove("active-izin");
+                document.getElementById("kolomIzin").style.display = "none";
+                setTimeout(() => { window.location.href = "beranda.html"; }, 1000);
+              }, 500);
+            } else {
+              console.log("❌ Gagal menyimpan absensi");
+              showAlert('❌ Gagal menyimpan absensi. Coba lagi.', 'error');
+              btnSubmit.disabled = false;
+              btnSubmit.innerHTML = '💾 SIMPAN ABSENSI';
+            }
+          });
+        } catch (error) {
+          console.error('❌ Error:', error);
+          showAlert('❌ Terjadi kesalahan: ' + error.message, 'error');
+          btnSubmit.disabled = false;
+          btnSubmit.innerHTML = '💾 SIMPAN ABSENSI';
+        }
+      });
     };
 
     // ===== INIT SAAT HALAMAN LOAD =====
