@@ -16,6 +16,7 @@
         .sidebar h2 { font-size: 18px; border-bottom: 2px solid var(--secondary); padding-bottom: 10px; margin-bottom: 30px; text-align: center; }
         .nav-link { display: block; color: white; text-decoration: none; padding: 12px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: 0.3s; font-size: 14px; position: relative; }
         .nav-link:hover, .nav-link.active { background: var(--secondary); color: var(--primary); font-weight: bold; }
+        .badge-notif { background: var(--danger); color: white; padding: 2px 8px; border-radius: 20px; font-size: 10px; position: absolute; right: 10px; top: 12px; }
         .logout-section { margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2); }
         .btn-logout { width: 100%; background: var(--danger); color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-logout:hover { background: #c82333; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
@@ -35,6 +36,7 @@
         .btn-add { background: var(--success); color: white; width: 100%; justify-content: center; }
         .btn-danger { background: var(--danger); color: white; }
         .btn-info { background: var(--info); color: white; }
+        .btn-print { background: #6f42c1; color: white; }
         .btn:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
         .section { display: none; }
         .section.active { display: block; animation: fadeIn 0.3s ease-in; }
@@ -87,33 +89,37 @@
                     </div>
                 </div>
                 <div class="filter-section">
-                    <div><label>Filter Kategori</label><select id="filterClass" onchange="renderSiswaAktif()"><option value="">-- Semua Class --</option><option value="KU-8">KU-8</option><option value="KU-10">KU-10</option></select></div>
+                    <div><label>Filter Kategori</label><select id="filterClass" onchange="renderSiswaAktif()"><option value="">-- Semua Class --</option><option value="KU-8">KU-8</option><option value="KU-10">KU-10</option><option value="KU-12">KU-12</option><option value="KU-14">KU-14</option></select></div>
                     <div><button class="btn btn-info" onclick="renderSiswaAktif()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
                 </div>
-                <table><thead><tr><th>NISW</th><th>Nama</th><th>KU</th><th>Tipe</th></tr></thead><tbody id="listSiswaAktif"><tr><td colspan="4" style="text-align:center">Memuat...</td></tr></tbody></table>
+                <table><thead><tr><th>Foto</th><th>NISW</th><th>Nama</th><th>KU</th><th>Tipe</th><th>Posisi</th><th>Tgl Lahir</th><th>No HP</th></tr></thead><tbody id="listSiswaAktif"><tr><td colspan="8" style="text-align:center; color:#999;">Memuat data...</td></tr></tbody></table>
             </div>
         </div>
 
         <!-- VERIFIKASI PENDAFTAR -->
         <div id="verifikasi" class="section">
             <div class="header-stats">
-                <div>Antrean: <h2 id="totalAntrean" style="color:white; margin:0">0</h2></div>
+                <div>Antrean Pendaftar: <h2 id="totalAntrean" style="color:white; margin:0">0</h2></div>
+                <div style="text-align:right">Info Verifikasi:<br><b>Cek Tipe & Status</b></div>
             </div>
             <div class="card">
-                <h3>✅ Verifikasi Pendaftaran</h3>
-                <table><thead><tr><th>Nama</th><th>Tipe</th><th>Aksi</th></tr></thead><tbody id="listAntrean"><tr><td colspan="3" style="text-align:center">Memuat...</td></tr></tbody></table>
+                <h3>✅ Verifikasi Pendaftaran Baru</h3>
+                <div class="filter-section">
+                    <div style="flex: 1;"><button class="btn btn-info" onclick="renderPendaftar()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
+                </div>
+                <table><thead><tr><th>Nama</th><th>Tipe</th><th>KU</th><th>Aksi</th></tr></thead><tbody id="listAntrean"><tr><td colspan="4" style="text-align:center; color:#999;">Memuat data...</td></tr></tbody></table>
             </div>
         </div>
 
         <!-- REKAP ABSENSI -->
         <div id="absensi" class="section">
             <div class="card">
-                <h3>📝 Rekap Absensi</h3>
+                <h3>📝 Rekap Kehadiran Latihan</h3>
                 <div class="filter-section">
-                    <div><label>Tanggal:</label><input type="date" id="searchTglAbsen" onchange="renderAbsensi()"></div>
+                    <div style="flex: 1;"><label>Filter Tanggal:</label><input type="date" id="searchTglAbsen" onchange="renderAbsensi()"></div>
                     <div><button class="btn btn-info" onclick="renderAbsensi()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
                 </div>
-                <table><thead><tr><th>Tanggal</th><th>NISW</th><th>Nama</th><th>Status</th></tr></thead><tbody id="listAbsensi"><tr><td colspan="4" style="text-align:center">Memuat...</td></tr></tbody></table>
+                <table><thead><tr><th>Tanggal</th><th>NISW</th><th>Nama</th><th>Status</th><th>Keterangan</th></tr></thead><tbody id="listAbsensi"><tr><td colspan="5" style="text-align:center; color:#999;">Memuat data...</td></tr></tbody></table>
             </div>
         </div>
 
@@ -122,73 +128,88 @@
             <div class="finance-grid">
                 <div class="stat-box" style="background: var(--primary);"><span>Total Masuk</span><h3 id="totalMasuk">Rp 0</h3></div>
                 <div class="stat-box" style="background: var(--danger);"><span>Total Keluar</span><h3 id="totalKeluar">Rp 0</h3></div>
-                <div class="stat-box" style="background: var(--success);"><span>Saldo</span><h3 id="saldoAkhir">Rp 0</h3></div>
+                <div class="stat-box" style="background: var(--success);"><span>Saldo Kas</span><h3 id="saldoAkhir">Rp 0</h3></div>
             </div>
             <div class="grid-input">
                 <div class="card">
-                    <h4>💰 Pemasukan</h4>
-                    <label>Dari:</label><input type="text" id="pengirimMasuk" placeholder="Nama">
-                    <label>Nominal:</label><input type="number" id="nomBayar" placeholder="Rp">
-                    <label>Ket:</label><textarea id="ketMasuk" rows="2"></textarea>
-                    <button class="btn btn-add" onclick="transaksiMasuk()"><i class="fas fa-save"></i> Simpan</button>
+                    <h4>💰 Catat Pemasukan</h4>
+                    <label>Diterima Dari:</label>
+                    <input type="text" id="pengirimMasuk" placeholder="Nama Pembayar">
+                    <label>Nominal Rp:</label>
+                    <input type="number" id="nomBayar" placeholder="Nominal">
+                    <label>Keterangan:</label>
+                    <textarea id="ketMasuk" placeholder="Contoh: SPP Januari" rows="2"></textarea>
+                    <button class="btn btn-add" onclick="transaksiMasuk()"><i class="fas fa-save"></i> Simpan Pemasukan</button>
                 </div>
                 <div class="card">
-                    <h4>💸 Pengeluaran</h4>
-                    <label>Keperluan:</label><input type="text" id="ketKeluar" placeholder="Keperluan">
-                    <label>Nominal:</label><input type="number" id="nomKeluar" placeholder="Rp">
-                    <label>Detail:</label><textarea id="catatanKeluar" rows="2"></textarea>
-                    <button class="btn btn-danger" style="width:100%; justify-content: center;" onclick="transaksiKeluar()"><i class="fas fa-save"></i> Simpan</button>
+                    <h4>💸 Catat Pengeluaran</h4>
+                    <label>Keperluan:</label>
+                    <input type="text" id="ketKeluar" placeholder="Keperluan">
+                    <label>Nominal Rp:</label>
+                    <input type="number" id="nomKeluar" placeholder="Nominal">
+                    <label>Detail:</label>
+                    <textarea id="catatanKeluar" placeholder="Detail" rows="2"></textarea>
+                    <button class="btn btn-danger" style="width:100%; justify-content: center;" onclick="transaksiKeluar()"><i class="fas fa-save"></i> Simpan Pengeluaran</button>
                 </div>
             </div>
             <div class="card">
-                <h3>Riwayat Keuangan</h3>
-                <table><thead><tr><th>Tanggal</th><th>Jenis</th><th>Keterangan</th><th>Nominal</th></tr></thead><tbody id="listKeuangan"><tr><td colspan="4" style="text-align:center">Memuat...</td></tr></tbody></table>
+                <h3>Riwayat Keuangan (20 Terakhir)</h3>
+                <div class="filter-section">
+                    <div style="flex: 1;"><button class="btn btn-info" onclick="renderKeuangan()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
+                </div>
+                <table><thead><tr><th>Tanggal</th><th>Jenis</th><th>Keterangan</th><th>Nominal</th></tr></thead><tbody id="listKeuangan"><tr><td colspan="4" style="text-align:center; color:#999;">Memuat data...</td></tr></tbody></table>
             </div>
         </div>
 
         <!-- INPUT NILAI -->
         <div id="raport" class="section">
             <div class="card">
-                <h3>📊 Input Evaluasi</h3>
-                <label>NISW:</label><input type="text" id="niswNilai" placeholder="R202601">
+                <h3>📊 Input Evaluasi Pemain</h3>
+                <label>NISW Siswa:</label>
+                <input type="text" id="niswNilai" placeholder="Contoh: R2026001">
                 <div class="antropometri-box">
                     <h4>DATA ANTROPOMETRI</h4>
                     <div class="antropometri-grid">
-                        <div><label>TB (cm)</label><input type="number" id="tb" oninput="hitungBMI()"></div>
-                        <div><label>BB (kg)</label><input type="number" id="bb" oninput="hitungBMI()"></div>
-                        <div><label>Lingkar Perut</label><input type="number" id="lingkarPerut"></div>
-                        <div><label>BMI</label><input type="text" id="bmi" readonly></div>
+                        <div><label>TB (cm)</label><input type="number" id="tb" placeholder="165" oninput="hitungBMI()"></div>
+                        <div><label>BB (kg)</label><input type="number" id="bb" placeholder="55" oninput="hitungBMI()"></div>
+                        <div><label>Lingkar Perut (cm)</label><input type="number" id="lingkarPerut" placeholder="68"></div>
+                        <div><label>BMI</label><input type="text" id="bmi" readonly style="background:#e9f0ff;"></div>
                     </div>
                 </div>
-                <h4>TEKNIK</h4>
+                <h4>TEKNIK (TECHNICAL SKILLS)</h4>
                 <div class="grid-input">
-                    <div><label>Passing:</label><input type="number" id="n_passing" class="input-nilai" oninput="hitungRataOtomatis()"></div>
-                    <div><label>Shooting:</label><input type="number" id="n_shooting" class="input-nilai" oninput="hitungRataOtomatis()"></div>
-                    <div><label>Dribbling:</label><input type="number" id="n_dribbling" class="input-nilai" oninput="hitungRataOtomatis()"></div>
-                    <div><label>Control:</label><input type="number" id="n_control" class="input-nilai" oninput="hitungRataOtomatis()"></div>
+                    <div><label>Passing:</label><input type="number" id="n_passing" class="input-nilai" placeholder="0-100" oninput="hitungRataOtomatis()"></div>
+                    <div><label>Shooting:</label><input type="number" id="n_shooting" class="input-nilai" placeholder="0-100" oninput="hitungRataOtomatis()"></div>
+                    <div><label>Dribbling:</label><input type="number" id="n_dribbling" class="input-nilai" placeholder="0-100" oninput="hitungRataOtomatis()"></div>
+                    <div><label>Control:</label><input type="number" id="n_control" class="input-nilai" placeholder="0-100" oninput="hitungRataOtomatis()"></div>
                 </div>
                 <h4 style="margin-top: 20px;">TAKTIK & FISIK</h4>
                 <div class="grid-input">
-                    <div><label>Positioning:</label><input type="number" id="n_positioning" class="input-nilai" oninput="hitungRataOtomatis()"></div>
-                    <div><label>Kecepatan:</label><input type="number" id="n_speed" class="input-nilai" oninput="hitungRataOtomatis()"></div>
+                    <div><label>Positioning:</label><input type="number" id="n_positioning" class="input-nilai" placeholder="0-100" oninput="hitungRataOtomatis()"></div>
+                    <div><label>Kecepatan & Agilitas:</label><input type="number" id="n_speed" class="input-nilai" placeholder="0-100" oninput="hitungRataOtomatis()"></div>
                 </div>
                 <div style="margin-top:20px; padding:15px; background:#f8f9fa; border-radius:10px;">
                     <label>Rata-Rata:</label>
-                    <div style="background: #eee; height: 30px; border-radius: 10px; overflow: hidden; position: relative;">
+                    <div style="background: #eee; border-radius: 10px; height: 30px; margin-top: 10px; overflow: hidden; position: relative;">
                         <div id="avgFill" style="background: var(--success); height: 100%; width: 0%; transition: 0.5s;"></div>
-                        <div id="avgText" style="position: absolute; width: 100%; text-align: center; top: 0; line-height: 30px; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">0</div>
+                        <div id="avgText" style="position: absolute; width: 100%; text-align: center; top: 0; font-weight: bold; line-height: 30px; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">0</div>
                     </div>
                 </div>
-                <label style="margin-top: 15px;">Catatan:</label><textarea id="catatanPelatih" rows="3"></textarea>
-                <button class="btn btn-add" onclick="simpanNilai()"><i class="fas fa-save"></i> SIMPAN</button>
+                <label style="margin-top: 15px;">Catatan:</label>
+                <textarea id="catatanPelatih" rows="3" placeholder="Saran perkembangan..."></textarea>
+                <button class="btn btn-add" onclick="simpanNilai()"><i class="fas fa-save"></i> SIMPAN EVALUASI</button>
             </div>
         </div>
 
         <!-- SARAN & MASUKAN -->
         <div id="saran" class="section">
             <div class="card">
-                <h3>📩 Saran & Masukan</h3>
-                <table><thead><tr><th>Tanggal</th><th>Nama</th><th>Kategori</th><th>Pesan</th></tr></thead><tbody id="listSaran"><tr><td colspan="4" style="text-align:center">Memuat...</td></tr></tbody></table>
+                <h3>📩 Saran & Masukan Siswa</h3>
+                <div class="filter-section">
+                    <div><label>Filter Kategori:</label><select id="filterKategoriSaran" onchange="renderSaran()"><option value="">-- Semua --</option><option value="Fasilitas">Fasilitas</option><option value="Pelatih">Pelatih</option></select></div>
+                    <div><button class="btn btn-info" onclick="renderSaran()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
+                </div>
+                <table><thead><tr><th>Tanggal</th><th>Nama</th><th>Kategori</th><th>Pesan</th></tr></thead><tbody id="listSaran"><tr><td colspan="4" style="text-align:center; color:#999;">Memuat data...</td></tr></tbody></table>
             </div>
         </div>
 
@@ -206,10 +227,10 @@
                 </div>
                 <div class="card">
                     <h4>🏆 Jadwal Turnamen</h4>
-                    <label>Event:</label><input type="text" id="namaEvent">
+                    <label>Nama Event:</label><input type="text" id="namaEvent" placeholder="Nama Turnamen">
                     <label>Tanggal:</label><input type="date" id="tglEvent">
-                    <label>Lokasi:</label><input type="text" id="lokasiEvent">
-                    <label>Waktu:</label><input type="text" id="waktuEvent">
+                    <label>Lokasi:</label><input type="text" id="lokasiEvent" placeholder="Lokasi">
+                    <label>Waktu:</label><input type="text" id="waktuEvent" placeholder="08.00 WIB">
                     <button class="btn btn-add" onclick="addJadwalTurnamen()"><i class="fas fa-plus"></i> Tambah</button>
                     <h4 style="margin-top: 20px;">Jadwal Turnamen:</h4>
                     <table><thead><tr><th>Event</th><th>Tanggal</th><th>Lokasi</th></tr></thead><tbody id="listJadwalTurnamen"></tbody></table>
@@ -225,118 +246,166 @@
     <script src="db-sync.js"></script>
 
     <script>
-        // CEK LOGIN - CRITICAL!
+        console.log("🚀 Admin Panel Loading...");
+
+        // CEK LOGIN ADMIN - PRIORITY 1
         function cekLoginAdmin() {
             const adminLogin = sessionStorage.getItem("adminLogin");
-            console.log("🔐 CEK LOGIN:", adminLogin);
+            console.log("🔐 Check adminLogin:", adminLogin);
             
             if (adminLogin !== "true") {
-                console.log("❌ NOT ADMIN!");
-                alert("❌ Silakan login sebagai admin!");
+                console.log("❌ Not admin! Redirect to index.html");
+                alert("❌ Silakan login sebagai admin terlebih dahulu!");
                 window.location.href = "index.html";
                 return false;
             }
-            console.log("✅ ADMIN OK!");
+            
+            console.log("✅ Admin verified!");
             return true;
         }
 
-        // RENDER
+        // RENDER SISWA AKTIF
         function renderSiswaAktif() {
-            DBManager.getSiswaAktif(function(all) {
-                const reguler = all.filter(s => s.tipe !== 'Beasiswa').length;
-                const beasiswa = all.filter(s => s.tipe === 'Beasiswa').length;
+            console.log("📂 renderSiswaAktif");
+            const filterKu = document.getElementById('filterClass')?.value || '';
+            
+            DBManager.getSiswaAktif(function(allSiswa) {
+                let siswaFiltered = filterKu ? allSiswa.filter(s => s.kategori === filterKu) : allSiswa;
+
+                const reguler = siswaFiltered.filter(s => s.tipe !== 'Beasiswa').length;
+                const beasiswa = siswaFiltered.filter(s => s.tipe === 'Beasiswa').length;
+
                 document.getElementById('totalReguler').innerText = reguler;
                 document.getElementById('totalBeasiswa').innerText = beasiswa;
-                document.getElementById('totalSiswaAktif').innerText = all.length;
+                document.getElementById('totalSiswaAktif').innerText = siswaFiltered.length;
+
                 const tbody = document.getElementById('listSiswaAktif');
-                tbody.innerHTML = all.map(s => `<tr><td>${s.nisw}</td><td>${s.nama}</td><td>${s.kategori}</td><td>${s.tipe}</td></tr>`).join('') || '<tr><td colspan="4">-</td></tr>';
+                tbody.innerHTML = siswaFiltered.length === 0 ? '<tr><td colspan="8" style="text-align:center;color:#999;">Tidak ada data</td></tr>' : 
+                    siswaFiltered.map(s => `<tr><td><img src="${s.foto || 'logossb.png'}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;"></td><td>${s.nisw || '-'}</td><td>${s.nama || '-'}</td><td>${s.kategori || '-'}</td><td><span class="badge" style="background:${s.tipe === 'Beasiswa' ? '#28a745' : '#003399'};color:white;">${s.tipe || 'Reguler'}</span></td><td>${s.posisi || '-'}</td><td>${s.tglLahir || '-'}</td><td>${s.noHp || '-'}</td></tr>`).join('');
             });
         }
 
+        // RENDER PENDAFTAR
         function renderPendaftar() {
-            DBManager.getPendaftar(function(list) {
-                document.getElementById('totalAntrean').innerText = list.length;
+            console.log("📂 renderPendaftar");
+            DBManager.getPendaftar(function(pendaftarList) {
+                document.getElementById('totalAntrean').innerText = pendaftarList.length;
                 const tbody = document.getElementById('listAntrean');
-                tbody.innerHTML = list.map((p, i) => `<tr><td>${p.nama}</td><td>${p.tipe}</td><td><button class="btn btn-add" style="padding:5px 10px;" onclick="setujuiPendaftar(${i})">Setujui</button></td></tr>`).join('') || '<tr><td colspan="3">-</td></tr>';
+                tbody.innerHTML = pendaftarList.length === 0 ? '<tr><td colspan="4" style="text-align:center;color:#999;">Tidak ada pendaftar</td></tr>' :
+                    pendaftarList.map((p, i) => `<tr><td>${p.nama}</td><td><span class="badge" style="background:${p.tipe === 'Beasiswa' ? '#28a745' : '#003399'};color:white;">${p.tipe}</span></td><td>${p.kategori || '-'}</td><td><button class="btn btn-add" style="padding:5px 10px;font-size:11px;" onclick="setujuiPendaftar(${i})">Setujui</button></td></tr>`).join('');
             });
         }
 
-        function setujuiPendaftar(i) {
+        function setujuiPendaftar(idx) {
             DBManager.getPendaftar(function(list) {
-                const p = list[i];
-                const nisw = (p.tipe === "Beasiswa" ? "B" : "R") + new Date().getFullYear() + String(i+1).padStart(3,'0');
-                const siswa = {...p, nisw, status: 'Aktif'};
+                const p = list[idx];
+                if (!p) return alert("❌ Data tidak ditemukan");
+                
+                const tahun = new Date().getFullYear();
+                const prefix = p.tipe === "Beasiswa" ? "B" : "R";
+                const nisw = prefix + tahun + String(idx + 1).padStart(3, '0');
+                
+                const siswa = { ...p, nisw, status: 'Aktif', tglDaftar: new Date().toLocaleString('id-ID') };
+                
                 DBManager.addSiswaAktif(siswa, function(ok) {
-                    alert(ok ? `✅ NISW: ${nisw}` : '❌ Error');
-                    if (ok) { renderPendaftar(); renderSiswaAktif(); }
+                    if (ok) {
+                        alert(`✅ Disetujui! NISW: ${nisw}`);
+                        renderPendaftar();
+                        renderSiswaAktif();
+                    }
                 });
             });
         }
 
+        // RENDER ABSENSI
         function renderAbsensi() {
-            const tgl = document.getElementById('searchTglAbsen').value;
-            DBManager.getAbsensi(function(list) {
-                const filtered = tgl ? list.filter(a => a.tanggal === tgl) : list;
-                document.getElementById('listAbsensi').innerHTML = filtered.map(a => `<tr><td>${a.tanggal}</td><td>${a.nisw}</td><td>${a.nama}</td><td>${a.status}</td></tr>`).join('') || '<tr><td colspan="4">-</td></tr>';
+            console.log("📂 renderAbsensi");
+            const tglFilter = document.getElementById('searchTglAbsen')?.value || '';
+            DBManager.getAbsensi(function(absensiList) {
+                const filtered = tglFilter ? absensiList.filter(a => a.tanggal === tglFilter) : absensiList;
+                const tbody = document.getElementById('listAbsensi');
+                tbody.innerHTML = filtered.length === 0 ? '<tr><td colspan="5" style="text-align:center;color:#999;">Tidak ada absensi</td></tr>' :
+                    filtered.map(a => `<tr><td>${a.tanggal}</td><td>${a.nisw}</td><td>${a.nama}</td><td><span class="badge" style="background:${a.status === 'Hadir' ? '#28a745' : '#ff9800'};color:white;">${a.status}</span></td><td>${a.alasan || '-'}</td></tr>`).join('');
             });
         }
 
+        // RENDER KEUANGAN
         function renderKeuangan() {
-            DBManager.getKeuangan(function(list) {
-                let masuk = 0, keluar = 0;
-                list.forEach(k => {
-                    const n = parseInt(k.nominal) || 0;
-                    if (k.jenisMasukKeluar === 'Masuk') masuk += n;
-                    else keluar += n;
+            console.log("📂 renderKeuangan");
+            DBManager.getKeuangan(function(keuanganList) {
+                let totalMasuk = 0, totalKeluar = 0;
+                keuanganList.forEach(k => {
+                    const nominal = parseInt(k.nominal) || 0;
+                    if (k.jenisMasukKeluar === 'Masuk') totalMasuk += nominal;
+                    else if (k.jenisMasukKeluar === 'Keluar') totalKeluar += nominal;
                 });
-                document.getElementById('totalMasuk').innerText = 'Rp ' + masuk.toLocaleString();
-                document.getElementById('totalKeluar').innerText = 'Rp ' + keluar.toLocaleString();
-                document.getElementById('saldoAkhir').innerText = 'Rp ' + (masuk - keluar).toLocaleString();
-                document.getElementById('listKeuangan').innerHTML = list.slice(0,20).map(k => `<tr><td>${k.tanggal}</td><td>${k.jenisMasukKeluar}</td><td>${k.keterangan}</td><td>Rp ${k.nominal}</td></tr>`).join('') || '<tr><td colspan="4">-</td></tr>';
+                
+                const saldo = totalMasuk - totalKeluar;
+                document.getElementById('totalMasuk').innerText = 'Rp ' + totalMasuk.toLocaleString('id-ID');
+                document.getElementById('totalKeluar').innerText = 'Rp ' + totalKeluar.toLocaleString('id-ID');
+                document.getElementById('saldoAkhir').innerText = 'Rp ' + saldo.toLocaleString('id-ID');
+
+                const tbody = document.getElementById('listKeuangan');
+                tbody.innerHTML = keuanganList.length === 0 ? '<tr><td colspan="4" style="text-align:center;color:#999;">Tidak ada transaksi</td></tr>' :
+                    keuanganList.slice(0, 20).map(k => `<tr><td>${k.tanggal}</td><td><span class="badge" style="background:${k.jenisMasukKeluar === 'Masuk' ? '#28a745' : '#dc3545'};color:white;">${k.jenisMasukKeluar}</span></td><td>${k.keterangan || k.keperluan || '-'}</td><td>Rp ${(k.nominal || 0).toLocaleString('id-ID')}</td></tr>`).join('');
             });
         }
 
         function transaksiMasuk() {
+            const pengirim = document.getElementById('pengirimMasuk')?.value.trim() || '';
+            const nominal = parseInt(document.getElementById('nomBayar')?.value) || 0;
+            const ket = document.getElementById('ketMasuk')?.value.trim() || '';
+            
+            if (!pengirim || nominal <= 0) return alert('❌ Isi pengirim dan nominal!');
+            
             const data = {
-                pengirim: document.getElementById('pengirimMasuk').value,
-                nominal: parseInt(document.getElementById('nomBayar').value) || 0,
-                keterangan: document.getElementById('ketMasuk').value,
+                pengirim,
+                nominal,
+                keterangan: ket,
                 jenisMasukKeluar: 'Masuk',
                 tanggal: new Date().toLocaleString('id-ID')
             };
+            
             DBManager.addKeuangan(data, function(ok) {
-                alert(ok ? '✅ Tersimpan' : '❌ Error');
                 if (ok) {
+                    alert('✅ Pemasukan disimpan!');
                     document.getElementById('pengirimMasuk').value = '';
                     document.getElementById('nomBayar').value = '';
                     document.getElementById('ketMasuk').value = '';
-                    renderKeuangan();
+                    setTimeout(renderKeuangan, 500);
                 }
             });
         }
 
         function transaksiKeluar() {
+            const keperluan = document.getElementById('ketKeluar')?.value.trim() || '';
+            const nominal = parseInt(document.getElementById('nomKeluar')?.value) || 0;
+            
+            if (!keperluan || nominal <= 0) return alert('❌ Isi keperluan dan nominal!');
+            
             const data = {
-                keperluan: document.getElementById('ketKeluar').value,
-                nominal: parseInt(document.getElementById('nomKeluar').value) || 0,
-                keterangan: document.getElementById('catatanKeluar').value,
+                keperluan,
+                nominal,
+                keterangan: document.getElementById('catatanKeluar')?.value.trim() || keperluan,
                 jenisMasukKeluar: 'Keluar',
                 tanggal: new Date().toLocaleString('id-ID')
             };
+            
             DBManager.addKeuangan(data, function(ok) {
-                alert(ok ? '✅ Tersimpan' : '❌ Error');
                 if (ok) {
+                    alert('✅ Pengeluaran disimpan!');
                     document.getElementById('ketKeluar').value = '';
                     document.getElementById('nomKeluar').value = '';
                     document.getElementById('catatanKeluar').value = '';
-                    renderKeuangan();
+                    setTimeout(renderKeuangan, 500);
                 }
             });
         }
 
+        // NILAI
         function hitungBMI() {
-            const tb = parseFloat(document.getElementById('tb').value) || 0;
-            const bb = parseFloat(document.getElementById('bb').value) || 0;
+            const tb = parseFloat(document.getElementById('tb')?.value) || 0;
+            const bb = parseFloat(document.getElementById('bb')?.value) || 0;
             if (tb > 0 && bb > 0) {
                 const bmi = (bb / Math.pow(tb / 100, 2)).toFixed(1);
                 document.getElementById('bmi').value = bmi;
@@ -346,9 +415,9 @@
         function hitungRataOtomatis() {
             const inputs = document.querySelectorAll('.input-nilai');
             let total = 0, count = 0;
-            inputs.forEach(i => {
-                const v = parseFloat(i.value) || 0;
-                if (v > 0) { total += v; count++; }
+            inputs.forEach(input => {
+                const val = parseFloat(input.value) || 0;
+                if (val > 0) { total += val; count++; }
             });
             const rata = count > 0 ? (total / count).toFixed(1) : 0;
             document.getElementById('avgFill').style.width = rata + '%';
@@ -356,57 +425,87 @@
         }
 
         function simpanNilai() {
-            const nisw = document.getElementById('niswNilai').value.toUpperCase();
-            if (!nisw) return alert('❌ NISW!');
+            const nisw = document.getElementById('niswNilai')?.value.trim().toUpperCase() || '';
+            if (!nisw) return alert('❌ NISW tidak boleh kosong!');
+            
             const data = {
-                nisw, tb: parseFloat(document.getElementById('tb').value) || 0,
-                bb: parseFloat(document.getElementById('bb').value) || 0,
-                lingkarPerut: parseFloat(document.getElementById('lingkarPerut').value) || 0,
-                bmi: parseFloat(document.getElementById('bmi').value) || 0,
-                passing: parseInt(document.getElementById('n_passing').value) || 0,
-                shooting: parseInt(document.getElementById('n_shooting').value) || 0,
-                dribbling: parseInt(document.getElementById('n_dribbling').value) || 0,
-                control: parseInt(document.getElementById('n_control').value) || 0,
-                positioning: parseInt(document.getElementById('n_positioning').value) || 0,
-                speed: parseInt(document.getElementById('n_speed').value) || 0,
-                catatan: document.getElementById('catatanPelatih').value,
+                nisw,
+                tb: parseFloat(document.getElementById('tb')?.value) || 0,
+                bb: parseFloat(document.getElementById('bb')?.value) || 0,
+                lingkarPerut: parseFloat(document.getElementById('lingkarPerut')?.value) || 0,
+                bmi: parseFloat(document.getElementById('bmi')?.value) || 0,
+                passing: parseInt(document.getElementById('n_passing')?.value) || 0,
+                shooting: parseInt(document.getElementById('n_shooting')?.value) || 0,
+                dribbling: parseInt(document.getElementById('n_dribbling')?.value) || 0,
+                control: parseInt(document.getElementById('n_control')?.value) || 0,
+                positioning: parseInt(document.getElementById('n_positioning')?.value) || 0,
+                speed: parseInt(document.getElementById('n_speed')?.value) || 0,
+                catatan: document.getElementById('catatanPelatih')?.value.trim() || '',
                 createdAt: new Date().toISOString()
             };
+            
             DBManager.addNilai(data, function(ok) {
-                alert(ok ? '✅ Tersimpan' : '❌ Error');
                 if (ok) {
+                    alert(`✅ Evaluasi ${nisw} disimpan!`);
                     document.getElementById('niswNilai').value = '';
                     document.getElementById('tb').value = '';
                     document.getElementById('bb').value = '';
+                    document.getElementById('bmi').value = '';
+                    document.getElementById('n_passing').value = '';
+                    document.getElementById('n_shooting').value = '';
+                    document.getElementById('n_dribbling').value = '';
+                    document.getElementById('n_control').value = '';
+                    document.getElementById('n_positioning').value = '';
+                    document.getElementById('n_speed').value = '';
+                    document.getElementById('catatanPelatih').value = '';
+                    document.getElementById('avgText').textContent = '0';
+                    document.getElementById('avgFill').style.width = '0%';
                 }
             });
         }
 
+        // SARAN
         function renderSaran() {
-            DBManager.getSaran(function(list) {
-                document.getElementById('listSaran').innerHTML = list.map(s => `<tr><td>${s.tanggal}</td><td>${s.nama}</td><td>${s.kategori}</td><td>${s.pesan}</td></tr>`).join('') || '<tr><td colspan="4">-</td></tr>';
-            });
+            console.log("📂 renderSaran");
+            const filterKat = document.getElementById('filterKategoriSaran')?.value || '';
+            const callback = (list) => {
+                const tbody = document.getElementById('listSaran');
+                tbody.innerHTML = list.length === 0 ? '<tr><td colspan="4" style="text-align:center;color:#999;">Tidak ada saran</td></tr>' :
+                    list.map(s => `<tr><td>${s.tanggal}</td><td>${s.nama}</td><td><span class="badge" style="background:#17a2b8;color:white;">${s.kategori}</span></td><td>${s.pesan ? s.pesan.substring(0, 40) + '...' : '-'}</td></tr>`).join('');
+            };
+            if (filterKat) {
+                DBManager.getSaranByKategori(filterKat, callback);
+            } else {
+                DBManager.getSaran(callback);
+            }
         }
 
+        // JADWAL
         function renderJadwal() {
+            console.log("📂 renderJadwal");
             DBManager.getJadwalLatihan(function(list) {
-                document.getElementById('listJadwalLatihan').innerHTML = list.map(j => `<tr><td>${j.hari}</td><td>${j.tempat}</td><td>${j.waktu}</td></tr>`).join('');
+                const tbody = document.getElementById('listJadwalLatihan');
+                tbody.innerHTML = list.length === 0 ? '<tr><td colspan="3" style="text-align:center;color:#999;">Belum ada</td></tr>' :
+                    list.map(j => `<tr><td><strong>${j.hari}</strong></td><td>${j.tempat}</td><td>${j.waktu}</td></tr>`).join('');
             });
+
             DBManager.getJadwalTurnamen(function(list) {
-                document.getElementById('listJadwalTurnamen').innerHTML = list.map(t => `<tr><td>${t.nama_event}</td><td>${t.tanggal}</td><td>${t.lokasi}</td></tr>`).join('');
+                const tbody = document.getElementById('listJadwalTurnamen');
+                tbody.innerHTML = list.length === 0 ? '<tr><td colspan="3" style="text-align:center;color:#999;">Belum ada</td></tr>' :
+                    list.map(t => `<tr><td><strong>${t.nama_event}</strong></td><td>${t.tanggal}</td><td>${t.lokasi}</td></tr>`).join('');
             });
         }
 
         function addJadwalLatihan() {
-            const data = {
-                hari: document.getElementById('hariLatihan').value.toUpperCase(),
-                tempat: document.getElementById('tempatLatihan').value,
-                waktu: document.getElementById('waktuLatihan').value
-            };
-            if (!data.hari || !data.tempat) return alert('❌ Isi semua!');
-            DBManager.addJadwalLatihan(data, function(ok) {
-                alert(ok ? '✅ Tersimpan' : '❌ Error');
+            const hari = document.getElementById('hariLatihan')?.value.trim().toUpperCase() || '';
+            const tempat = document.getElementById('tempatLatihan')?.value.trim() || '';
+            const waktu = document.getElementById('waktuLatihan')?.value.trim() || '';
+            
+            if (!hari || !tempat || !waktu) return alert('❌ Isi semua field!');
+            
+            DBManager.addJadwalLatihan({ hari, tempat, waktu }, function(ok) {
                 if (ok) {
+                    alert('✅ Jadwal latihan ditambahkan!');
                     document.getElementById('hariLatihan').value = '';
                     document.getElementById('tempatLatihan').value = '';
                     document.getElementById('waktuLatihan').value = '';
@@ -416,29 +515,38 @@
         }
 
         function addJadwalTurnamen() {
+            const namaEvent = document.getElementById('namaEvent')?.value.trim() || '';
+            const tglEvent = document.getElementById('tglEvent')?.value || '';
+            const lokasiEvent = document.getElementById('lokasiEvent')?.value.trim() || '';
+            
+            if (!namaEvent || !tglEvent || !lokasiEvent) return alert('❌ Isi nama, tanggal, lokasi!');
+            
             const data = {
-                nama_event: document.getElementById('namaEvent').value,
-                tanggal: document.getElementById('tglEvent').value,
-                lokasi: document.getElementById('lokasiEvent').value,
-                waktu: document.getElementById('waktuEvent').value || '-'
+                nama_event: namaEvent,
+                tanggal: tglEvent,
+                lokasi: lokasiEvent,
+                waktu: document.getElementById('waktuEvent')?.value.trim() || '-'
             };
-            if (!data.nama_event || !data.tanggal) return alert('❌ Isi nama & tanggal!');
+            
             DBManager.addJadwalTurnamen(data, function(ok) {
-                alert(ok ? '✅ Tersimpan' : '❌ Error');
                 if (ok) {
+                    alert('✅ Jadwal turnamen ditambahkan!');
                     document.getElementById('namaEvent').value = '';
                     document.getElementById('tglEvent').value = '';
                     document.getElementById('lokasiEvent').value = '';
+                    document.getElementById('waktuEvent').value = '';
                     renderJadwal();
                 }
             });
         }
 
+        // UTILITY
         function showSection(id) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            event.target.closest('.nav-link').classList.add('active');
+            const target = document.getElementById(id);
+            if (target) target.classList.add('active');
+            if (event.target.closest('.nav-link')) event.target.closest('.nav-link').classList.add('active');
             
             if (id === 'db_siswa') renderSiswaAktif();
             else if (id === 'verifikasi') renderPendaftar();
@@ -449,18 +557,19 @@
         }
 
         function logoutAdmin() {
-            if (confirm("Logout?")) {
+            if (confirm("Yakin logout?")) {
                 sessionStorage.removeItem("adminLogin");
+                alert("✅ Logout berhasil");
                 window.location.href = "index.html";
             }
         }
 
-        // INIT - CRITICAL!
+        // INIT
         window.addEventListener('load', function() {
-            console.log("🎯 ADMIN LOAD...");
+            console.log("🎯 Window load - Cek login...");
             if (cekLoginAdmin()) {
                 renderSiswaAktif();
-                console.log("✅ ADMIN READY!");
+                console.log("✅ Admin Panel READY!");
             }
         });
     </script>
