@@ -1,5 +1,5 @@
 // ==================== DBManager FULL FIRESTORE - SSB Wind Soccer ====================
-// Versi Pure Firestore - Fix "database is not a function" (18 April 2026)
+// Versi Stabil - Pakai Firestore (18 April 2026)
 
 const DBManager = {
     initData: function() {
@@ -44,11 +44,9 @@ const DBManager = {
     updateSiswaAktif: function(nisw, updateData, callback) {
         const db = firebase.firestore();
         ["dataSiswa", "dataBeasiswa"].forEach(key => {
-            db.collection(key).where("nisw", "==", nisw.toUpperCase()).get()
-                .then(snap => {
-                    snap.forEach(doc => {
-                        doc.ref.update(updateData).then(() => callback && callback(true));
-                    });
+            db.collection(key).where("nisw", "==", String(nisw).toUpperCase())
+                .get().then(snap => {
+                    snap.forEach(doc => doc.ref.update(updateData).then(() => callback && callback(true)));
                 });
         });
     },
@@ -56,8 +54,8 @@ const DBManager = {
     deleteSiswaAktif: function(nisw, callback) {
         const db = firebase.firestore();
         ["dataSiswa", "dataBeasiswa"].forEach(key => {
-            db.collection(key).where("nisw", "==", nisw.toUpperCase()).get()
-                .then(snap => {
+            db.collection(key).where("nisw", "==", String(nisw).toUpperCase())
+                .get().then(snap => {
                     snap.forEach(doc => doc.ref.delete().then(() => callback && callback(true)));
                 });
         });
@@ -65,8 +63,7 @@ const DBManager = {
 
     // ====================== PENDAFTAR ======================
     getPendaftar: function(callback) {
-        const db = firebase.firestore();
-        db.collection("dataPendaftar").get().then(snap => {
+        firebase.firestore().collection("dataPendaftar").get().then(snap => {
             callback(snap.docs.map(doc => doc.data()));
         });
     },
@@ -79,8 +76,7 @@ const DBManager = {
             data.status = "Menunggu Verifikasi";
             data.tglDaftar = this.getTglSekarang();
 
-            const db = firebase.firestore();
-            db.collection("dataPendaftar").add(data).then(() => callback && callback(data.nisw));
+            firebase.firestore().collection("dataPendaftar").add(data).then(() => callback && callback(data.nisw));
         });
     },
 
