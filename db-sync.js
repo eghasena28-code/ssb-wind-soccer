@@ -1,5 +1,5 @@
 // db-sync.js
-// Database Manager untuk SSB Wind Soccer
+// Database Manager untuk SSB Wind Soccer - FULL LENGKAP
 
 const DBManager = {
   
@@ -11,12 +11,10 @@ const DBManager = {
   // ===== ADD PENDAFTAR =====
   addPendaftar: async function(data) {
     try {
-      // Generate NISW format: R + TAHUN + NOMOR (contoh: R202601)
       const tahun = new Date().getFullYear().toString().slice(-2);
       const randomNum = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
       const nisw = 'R' + tahun + randomNum;
 
-      // Set data ke Firestore
       await db.collection('pendaftar').doc(nisw).set({
         nisw: nisw,
         nama: data.nama || '',
@@ -34,7 +32,6 @@ const DBManager = {
         createdAt: new Date().toISOString()
       });
 
-      // Juga simpan ke localStorage
       let pendaftarData = [];
       const stored = localStorage.getItem('pendaftarData');
       if (stored) {
@@ -57,7 +54,6 @@ const DBManager = {
   // ===== GET PENDAFTAR =====
   getPendaftar: async function(callback) {
     try {
-      // Cek localStorage dulu
       const stored = localStorage.getItem('pendaftarData');
       if (stored) {
         const data = JSON.parse(stored);
@@ -66,7 +62,6 @@ const DBManager = {
         return;
       }
 
-      // Jika tidak ada, fetch dari Firestore
       const querySnapshot = await db.collection('pendaftar').get();
       const data = [];
       
@@ -77,7 +72,6 @@ const DBManager = {
         });
       });
 
-      // Simpan ke localStorage
       localStorage.setItem('pendaftarData', JSON.stringify(data));
       callback(data);
       console.log("✅ Pendaftar dari Firestore:", data.length);
@@ -88,19 +82,21 @@ const DBManager = {
     }
   },
 
-  // ===== GET SISWA AKTIF =====
+  // ===== GET SISWA AKTIF - DENGAN INISIALISASI DEMO =====
   getSiswaAktif: async function(callback) {
     try {
-      // Cek localStorage
       const stored = localStorage.getItem('siswaData');
-      if (stored) {
+      
+      // Jika sudah ada data siswa, gunakan itu
+      if (stored && stored !== '[]') {
         const siswa = JSON.parse(stored).filter(s => s.status === 'Aktif');
-        callback(siswa);
         console.log("✅ Siswa aktif dari localStorage:", siswa.length);
+        callback(siswa);
         return;
       }
 
-      // Mock data untuk demo
+      // Jika belum ada, buat demo data
+      console.log("📝 Membuat demo data siswa...");
       const demoSiswa = [
         {
           nisw: "R260001",
@@ -115,7 +111,8 @@ const DBManager = {
           alamat: "Jl. Merdeka 123, Bogor",
           statusPembayaran: "Lunas",
           tagihan: 0,
-          status: "Aktif"
+          status: "Aktif",
+          catatan: "Siswa berprestasi"
         },
         {
           nisw: "R260002",
@@ -130,7 +127,8 @@ const DBManager = {
           alamat: "Jl. Sudirman 456, Tangerang",
           statusPembayaran: "Cicilan",
           tagihan: 100000,
-          status: "Aktif"
+          status: "Aktif",
+          catatan: "Beasiswa 50%"
         },
         {
           nisw: "R260003",
@@ -145,13 +143,14 @@ const DBManager = {
           alamat: "Jl. Ahmad Yani 789, Bekasi",
           statusPembayaran: "Belum Bayar",
           tagihan: 200000,
-          status: "Aktif"
+          status: "Aktif",
+          catatan: "Beasiswa 100% (Yatim)"
         }
       ];
 
       localStorage.setItem('siswaData', JSON.stringify(demoSiswa));
       callback(demoSiswa);
-      console.log("✅ Siswa aktif demo:", demoSiswa.length);
+      console.log("✅ Demo data siswa dibuat:", demoSiswa.length);
 
     } catch (error) {
       console.error("❌ Error getSiswaAktif:", error);
@@ -159,16 +158,44 @@ const DBManager = {
     }
   },
 
-  // ===== FIND SISWA =====
+  // ===== FIND SISWA BY NISW - PERBAIKAN UTAMA =====
   findSiswa: async function(nisw, callback) {
     try {
+      console.log("🔍 Mencari NISW:", nisw.toUpperCase());
+      
+      // 1. Cek di localStorage siswaData dulu
       const stored = localStorage.getItem('siswaData');
       if (stored) {
-        const siswa = JSON.parse(stored).find(s => s.nisw?.toUpperCase() === nisw.toUpperCase());
-        callback(siswa || null);
-        return;
+        const siswaList = JSON.parse(stored);
+        const siswa = siswaList.find(s => s.nisw?.toUpperCase() === nisw.toUpperCase());
+        
+        if (siswa) {
+          console.log("✅ Siswa ditemukan di localStorage:", siswa.nama);
+          callback(siswa);
+          return;
+        }
       }
 
+      // 2. Jika tidak ada di siswaData, buat demo data dulu
+      console.log("⚠️ NISW tidak ditemukan di localStorage, membuat demo data...");
+      await new Promise(resolve => {
+        this.getSiswaAktif(() => resolve());
+      });
+
+      // 3. Coba cari lagi
+      const storedAgain = localStorage.getItem('siswaData');
+      if (storedAgain) {
+        const siswaList = JSON.parse(storedAgain);
+        const siswa = siswaList.find(s => s.nisw?.toUpperCase() === nisw.toUpperCase());
+        
+        if (siswa) {
+          console.log("✅ Siswa ditemukan setelah demo:", siswa.nama);
+          callback(siswa);
+          return;
+        }
+      }
+
+      console.log("❌ NISW tidak ditemukan:", nisw);
       callback(null);
 
     } catch (error) {
@@ -188,7 +215,6 @@ const DBManager = {
         return;
       }
 
-      // Demo data
       const demoAbsensi = [
         {
           tanggal: new Date().toLocaleDateString('id-ID'),
@@ -230,13 +256,11 @@ const DBManager = {
   // ===== UPDATE PENDAFTAR STATUS =====
   updatePendaftarStatus: async function(nisw, status) {
     try {
-      // Update di Firestore
       await db.collection('pendaftar').doc(nisw).update({
         status: status,
         updatedAt: new Date().toISOString()
       });
 
-      // Update di localStorage
       const stored = localStorage.getItem('pendaftarData');
       if (stored) {
         let data = JSON.parse(stored);
@@ -252,6 +276,45 @@ const DBManager = {
 
     } catch (error) {
       console.error("❌ Error updatePendaftarStatus:", error);
+      return false;
+    }
+  },
+
+  // ===== ADD SISWA (dari pendaftar yang disetujui) =====
+  addSiswa: async function(pendaftar) {
+    try {
+      const siswaData = {
+        nisw: pendaftar.nisw || '',
+        nama: pendaftar.nama || '',
+        tglLahir: pendaftar.tglLahir || '',
+        kategori: pendaftar.kategori || '',
+        tipe: pendaftar.tipe || 'Reguler',
+        posisi: pendaftar.posisi || '',
+        namaOrtu: pendaftar.namaOrtu || '',
+        noHp: pendaftar.noHp || '',
+        alamat: pendaftar.alamat || '',
+        statusPembayaran: 'Belum Bayar',
+        tagihan: pendaftar.tipe === 'Beasiswa' ? 200000 : 400000,
+        status: 'Aktif',
+        tglMasuk: this.getTglSekarang(),
+        catatan: ''
+      };
+
+      // Simpan ke localStorage
+      let siswaList = [];
+      const stored = localStorage.getItem('siswaData');
+      if (stored) {
+        siswaList = JSON.parse(stored);
+      }
+
+      siswaList.push(siswaData);
+      localStorage.setItem('siswaData', JSON.stringify(siswaList));
+
+      console.log("✅ Siswa ditambahkan dari pendaftar:", siswaData.nama);
+      return true;
+
+    } catch (error) {
+      console.error("❌ Error addSiswa:", error);
       return false;
     }
   }
