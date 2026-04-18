@@ -2,78 +2,437 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Verifikasi - SSB Wind Soccer</title>
     <style>
-        body { font-family: sans-serif; background: #f4f4f4; padding: 20px; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
-        .btn-ok { background: #27ae60; color: white; border: none; padding: 8px 12px; cursor: pointer; border-radius: 5px; }
-        .badge-bea { color: #27ae60; font-weight: bold; }
-        .badge-reg { color: #003399; font-weight: bold; }
+        :root {
+            --primary: #003399;
+            --secondary: #ffb400;
+            --success: #27ae60;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: linear-gradient(135deg, #003399 0%, #001f66 100%);
+            padding: 20px; 
+            min-height: 100vh;
+        }
+
+        .container { 
+            max-width: 1000px; 
+            margin: auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: var(--primary);
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .badge-count {
+            display: inline-block;
+            background: var(--danger);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .refresh-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 12px 30px;
+            background: var(--info);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .refresh-btn:hover {
+            background: #138496;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .refresh-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px; 
+        }
+
+        th { 
+            background: var(--primary);
+            color: white;
+            padding: 15px; 
+            text-align: left;
+            font-weight: bold;
+            border-bottom: 3px solid var(--secondary);
+        }
+
+        td { 
+            padding: 12px 15px; 
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        tbody tr {
+            transition: 0.2s;
+        }
+
+        tbody tr:hover {
+            background: #f5f5f5;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .badge-reguler { 
+            background: #e3f2fd;
+            color: var(--primary);
+        }
+
+        .badge-beasiswa { 
+            background: #e8f5e9;
+            color: var(--success);
+        }
+
+        .badge-pending {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .btn-ok { 
+            background: var(--success);
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            cursor: pointer; 
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 13px;
+            transition: 0.3s;
+        }
+
+        .btn-ok:hover {
+            background: #229954;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        }
+
+        .btn-ok:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            font-weight: 600;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .alert.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            display: block;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 2px solid var(--primary);
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            table {
+                font-size: 12px;
+            }
+
+            td, th {
+                padding: 8px;
+            }
+
+            .btn-ok {
+                padding: 8px 15px;
+                font-size: 12px;
+            }
+        }
     </style>
 </head>
 <body>
+
 <div class="container">
-    <h2>Antrean Pendaftaran (<span id="count">0</span>)</h2>
-    <table>
+    <div class="header">
+        <h1>✅ Verifikasi Pendaftaran Siswa Baru</h1>
+        <p style="color: #666; margin-bottom: 15px;">Antrean Pendaftar: <span class="badge-count" id="count">0</span></p>
+    </div>
+
+    <div id="alertBox" class="alert"></div>
+
+    <button class="refresh-btn" id="btnRefresh" onclick="refreshData()">🔄 REFRESH DATA</button>
+
+    <table id="tableVerifikasi">
         <thead>
             <tr>
+                <th>No</th>
                 <th>Nama</th>
                 <th>Jalur</th>
                 <th>Kategori</th>
+                <th>Status</th>
                 <th>Aksi</th>
             </tr>
         </thead>
-        <tbody id="list"></tbody>
+        <tbody id="listPendaftar">
+            <tr><td colspan="6" class="empty-state">⏳ Memuat data...</td></tr>
+        </tbody>
     </table>
+
+    <div class="footer">
+        © 2026 SSB Wind Soccer - Admin Verification Panel
+    </div>
 </div>
 
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="db-sync.js"></script>
+
 <script>
-    function render() {
-        const data = JSON.parse(localStorage.getItem("dataPendaftar")) || [];
-        const tbody = document.getElementById("list");
-        tbody.innerHTML = "";
-        data.forEach((s, i) => {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${s.nama}</td>
-                    <td class="${s.tipe === 'Beasiswa' ? 'badge-bea' : 'badge-reg'}">${s.tipe}</td>
-                    <td>${s.kategori}</td>
-                    <td><button class="btn-ok" onclick="setujui(${i})">Setujui</button></td>
-                </tr>`;
-        });
-        document.getElementById("count").innerText = data.length;
+    console.log("✅ Admin Verifikasi page loaded");
+
+    // ===== PERBAIKAN: Alert Function =====
+    function showAlert(message, type = 'info') {
+        console.log(`📢 Alert [${type}]:`, message);
+        
+        const alertBox = document.getElementById('alertBox');
+        alertBox.textContent = message;
+        alertBox.className = `alert ${type}`;
+
+        if (type !== 'error') {
+            setTimeout(() => {
+                alertBox.className = 'alert';
+            }, 3000);
+        }
     }
 
-    function setujui(i) {
-        let pendaftar = JSON.parse(localStorage.getItem("dataPendaftar")) || [];
-        let dbReg = JSON.parse(localStorage.getItem("dataSiswa")) || [];
-        let dbBea = JSON.parse(localStorage.getItem("dataBeasiswa")) || [];
+    // ===== PERBAIKAN: Render Verifikasi Data =====
+    function render() {
+        console.log("📂 Rendering verifikasi data...");
         
-        let s = pendaftar[i];
-        let thn = new Date().getFullYear();
-        let urut = (dbReg.length + dbBea.length + 1).toString().padStart(3, '0');
-        
-        // Buat NISW
-        s.nisw = (s.tipe === "Beasiswa" ? "B" : "") + thn + urut;
-        s.status = "Aktif";
+        const tbody = document.getElementById("listPendaftar");
+        const countEl = document.getElementById("count");
 
-        // Simpan ke database yang tepat
-        if(s.tipe === "Beasiswa") {
-            dbBea.push(s);
-            localStorage.setItem("dataBeasiswa", JSON.stringify(dbBea));
-        } else {
-            dbReg.push(s);
-            localStorage.setItem("dataSiswa", JSON.stringify(dbReg));
+        try {
+            DBManager.getPendaftar(function(data) {
+                console.log("✅ Pendaftar data retrieved:", data.length);
+
+                tbody.innerHTML = "";
+
+                if (!data || data.length === 0) {
+                    console.log("ℹ️ Tidak ada pendaftar yang menunggu verifikasi");
+                    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">✅ Tidak ada pendaftar yang menunggu verifikasi</td></tr>';
+                    countEl.innerText = "0";
+                    return;
+                }
+
+                data.forEach((s, i) => {
+                    const tipeClass = s.tipe === 'Beasiswa' ? 'badge-beasiswa' : 'badge-reguler';
+                    const tipeText = s.tipe || 'Reguler';
+                    const kategori = s.kategori || s.kelas || '-';
+                    const status = s.status || 'Menunggu Verifikasi';
+
+                    console.log(`📋 Rendering pendaftar ${i + 1}:`, s.nama);
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${i + 1}</strong></td>
+                            <td><strong>${s.nama || '-'}</strong></td>
+                            <td><span class="badge ${tipeClass}">${tipeText}</span></td>
+                            <td>${kategori}</td>
+                            <td><span class="badge badge-pending">${status}</span></td>
+                            <td>
+                                <button class="btn-ok" onclick="setujui(${i})" title="Setujui Pendaftaran">
+                                    ✓ SETUJUI
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                countEl.innerText = data.length;
+                console.log("✅ Rendering selesai");
+            });
+        } catch (error) {
+            console.error("❌ Error rendering:", error);
+            showAlert("❌ Error memuat data. Coba refresh.", 'error');
+        }
+    }
+
+    // ===== PERBAIKAN: Setujui Pendaftaran =====
+    function setujui(i) {
+        console.log("🔄 Processing approval for index:", i);
+
+        DBManager.getPendaftar(function(pendaftarList) {
+            if (!pendaftarList || !pendaftarList[i]) {
+                console.error("❌ Pendaftar not found at index:", i);
+                showAlert("❌ Data pendaftar tidak ditemukan", 'error');
+                return;
+            }
+
+            const s = pendaftarList[i];
+            console.log("✅ Processing siswa:", s.nama);
+
+            try {
+                const thn = new Date().getFullYear();
+                const urut = (pendaftarList.length + 1).toString().padStart(3, '0');
+                const nisw = (s.tipe === "Beasiswa" ? "B" : "R") + thn + urut;
+
+                // Buat object siswa baru
+                const siswaBaru = {
+                    ...s,
+                    nisw: nisw,
+                    status: "Aktif",
+                    tglAktif: new Date().toLocaleString('id-ID'),
+                    createdAt: new Date().toISOString()
+                };
+
+                console.log("💾 Saving siswa with NISW:", nisw);
+
+                // Simpan ke database yang sesuai
+                DBManager.addSiswaAktif(siswaBaru, function(berhasil) {
+                    if (berhasil) {
+                        console.log("✅ Siswa berhasil disimpan dengan NISW:", nisw);
+                        
+                        // Hapus dari pending (optional - bisa pakai soft delete)
+                        showAlert(`✅ Siswa "${s.nama}" berhasil disetujui!\nNISW: ${nisw}`, 'success');
+                        
+                        setTimeout(() => {
+                            render(); // Refresh tampilan
+                        }, 1500);
+                    } else {
+                        console.error("❌ Gagal menyimpan siswa");
+                        showAlert("❌ Gagal menyimpan siswa", 'error');
+                    }
+                });
+
+            } catch (error) {
+                console.error("❌ Error:", error);
+                showAlert("❌ Terjadi kesalahan: " + error.message, 'error');
+            }
+        });
+    }
+
+    // ===== PERBAIKAN: Refresh Data =====
+    function refreshData() {
+        console.log("🔄 Refreshing data...");
+        
+        const btn = document.getElementById("btnRefresh");
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading-spinner"></span> Memuat...';
+
+        setTimeout(() => {
+            render();
+            btn.disabled = false;
+            btn.innerHTML = '🔄 REFRESH DATA';
+            console.log("✅ Refresh selesai");
+        }, 500);
+    }
+
+    // ===== INIT HALAMAN =====
+    document.addEventListener('DOMContentLoaded', async function() {
+        console.log("🌐 Admin Verifikasi page DOMContentLoaded");
+        
+        if (typeof initializeFirebase === 'function') {
+            console.log("🔧 Initializing Firebase...");
+            await initializeFirebase();
         }
 
-        pendaftar.splice(i, 1);
-        localStorage.setItem("dataPendaftar", JSON.stringify(pendaftar));
-        alert("Siswa Disetujui! NISW: " + s.nisw);
         render();
-    }
-    window.onload = render;
+
+        // Auto-refresh setiap 10 menit
+        setInterval(() => {
+            console.log("🔄 Auto-refresh triggered");
+            render();
+        }, 600000);
+    });
 </script>
+
 </body>
 </html>
