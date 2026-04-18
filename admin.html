@@ -29,9 +29,10 @@
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
         th { background: #f8f9fa; padding: 12px; text-align: left; border-bottom: 2px solid #ddd; color: var(--primary); font-weight: bold; }
         td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
-        .badge { padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .badge { padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; text-transform: uppercase; display: inline-block; }
         label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: #555; }
         input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 10px; font-size: 13px; }
+        input:disabled, input[readonly] { background: #f0f0f0; color: #666; }
         textarea { resize: vertical; min-height: 60px; }
         .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px; }
         .btn-add { background: var(--success); color: white; width: 100%; justify-content: center; }
@@ -71,7 +72,8 @@
         .row-action .btn { flex: 0; }
         .loading-spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid #f3f3f3; border-radius: 50%; border-top: 2px solid var(--primary); animation: spin 0.6s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .nominal-cell { text-align: right; font-weight: bold; min-width: 150px; }
+        .nominal-cell { text-align: right; font-weight: bold; min-width: 120px; }
+        .info-box { background: #e7f3ff; border-left: 4px solid #003399; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 12px; color: #003399; }
     </style>
 </head>
 <body>
@@ -183,7 +185,7 @@
             </div>
         </div>
 
-        <!-- ===== 4. KEUANGAN ===== LENGKAP 100% SEMPURNA ===== -->
+        <!-- ===== 4. KEUANGAN - DIPERBAIKI DENGAN SUMBER OTOMATIS ===== -->
         <div id="keuangan" class="section">
             <!-- STATISTIK KEUANGAN -->
             <div class="finance-grid">
@@ -206,34 +208,56 @@
                 <!-- FORM PEMASUKAN -->
                 <div class="card">
                     <h4>💰 Catat Pemasukan</h4>
-                    <label>NISW (Kosongkan jika bukan siswa):</label>
-                    <input type="text" id="niswBayar" placeholder="R2026001">
-                    <label>Diterima Dari:</label>
-                    <input type="text" id="pengirimMasuk" placeholder="Nama Pembayar">
-                    <label>Nominal Rp:</label>
-                    <input type="number" id="nomBayar" placeholder="Nominal" min="0">
-                    <label>Kategori:</label>
-                    <select id="jenisPemasukan">
-                        <option value="SPP">Pembayaran SPP</option>
+                    
+                    <div class="info-box">
+                        ℹ️ <strong>Jika dari Siswa:</strong> Input NISW → Nama otomatis terisi<br>
+                        <strong>Jika dari Lain:</strong> Isi manual "Diterima Dari"
+                    </div>
+
+                    <label>Jenis Pemasukan:</label>
+                    <select id="jenisPemasukan" onchange="updateFormPemasukan()" style="margin-bottom: 15px;">
+                        <option value="">-- Pilih Jenis --</option>
+                        <option value="SPP">SPP Siswa</option>
                         <option value="Daftar">Uang Pendaftaran</option>
                         <option value="Sponsor">Sponsor</option>
                         <option value="Kompetisi">Biaya Kompetisi</option>
                         <option value="Lainnya">Lain-lain</option>
                     </select>
-                    <label>Keterangan:</label>
-                    <textarea id="ketMasuk" placeholder="Keterangan..." rows="2"></textarea>
+
+                    <!-- FORM NISW (untuk jenis yang melibatkan siswa) -->
+                    <div id="fieldNISW" style="display: none;">
+                        <label>NISW Siswa (Optional):</label>
+                        <input type="text" id="niswBayar" placeholder="R2026001" onchange="cariNamaSiswa()">
+                        <label>Nama Siswa (Auto-fill):</label>
+                        <input type="text" id="namaSiswaAuto" placeholder="Akan terisi otomatis dari NISW" readonly>
+                    </div>
+
+                    <!-- FORM SUMBER MANUAL -->
+                    <label>Diterima Dari:</label>
+                    <input type="text" id="pengirimMasuk" placeholder="Nama pembayar / sumber">
+
+                    <label>Nominal Rp:</label>
+                    <input type="number" id="nomBayar" placeholder="Nominal" min="0">
+
+                    <label>Keterangan (Detail Transaksi):</label>
+                    <textarea id="ketMasuk" placeholder="Misal: Pembayaran SPP Bulan Januari, cicilan, potongan, dsb..." rows="2"></textarea>
+
                     <button class="btn btn-add" onclick="simpanPemasukan()"><i class="fas fa-save"></i> Simpan Pemasukan</button>
                 </div>
 
                 <!-- FORM PENGELUARAN -->
                 <div class="card">
                     <h4>💸 Catat Pengeluaran</h4>
-                    <label>Keperluan:</label>
-                    <input type="text" id="ketKeluar" placeholder="Keperluan">
+
+                    <label>Keperluan (Sumber Pengeluaran):</label>
+                    <input type="text" id="ketKeluar" placeholder="Misal: Pembelian Bola, Perbaikan Lapangan, Hadiah, dsb">
+
                     <label>Nominal Rp:</label>
                     <input type="number" id="nomKeluar" placeholder="Nominal" min="0">
-                    <label>Catatan:</label>
-                    <textarea id="catatanKeluar" placeholder="Detail..." rows="2"></textarea>
+
+                    <label>Keterangan (Detail Pengeluaran):</label>
+                    <textarea id="catatanKeluar" placeholder="Misal: 2 buah bola kulit premium, tanggal dibeli, vendor, dsb..." rows="2"></textarea>
+
                     <button class="btn btn-danger" style="width:100%; justify-content: center;" onclick="simpanPengeluaran()"><i class="fas fa-save"></i> Simpan</button>
                 </div>
             </div>
@@ -243,23 +267,24 @@
                 <h3>Riwayat Keuangan</h3>
                 <div class="btn-group" style="margin-bottom: 20px;">
                     <button class="btn btn-info" onclick="refreshKeuangan()"><i class="fas fa-sync-alt"></i> Refresh</button>
-                    <button class="btn btn-print" onclick="exportKeuangan()"><i class="fas fa-download"></i> Export</button>
+                    <button class="btn btn-print" onclick="exportKeuangan()"><i class="fas fa-download"></i> Export CSV</button>
                     <button class="btn btn-danger" onclick="resetKeuangan()"><i class="fas fa-trash"></i> Hapus Semua</button>
                 </div>
                 <div class="table-wrapper">
                     <table>
                         <thead>
                             <tr>
-                                <th style="width: 110px;">Tanggal</th>
-                                <th style="width: 90px;">Jenis</th>
-                                <th style="width: 100px;">Kategori</th>
-                                <th>Keterangan</th>
+                                <th style="width: 100px;">Tanggal</th>
+                                <th style="width: 80px;">Jenis</th>
+                                <th style="width: 140px;">Sumber</th>
+                                <th style="width: 110px;">Kategori</th>
+                                <th style="min-width: 180px;">Keterangan</th>
                                 <th class="nominal-cell" style="width: 140px;">Nominal</th>
-                                <th style="width: 160px; text-align: center;">Aksi</th>
+                                <th style="width: 170px; text-align: center;">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="listKeuangan">
-                            <tr><td colspan="6" style="text-align:center; padding: 40px;"><span class="loading-spinner"></span> Memuat data...</td></tr>
+                            <tr><td colspan="7" style="text-align:center; padding: 40px;"><span class="loading-spinner"></span> Memuat data...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -353,7 +378,7 @@
                         <label>Waktu:</label>
                         <input type="text" id="inputWaktu" placeholder="Contoh: 15.00 WIB">
 
-                        <button class="btn btn-add" id="btnTambahJadwal" onclick="tambahJadwalLatihan()"><i class="fas fa-plus"></i> Tambah Jadwal Latihan</button>
+                        <button class="btn btn-add" onclick="tambahJadwalLatihan()"><i class="fas fa-plus"></i> Tambah Jadwal Latihan</button>
                     </div>
 
                     <h5 style="color: #003399; margin-bottom: 10px;">📋 Jadwal Latihan Saat Ini:</h5>
@@ -399,7 +424,7 @@
                         <label>Waktu Mulai:</label>
                         <input type="text" id="waktuEvent" placeholder="Contoh: 08.00 WIB">
 
-                        <button class="btn btn-add" id="btnTambahTurnamen" onclick="tambahJadwalTurnamen()"><i class="fas fa-plus"></i> Tambah Turnamen</button>
+                        <button class="btn btn-add" onclick="tambahJadwalTurnamen()"><i class="fas fa-plus"></i> Tambah Turnamen</button>
                     </div>
 
                     <h5 style="color: #003399; margin-bottom: 10px;">📋 Jadwal Turnamen Saat Ini:</h5>
@@ -431,10 +456,9 @@
             <!-- ===== RINGKASAN UNTUK INFORMASI SISWA ===== -->
             <div class="card">
                 <h4 style="color: #17a2b8; border-bottom: 2px solid #17a2b8; padding-bottom: 10px;">🔗 PREVIEW - Jadwal yang ditampilkan di Halaman Informasi Siswa</h4>
-                <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Berikut adalah jadwal yang akan divisualizasikan untuk siswa:</p>
+                <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Berikut adalah jadwal yang akan divisualisasikan untuk siswa:</p>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <!-- PREVIEW JADWAL LATIHAN -->
                     <div style="background: #e8f5e9; padding: 15px; border-radius: 10px; border-left: 5px solid #28a745;">
                         <h5 style="color: #28a745; margin-bottom: 10px;">⚽ Jadwal Latihan Rutin</h5>
                         <div id="previewLatihan" style="font-size: 13px; line-height: 1.8;">
@@ -442,7 +466,6 @@
                         </div>
                     </div>
 
-                    <!-- PREVIEW JADWAL TURNAMEN -->
                     <div style="background: #ffebee; padding: 15px; border-radius: 10px; border-left: 5px solid #dc3545;">
                         <h5 style="color: #dc3545; margin-bottom: 10px;">🏆 Jadwal Turnamen & Event</h5>
                         <div id="previewTurnamen" style="font-size: 13px; line-height: 1.8;">
@@ -461,7 +484,7 @@
     <script src="db-sync.js"></script>
 
     <script>
-        console.log("🔐 Admin Panel - FULLKODE LENGKAP 100% SEMPURNA");
+        console.log("🔐 Admin Panel - Keuangan Diperbaiki: Sumber Otomatis + Keterangan Terpisah");
 
         // ===== GLOBAL DATA =====
         let allSiswaData = [];
@@ -488,8 +511,39 @@
             }, time);
         }
 
-        // ===== KEUANGAN FUNCTIONS - 100% LENGKAP =====
+        // ========== KEUANGAN FUNCTIONS - SUMBER OTOMATIS ==========
 
+        // Update Form Dinamis
+        function updateFormPemasukan() {
+            const jenis = document.getElementById('jenisPemasukan').value;
+            document.getElementById('fieldNISW').style.display = (jenis === 'SPP' || jenis === 'Daftar' || jenis === 'Kompetisi') ? 'block' : 'none';
+        }
+
+        // Cari Nama Siswa dari NISW
+        function cariNamaSiswa() {
+            const nisw = document.getElementById('niswBayar')?.value?.trim().toUpperCase();
+            const fieldNama = document.getElementById('namaSiswaAuto');
+            
+            if (!nisw) {
+                fieldNama.value = '';
+                return;
+            }
+
+            // Cari dari database siswa
+            DBManager.findSiswa(nisw, function(siswa) {
+                if (siswa) {
+                    fieldNama.value = siswa.nama || '';
+                    console.log("✅ Siswa ditemukan:", siswa.nama);
+                    showAlert("✅ Siswa ditemukan: " + siswa.nama, "success", 1500);
+                } else {
+                    fieldNama.value = '[NISW Tidak Ditemukan] - Isi manual';
+                    console.log("⚠️ NISW tidak ditemukan:", nisw);
+                    showAlert("⚠️ NISW tidak ditemukan di database - Isi manual", "warn", 1500);
+                }
+            });
+        }
+
+        // Load Keuangan
         function loadKeuangan() {
             const stored = localStorage.getItem('keuanganData');
             if (stored) {
@@ -502,6 +556,7 @@
             renderKeuangan();
         }
 
+        // Hitung Saldo
         function hitungSaldoKeuangan() {
             const totalMasuk = keuanganData
                 .filter(k => k.jenisMasukKeluar === 'Masuk')
@@ -516,62 +571,112 @@
             document.getElementById('totalMasuk').textContent = formatRupiah(totalMasuk);
             document.getElementById('totalKeluar').textContent = formatRupiah(totalKeluar);
             document.getElementById('saldoAkhir').textContent = formatRupiah(saldo);
+            
+            console.log("💰 Saldo: Masuk=" + totalMasuk + " | Keluar=" + totalKeluar + " | Saldo=" + saldo);
         }
 
+        // Render Tabel Keuangan - DENGAN KOLOM SUMBER TERPISAH
         function renderKeuangan() {
             const tbody = document.getElementById('listKeuangan');
 
             if (keuanganData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 40px; color: #999;">📭 Belum ada transaksi</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 40px; color: #999;">📭 Belum ada transaksi</td></tr>`;
                 return;
             }
 
             const sorted = [...keuanganData].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
             tbody.innerHTML = sorted.map((k, idx) => {
+                // Warna untuk Jenis
                 const jenisBg = k.jenisMasukKeluar === 'Masuk' ? '#d4edda' : '#f8d7da';
                 const jenisText = k.jenisMasukKeluar === 'Masuk' ? '#155724' : '#721c24';
+                
+                // Warna untuk Nominal
                 const jenisColor = k.jenisMasukKeluar === 'Masuk' ? '#28a745' : '#dc3545';
+                
+                // Warna Kategori
+                let kategoriBg = '#e3f2fd';
+                let kategoriText = '#003399';
+                if (k.kategori === 'Pengeluaran') {
+                    kategoriBg = '#f8d7da';
+                    kategoriText = '#721c24';
+                } else if (k.kategori === 'Sponsor') {
+                    kategoriBg = '#fff3cd';
+                    kategoriText = '#856404';
+                }
                 
                 return `
                     <tr>
-                        <td><strong>${k.tanggal || '-'}</strong></td>
+                        <td style="font-weight: bold;">${k.tanggal || '-'}</td>
                         <td><span style="background: ${jenisBg}; color: ${jenisText}; padding: 6px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; display: block; text-align: center;">${k.jenisMasukKeluar || '-'}</span></td>
-                        <td><span style="background: #e3f2fd; color: #003399; padding: 6px 8px; border-radius: 4px; font-size: 11px; display: block; text-align: center;">${k.kategori || '-'}</span></td>
-                        <td title="${k.keterangan || '-'}" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${k.keterangan || '-'}</td>
-                        <td class="nominal-cell" style="color: ${jenisColor}; font-weight: bold;">${k.jenisMasukKeluar === 'Masuk' ? '+' : '-'} ${formatRupiah(k.nominal || 0)}</td>
+                        <td style="font-weight: bold; color: #003399; word-break: break-word;">${k.sumber || '-'}</td>
+                        <td><span style="background: ${kategoriBg}; color: ${kategoriText}; padding: 6px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; display: block; text-align: center;">${k.kategori || '-'}</span></td>
+                        <td title="${k.keterangan || '-'}" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: #555;">${k.keterangan || '-'}</td>
+                        <td class="nominal-cell" style="color: ${jenisColor}; font-size: 13px; font-weight: bold;">${k.jenisMasukKeluar === 'Masuk' ? '+' : '-'} ${formatRupiah(k.nominal || 0)}</td>
                         <td style="text-align: center;">
-                            <button class="btn btn-warning btn-sm" onclick="editTransaksi('${k.id}')"><i class="fas fa-edit"></i> Edit</button>
-                            <button class="btn btn-danger btn-sm" onclick="hapusTransaksi('${k.id}')"><i class="fas fa-trash"></i> Hapus</button>
+                            <button class="btn btn-warning btn-sm" onclick="editTransaksi('${k.id}')" title="Edit"><i class="fas fa-edit"></i> Edit</button>
+                            <button class="btn btn-danger btn-sm" onclick="hapusTransaksi('${k.id}')" title="Hapus"><i class="fas fa-trash"></i> Hapus</button>
                         </td>
                     </tr>
                 `;
             }).join('');
+            
+            console.log("✅ Tabel Keuangan dirender:", sorted.length, "transaksi");
         }
 
+        // Simpan Pemasukan - DENGAN SUMBER OTOMATIS
         function simpanPemasukan() {
+            const jenis = document.getElementById('jenisPemasukan')?.value?.trim();
             const nisw = document.getElementById('niswBayar')?.value?.trim() || '';
-            const sumber = document.getElementById('pengirimMasuk')?.value?.trim() || '';
+            const namaSiswa = document.getElementById('namaSiswaAuto')?.value?.trim() || '';
+            const pengirimMasuk = document.getElementById('pengirimMasuk')?.value?.trim() || '';
             const nominal = parseInt(document.getElementById('nomBayar')?.value) || 0;
-            const kategori = document.getElementById('jenisPemasukan')?.value || 'SPP';
-            const keterangan = document.getElementById('ketMasuk')?.value?.trim() || '';
+            const keterangan = document.getElementById('ketMasuk')?.value?.trim() || '-';
+
+            if (!jenis) {
+                showAlert("⚠️ Pilih jenis pemasukan!", "warn");
+                return;
+            }
 
             if (nominal <= 0) {
                 showAlert("⚠️ Nominal harus lebih dari 0!", "warn");
                 return;
             }
 
+            // Tentukan sumber
+            let sumber = '';
+            if ((jenis === 'SPP' || jenis === 'Daftar' || jenis === 'Kompetisi') && (nisw || namaSiswa)) {
+                // Dari siswa
+                if (namaSiswa && !namaSiswa.includes('[NISW Tidak Ditemukan]')) {
+                    sumber = namaSiswa + (nisw ? ` (${nisw})` : '');
+                } else if (nisw) {
+                    sumber = `NISW: ${nisw}`;
+                }
+            } else if (jenis === 'Sponsor' || jenis === 'Lainnya') {
+                sumber = pengirimMasuk;
+            }
+
             if (!sumber) {
-                showAlert("⚠️ Masukkan sumber pemasukan!", "warn");
+                showAlert("⚠️ Isi 'Diterima Dari'!", "warn");
                 return;
             }
+
+            // Tentukan kategori display
+            let kategoriDisplay = jenis;
+            if (jenis === 'SPP') kategoriDisplay = 'SPP';
+            if (jenis === 'Daftar') kategoriDisplay = 'Uang Daftar';
+            if (jenis === 'Sponsor') kategoriDisplay = 'Sponsor';
+            if (jenis === 'Kompetisi') kategoriDisplay = 'Kompetisi';
+            if (jenis === 'Lainnya') kategoriDisplay = 'Lainnya';
 
             const transaksi = {
                 id: Date.now().toString(),
                 tanggal: new Date().toLocaleDateString('id-ID'),
                 jenisMasukKeluar: 'Masuk',
-                kategori: kategori,
-                keterangan: `${sumber}${keterangan ? ' - ' + keterangan : ''}${nisw ? ' (' + nisw + ')' : ''}`,
+                jenis: jenis,
+                kategori: kategoriDisplay,
+                sumber: sumber,
+                keterangan: keterangan,
                 nominal: nominal,
                 createdAt: new Date().toISOString()
             };
@@ -582,20 +687,24 @@
             console.log("✅ Pemasukan disimpan:", transaksi);
             showAlert("✅ Pemasukan " + formatRupiah(nominal) + " dari " + sumber + " disimpan!", "success");
 
+            // Reset form
+            document.getElementById('jenisPemasukan').value = '';
             document.getElementById('niswBayar').value = '';
+            document.getElementById('namaSiswaAuto').value = '';
             document.getElementById('pengirimMasuk').value = '';
             document.getElementById('nomBayar').value = '';
             document.getElementById('ketMasuk').value = '';
-            document.getElementById('jenisPemasukan').value = 'SPP';
+            updateFormPemasukan();
 
             hitungSaldoKeuangan();
             renderKeuangan();
         }
 
+        // Simpan Pengeluaran
         function simpanPengeluaran() {
             const keperluan = document.getElementById('ketKeluar')?.value?.trim();
             const nominal = parseInt(document.getElementById('nomKeluar')?.value) || 0;
-            const catatan = document.getElementById('catatanKeluar')?.value?.trim() || '';
+            const keterangan = document.getElementById('catatanKeluar')?.value?.trim() || '-';
 
             if (!keperluan) {
                 showAlert("⚠️ Masukkan keperluan pengeluaran!", "warn");
@@ -611,8 +720,10 @@
                 id: Date.now().toString(),
                 tanggal: new Date().toLocaleDateString('id-ID'),
                 jenisMasukKeluar: 'Keluar',
+                jenis: 'Pengeluaran',
                 kategori: 'Pengeluaran',
-                keterangan: `${keperluan}${catatan ? ' - ' + catatan : ''}`,
+                sumber: keperluan,
+                keterangan: keterangan,
                 nominal: nominal,
                 createdAt: new Date().toISOString()
             };
@@ -631,18 +742,20 @@
             renderKeuangan();
         }
 
+        // Edit Transaksi
         function editTransaksi(id) {
             const transaksi = keuanganData.find(k => k.id === id);
             if (!transaksi) return;
             console.log("✏️ Edit Transaksi:", transaksi);
-            showAlert("✏️ Edit Transaksi ID: " + id + "\n\nKeterangan: " + transaksi.keterangan + "\nNominal: " + formatRupiah(transaksi.nominal), "info", 3000);
+            showAlert("✏️ Edit Transaksi - Coming Soon\n\nID: " + id + "\nSumber: " + transaksi.sumber + "\nKeterangan: " + transaksi.keterangan + "\nNominal: " + formatRupiah(transaksi.nominal), "info", 3500);
         }
 
+        // Hapus Transaksi
         function hapusTransaksi(id) {
             const transaksi = keuanganData.find(k => k.id === id);
             if (!transaksi) return;
 
-            if (confirm("⚠️ Yakin hapus transaksi ini?\n\n" + transaksi.jenisMasukKeluar + " - " + formatRupiah(transaksi.nominal) + "\n" + transaksi.keterangan)) {
+            if (confirm("⚠️ Yakin hapus transaksi ini?\n\n" + transaksi.jenisMasukKeluar + " - " + transaksi.sumber + "\n" + formatRupiah(transaksi.nominal))) {
                 keuanganData = keuanganData.filter(k => k.id !== id);
                 localStorage.setItem('keuanganData', JSON.stringify(keuanganData));
                 console.log("✅ Transaksi dihapus:", id);
@@ -652,20 +765,22 @@
             }
         }
 
+        // Refresh Keuangan
         function refreshKeuangan() {
             loadKeuangan();
             showAlert("✅ Data diperbarui!", "success");
         }
 
+        // Export Keuangan ke CSV
         function exportKeuangan() {
             if (keuanganData.length === 0) {
                 showAlert("⚠️ Tidak ada data untuk di-export!", "warn");
                 return;
             }
 
-            let csv = 'Tanggal,Jenis,Kategori,Keterangan,Nominal\n';
+            let csv = 'Tanggal,Jenis,Sumber,Kategori,Keterangan,Nominal\n';
             keuanganData.forEach(k => {
-                csv += `"${k.tanggal}","${k.jenisMasukKeluar}","${k.kategori}","${k.keterangan}","Rp${k.nominal}"\n`;
+                csv += `"${k.tanggal}","${k.jenisMasukKeluar}","${k.sumber}","${k.kategori}","${k.keterangan}","Rp${k.nominal}"\n`;
             });
 
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -678,6 +793,7 @@
             showAlert("✅ File CSV berhasil di-download!", "success", 3000);
         }
 
+        // Reset Semua Data Keuangan
         function resetKeuangan() {
             if (confirm("⚠️⚠️⚠️ PERHATIAN! Ini akan menghapus SEMUA data keuangan (" + keuanganData.length + " transaksi)!\n\nYakin ingin melanjutkan?")) {
                 keuanganData = [];
@@ -689,7 +805,7 @@
             }
         }
 
-        // ===== JADWAL LATIHAN =====
+        // ========== JADWAL LATIHAN ==========
 
         function loadJadwalLatihan() {
             const stored = localStorage.getItem('jadwalLatihan');
@@ -747,16 +863,10 @@
                 return;
             }
 
-            const newJadwal = {
-                id: Date.now(),
-                hari: hari,
-                tempat: tempat,
-                waktu: waktu
-            };
-
+            const newJadwal = { id: Date.now(), hari, tempat, waktu };
             jadwalLatihan.push(newJadwal);
             localStorage.setItem('jadwalLatihan', JSON.stringify(jadwalLatihan));
-            showAlert("✅ Jadwal ditambahkan!", "success");
+            showAlert("✅ Jadwal " + hari + " ditambahkan!", "success");
 
             document.getElementById('inputHari').value = '';
             document.getElementById('inputTempat').value = '';
@@ -778,15 +888,11 @@
             }
         }
 
-        // ===== JADWAL TURNAMEN =====
+        // ========== JADWAL TURNAMEN ==========
 
         function loadJadwalTurnamen() {
             const stored = localStorage.getItem('jadwalTurnamen');
-            if (stored) {
-                jadwalTurnamen = JSON.parse(stored);
-            } else {
-                jadwalTurnamen = [];
-            }
+            jadwalTurnamen = stored ? JSON.parse(stored) : [];
             renderJadwalTurnamen();
         }
 
@@ -838,18 +944,10 @@
                 return;
             }
 
-            const newTurnamen = {
-                id: Date.now(),
-                namaEvent: nama,
-                tanggal: tgl,
-                lokasi: lokasi,
-                waktu: waktu,
-                status: 'Upcoming'
-            };
-
+            const newTurnamen = { id: Date.now(), namaEvent: nama, tanggal: tgl, lokasi, waktu, status: 'Upcoming' };
             jadwalTurnamen.push(newTurnamen);
             localStorage.setItem('jadwalTurnamen', JSON.stringify(jadwalTurnamen));
-            showAlert("✅ Turnamen ditambahkan!", "success");
+            showAlert("✅ Turnamen " + nama + " ditambahkan!", "success");
 
             document.getElementById('namaEvent').value = '';
             document.getElementById('tglEvent').value = '';
@@ -872,7 +970,7 @@
             }
         }
 
-        // ===== SECTION NAVIGATION =====
+        // ========== SECTION NAVIGATION ==========
         function showSection(id) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
@@ -891,7 +989,7 @@
             else if (id === 'saran') renderSaran();
         }
 
-        // ===== 1. DATABASE SISWA =====
+        // ========== DATABASE SISWA ==========
         function renderAllSiswa() {
             const filterKategori = document.getElementById('filterKategori')?.value || '';
             const filterTipe = document.getElementById('filterTipe')?.value || '';
@@ -952,7 +1050,7 @@
             renderAllSiswa();
         }
 
-        // ===== 2. VERIFIKASI PENDAFTAR =====
+        // ========== VERIFIKASI PENDAFTAR ==========
         function renderVerifikasi() {
             DBManager.getPendaftar(function(data) {
                 document.getElementById('totalAntrean').textContent = data.length;
@@ -982,7 +1080,7 @@
 
         function setujuiPendaftar(nisw) { if (confirm("Setujui?")) { showAlert("✅ Disetujui!", "success"); renderVerifikasi(); } }
 
-        // ===== 3. REKAP ABSENSI =====
+        // ========== ABSENSI ==========
         function renderAbsensi() {
             const tgl = document.getElementById('searchTglAbsen')?.value || '';
             const nisw = document.getElementById('filterNiswAbsen')?.value?.toLowerCase() || '';
@@ -1012,7 +1110,7 @@
 
         function editAbsensi(nisw) { showAlert("✏️ Edit - Coming Soon", "info"); }
 
-        // ===== 5. INPUT NILAI RAPORT =====
+        // ========== NILAI RAPORT ==========
         function loadSiswaForRaport() {
             const nisw = document.getElementById('niswNilai')?.value?.toUpperCase() || '';
             if (!nisw) return;
@@ -1054,7 +1152,7 @@
             showAlert("✅ Nilai disimpan!", "success");
         }
 
-        // ===== 6. SARAN & MASUKAN =====
+        // ========== SARAN MASUKAN ==========
         function renderSaran() {
             const filter = document.getElementById('filterKategoriSaran')?.value || '';
             DBManager.getSaran(function(data) {
@@ -1083,7 +1181,7 @@
 
         function hapusSaran(nisw) { if (confirm("Hapus?")) { showAlert("✅ Dihapus!", "success"); renderSaran(); } }
 
-        // ===== HELPER FUNCTIONS =====
+        // ========== HELPER FUNCTIONS ==========
         function formatTanggal(tgl) {
             if (!tgl) return '-';
             if (tgl.includes('/')) return tgl;
@@ -1110,16 +1208,13 @@
             }
         }
 
-        // ===== INIT =====
-        window.addEventListener('load', async function() {
-            if (typeof initializeFirebase === 'function') {
-                await initializeFirebase();
-            }
-            renderAllSiswa();
+        // ========== INIT ==========
+        window.addEventListener('load', function() {
             loadKeuangan();
             loadJadwalLatihan();
             loadJadwalTurnamen();
-            console.log("✅ Admin Panel READY - 100% LENGKAP SEMPURNA!");
+            renderAllSiswa();
+            console.log("✅ Admin Panel READY - Keuangan: Sumber Otomatis + Keterangan Terpisah!");
         });
     </script>
 </body>
