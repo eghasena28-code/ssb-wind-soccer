@@ -93,6 +93,11 @@
       transition: 0.3s;
     }
 
+    .schedule-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+
     .info-left .day { font-weight: 800; font-size: 16px; margin: 0; color: var(--primary); }
     .info-left .loc { font-size: 12px; color: #666; margin: 3px 0 0 0; }
 
@@ -117,6 +122,14 @@
       display: inline-block;
       margin-top: 10px;
       box-shadow: 0 5px 15px rgba(255,180,0,0.3);
+      transition: 0.3s;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-back:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(255,180,0,0.4);
     }
 
     footer {
@@ -129,7 +142,26 @@
       color: white;
     }
 
-    .empty-state { text-align: center; font-size: 13px; opacity: 0.6; padding: 10px; }
+    .empty-state { 
+      text-align: center; 
+      font-size: 13px; 
+      opacity: 0.6; 
+      padding: 10px; 
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top: 2px solid white;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -157,50 +189,109 @@
     <p style="font-size: 10px; opacity: 0.8;">Hubungi: 📞 0812 9333 8781 | Instagram: @windsoccer.official</p>
   </footer>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="db-sync.js"></script>
+
   <script>
+    console.log("📅 Jadwal page loaded");
+
+    // ===== PERBAIKAN: Render Jadwal dengan Error Handling =====
     function renderJadwal() {
+      console.log("📂 Loading jadwal...");
+      
       const containerLatihan = document.getElementById('listLatihan');
       const containerTurnamen = document.getElementById('listTurnamen');
 
-      const dataLatihan = JSON.parse(localStorage.getItem("db_latihan")) || [
+      // ===== DATA DEFAULT (jika tidak ada di Firestore) =====
+      const dataLatihanDefault = [
         { hari: "SELASA", tempat: "Stadion Mini Legok", waktu: "15.00 WIB" },
         { hari: "KAMIS", tempat: "Stadion Mini Legok", waktu: "15.00 WIB" },
         { hari: "MINGGU", tempat: "Lapangan Jaha", waktu: "07.00 WIB" }
       ];
 
-      const dataTurnamen = JSON.parse(localStorage.getItem("db_turnamen")) || [];
+      try {
+        // Query Jadwal Latihan dari Firestore
+        DBManager.getJadwalLatihan(function(dataLatihan) {
+          console.log("✅ Jadwal Latihan from DB:", dataLatihan);
 
-      containerLatihan.innerHTML = "";
-      dataLatihan.forEach(item => {
-        containerLatihan.innerHTML += `
-          <div class="schedule-card">
-            <div class="info-left">
-              <p class="day">${item.hari}</p>
-              <p class="loc">📍 ${item.tempat}</p>
-            </div>
-            <div class="time-badge">${item.waktu}</div>
-          </div>
-        `;
-      });
+          containerLatihan.innerHTML = "";
 
-      containerTurnamen.innerHTML = "";
-      if (dataTurnamen.length === 0) {
-        containerTurnamen.innerHTML = `<p class="empty-state">Belum ada jadwal turnamen terdekat.</p>`;
-      } else {
-        dataTurnamen.forEach(item => {
-          containerTurnamen.innerHTML += `
-            <div class="schedule-card tournament-card">
-              <div class="info-left">
-                <p class="tournament-name">🔥 ${item.nama_event}</p>
-                <p class="loc">📅 ${item.tanggal} | 📍 ${item.lokasi}</p>
+          if (!dataLatihan || dataLatihan.length === 0) {
+            console.warn("⚠️ Tidak ada jadwal di DB, gunakan default");
+            dataLatihan = dataLatihanDefault;
+          }
+
+          dataLatihan.forEach(item => {
+            const hari = item.hari || 'N/A';
+            const tempat = item.tempat || 'N/A';
+            const waktu = item.waktu || 'N/A';
+
+            containerLatihan.innerHTML += `
+              <div class="schedule-card">
+                <div class="info-left">
+                  <p class="day">${hari}</p>
+                  <p class="loc">📍 ${tempat}</p>
+                </div>
+                <div class="time-badge">${waktu}</div>
               </div>
-              <div class="time-badge" style="background:var(--danger)">${item.waktu || 'FULL'}</div>
-            </div>
-          `;
+            `;
+          });
+
+          console.log("✅ Jadwal Latihan rendered");
         });
+
+        // Query Jadwal Turnamen dari Firestore
+        DBManager.getJadwalTurnamen(function(dataTurnamen) {
+          console.log("✅ Jadwal Turnamen from DB:", dataTurnamen);
+
+          containerTurnamen.innerHTML = "";
+
+          if (!dataTurnamen || dataTurnamen.length === 0) {
+            console.warn("⚠️ Tidak ada turnamen");
+            containerTurnamen.innerHTML = `<p class="empty-state">Belum ada jadwal turnamen terdekat.</p>`;
+            return;
+          }
+
+          dataTurnamen.forEach(item => {
+            const namaEvent = item.nama_event || item.namaEvent || 'Event';
+            const tanggal = item.tanggal || 'N/A';
+            const lokasi = item.lokasi || 'N/A';
+            const waktu = item.waktu || 'FULL';
+
+            containerTurnamen.innerHTML += `
+              <div class="schedule-card tournament-card">
+                <div class="info-left">
+                  <p class="tournament-name">🔥 ${namaEvent}</p>
+                  <p class="loc">📅 ${tanggal} | 📍 ${lokasi}</p>
+                </div>
+                <div class="time-badge" style="background:var(--danger)">${waktu}</div>
+              </div>
+            `;
+          });
+
+          console.log("✅ Jadwal Turnamen rendered");
+        });
+
+      } catch (error) {
+        console.error("❌ Error loading jadwal:", error);
+        containerLatihan.innerHTML = `<p class="empty-state">⚠️ Error memuat jadwal. Coba refresh.</p>`;
       }
     }
-    window.onload = renderJadwal;
+
+    // ===== INIT HALAMAN =====
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log("🌐 Jadwal page DOMContentLoaded");
+      renderJadwal();
+
+      // Refresh setiap 5 menit
+      setInterval(() => {
+        console.log("🔄 Auto-refresh jadwal");
+        renderJadwal();
+      }, 300000);
+    });
   </script>
 </body>
 </html>
