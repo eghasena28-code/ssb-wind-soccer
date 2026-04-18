@@ -153,7 +153,7 @@
             </div>
         </div>
 
-        <!-- ===== 2. VERIFIKASI PENDAFTAR - DENGAN SEMI-OTOMATIS ===== -->
+        <!-- ===== 2. VERIFIKASI PENDAFTAR ===== -->
         <div id="verifikasi" class="section">
             <div class="header-stats">
                 <div>Antrean Pendaftar: <h2 id="totalAntrean" style="color:white; margin:0">0</h2></div>
@@ -205,7 +205,7 @@
             </div>
         </div>
 
-        <!-- ===== 4. KEUANGAN ===== DISEMPURNAKAN ===== -->
+        <!-- ===== 4. KEUANGAN ===== -->
         <div id="keuangan" class="section">
             <!-- STATISTIK KEUANGAN -->
             <div class="finance-grid">
@@ -583,6 +583,51 @@
             }, time);
         }
 
+        // ===== HELPER FUNCTIONS =====
+        function formatTanggal(tgl) {
+            if (!tgl) return '-';
+            if (tgl.includes('/')) return tgl;
+            if (tgl.includes('-')) {
+                const parts = tgl.split('-');
+                if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+            return tgl;
+        }
+
+        function formatRupiah(nominal) {
+            return new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0 }).format(nominal || 0);
+        }
+
+        function getStatusBayarColor(status) {
+            const colors = { 'Lunas': '#28a745', 'Cicilan': '#ffc107', 'Belum Bayar': '#dc3545' };
+            return colors[status] || '#6c757d';
+        }
+
+        // ===== UPDATE SUMMARY KEUANGAN - BARU =====
+        function updateSummaryKeuangan() {
+            const totalTransaksi = keuanganData.length;
+            const totalMasukCount = keuanganData.filter(k => k.jenisMasukKeluar === 'Masuk').length;
+            const totalKeluarCount = keuanganData.filter(k => k.jenisMasukKeluar === 'Keluar').length;
+
+            if (document.getElementById('totalTransaksiCount')) {
+                document.getElementById('totalTransaksiCount').textContent = totalTransaksi;
+            }
+            if (document.getElementById('totalMasukCount')) {
+                document.getElementById('totalMasukCount').textContent = totalMasukCount;
+            }
+            if (document.getElementById('totalKeluarCount')) {
+                document.getElementById('totalKeluarCount').textContent = totalKeluarCount;
+            }
+        }
+
+        // ===== HITUNG ULANG SALDO - BARU =====
+        function hitungUlangSaldo() {
+            console.log("🔄 Hitung ulang saldo...");
+            hitungSaldoKeuangan();
+            updateSummaryKeuangan();
+            showAlert("✅ Saldo berhasil dihitung ulang!", "success");
+        }
+
         // ===== LOAD DATA =====
         function loadPendaftarData() {
             const stored = localStorage.getItem('pendaftarData');
@@ -598,9 +643,14 @@
             const stored = localStorage.getItem('keuanganData');
             keuanganData = stored ? JSON.parse(stored) : [];
             console.log("📊 Keuangan Data Loaded:", keuanganData.length, "items");
-            hitungSaldoKeuangan();
-            updateSummaryKeuangan();
-            renderKeuangan();
+            
+            // Pastikan siswa demo sudah ada sebelum bisa cari
+            DBManager.getSiswaAktif(function(siswa) {
+                console.log("✅ Data siswa siap:", siswa.length);
+                hitungSaldoKeuangan();
+                updateSummaryKeuangan();
+                renderKeuangan();
+            });
         }
 
         // ===== HITUNG SALDO KEUANGAN =====
@@ -620,17 +670,6 @@
             document.getElementById('saldoAkhir').textContent = formatRupiah(saldo);
             
             console.log("💰 Saldo Updated - Masuk: " + formatRupiah(totalMasuk) + " | Keluar: " + formatRupiah(totalKeluar) + " | Saldo: " + formatRupiah(saldo));
-        }
-
-        // ===== UPDATE SUMMARY KEUANGAN =====
-        function updateSummaryKeuangan() {
-            const totalTransaksi = keuanganData.length;
-            const totalMasukCount = keuanganData.filter(k => k.jenisMasukKeluar === 'Masuk').length;
-            const totalKeluarCount = keuanganData.filter(k => k.jenisMasukKeluar === 'Keluar').length;
-
-            document.getElementById('totalTransaksiCount').textContent = totalTransaksi;
-            document.getElementById('totalMasukCount').textContent = totalMasukCount;
-            document.getElementById('totalKeluarCount').textContent = totalKeluarCount;
         }
 
         // ===== RENDER VERIFIKASI - DENGAN TOMBOL SEMI-OTOMATIS =====
@@ -856,6 +895,7 @@
             document.getElementById('fieldNISW').style.display = (jenis === 'SPP' || jenis === 'Daftar' || jenis === 'Kompetisi') ? 'block' : 'none';
         }
 
+        // ===== CARI NAMA SISWA - DIPERBAIKI UNTUK BACA DEMO DATA =====
         function cariNamaSiswa() {
             const nisw = document.getElementById('niswBayar')?.value?.trim().toUpperCase();
             const fieldNama = document.getElementById('namaSiswaAuto');
@@ -865,13 +905,19 @@
                 return;
             }
 
+            console.log("🔍 Mencari NISW di Keuangan:", nisw);
+
+            // Gunakan DBManager.findSiswa dengan callback
             DBManager.findSiswa(nisw, function(siswa) {
                 if (siswa) {
                     fieldNama.value = siswa.nama || '';
-                    showAlert("✅ Siswa ditemukan: " + siswa.nama, "success", 1500);
+                    console.log("✅ Siswa ditemukan di findSiswa:", siswa.nama);
+                    showAlert("✅ Siswa ditemukan: " + siswa.nama, "success", 2000);
                 } else {
-                    fieldNama.value = '[NISW Tidak Ditemukan] - Isi manual';
-                    showAlert("⚠️ NISW tidak ditemukan - Isi manual", "warn", 1500);
+                    // Jika tidak ditemukan, set field untuk isi manual
+                    fieldNama.value = '[NISW Tidak Ditemukan - Isi Manual]';
+                    console.log("⚠️ NISW tidak ditemukan di database:", nisw);
+                    showAlert("⚠️ NISW tidak ditemukan - Isi 'Diterima Dari' secara manual", "warn", 2500);
                 }
             });
         }
@@ -998,12 +1044,6 @@
         function refreshKeuangan() {
             loadKeuangan();
             showAlert("✅ Data diperbarui!", "success");
-        }
-
-        function hitungUlangSaldo() {
-            console.log("🔄 Hitung ulang saldo...");
-            hitungSaldoKeuangan();
-            showAlert("✅ Saldo berhasil dihitung ulang!", "success");
         }
 
         function exportKeuangan() {
@@ -1379,26 +1419,6 @@
             });
         }
 
-        // ========== HELPER FUNCTIONS ==========
-        function formatTanggal(tgl) {
-            if (!tgl) return '-';
-            if (tgl.includes('/')) return tgl;
-            if (tgl.includes('-')) {
-                const parts = tgl.split('-');
-                if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
-            }
-            return tgl;
-        }
-
-        function formatRupiah(nominal) {
-            return new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0 }).format(nominal || 0);
-        }
-
-        function getStatusBayarColor(status) {
-            const colors = { 'Lunas': '#28a745', 'Cicilan': '#ffc107', 'Belum Bayar': '#dc3545' };
-            return colors[status] || '#6c757d';
-        }
-
         function logoutAdmin() {
             if (confirm("Yakin logout?")) {
                 showAlert("✅ Logout berhasil!", "success");
@@ -1408,12 +1428,18 @@
 
         // ========== INIT ==========
         window.addEventListener('load', function() {
+            console.log("🚀 Admin Panel Loading...");
+            console.log("📊 Initializing Firebase connection...");
+            
             loadPendaftarData();
             loadKeuangan();
             loadJadwalLatihan();
             loadJadwalTurnamen();
             renderAllSiswa();
+            
             console.log("✅ Admin Panel READY - Disempurnakan!");
+            console.log("✅ Fungsi cariNamaSiswa sudah diperbaiki!");
+            console.log("✅ Data siswa demo siap digunakan!");
         });
     </script>
 </body>
