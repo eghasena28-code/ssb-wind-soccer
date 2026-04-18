@@ -1,27 +1,365 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Reset Database SSB</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Database - SSB Wind Soccer</title>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 50px; background: #f4f4f4; }
-        button { padding: 20px 40px; background: red; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 20px; }
-        button:hover { background: darkred; }
+        :root {
+            --primary: #003399;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --success: #28a745;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: linear-gradient(135deg, var(--danger) 0%, #8b0000 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .warning-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            color: var(--danger);
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .warning-box {
+            background: #ffe6e6;
+            border-left: 4px solid var(--danger);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #721c24;
+            line-height: 1.5;
+        }
+
+        .checklist {
+            text-align: left;
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        .checklist label {
+            display: block;
+            margin: 8px 0;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .checklist input[type="checkbox"] {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-cancel {
+            background: #ccc;
+            color: #333;
+        }
+
+        .btn-cancel:hover {
+            background: #bbb;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-reset {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-reset:hover:not(:disabled) {
+            background: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220,53,69,0.4);
+        }
+
+        .btn-reset:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 11px;
+            color: #999;
+        }
+
+        .success-message {
+            display: none;
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 2px solid white;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
-    <h1>PENGHAPUSAN DATABASE TOTAL</h1>
-    <p>Klik tombol di bawah untuk mengosongkan semua data pendaftaran (Reguler & Beasiswa).</p>
-    
-    <button onclick="hapusSemua()">KOSONGKAN SEMUA DATA SEKARANG</button>
 
-    <script>
-        function hapusSemua() {
-            if(confirm("Apakah Anda yakin ingin menghapus SEMUA data siswa?")) {
-                localStorage.clear(); // Ini akan menghapus dataSiswa, dataBeasiswa, dan dataAbsensi
-                alert("DATABASE BERHASIL DIKOSONGKAN!");
-                window.location.href = "index.html";
-            }
+<div class="container">
+    <div class="header">
+        <div class="warning-icon">⚠️</div>
+        <h1>RESET DATABASE</h1>
+    </div>
+
+    <div class="success-message" id="successMsg">
+        ✅ Database berhasil direset! Sistem akan menutup dalam 3 detik...
+    </div>
+
+    <p>Anda akan <strong>MENGHAPUS SEMUA DATA</strong> dari sistem, termasuk:</p>
+
+    <div class="warning-box">
+        ❌ Semua data siswa reguler<br>
+        ❌ Semua data siswa beasiswa<br>
+        ❌ Semua data pendaftar<br>
+        ❌ Semua data absensi<br>
+        ❌ Semua data keuangan<br>
+        ❌ Semua data nilai raport<br>
+        ❌ <strong>TIDAK DAPAT DIKEMBALIKAN!</strong>
+    </div>
+
+    <p><strong>Ini hanya boleh dilakukan oleh administrator yang berwenang.</strong></p>
+
+    <div class="checklist">
+        <label>
+            <input type="checkbox" id="confirm1" onchange="updateButtonState()">
+            Saya memahami konsekuensi dari aksi ini
+        </label>
+        <label>
+            <input type="checkbox" id="confirm2" onchange="updateButtonState()">
+            Saya membaca dan setuju dengan peringatan di atas
+        </label>
+        <label>
+            <input type="checkbox" id="confirm3" onchange="updateButtonState()">
+            Saya bertanggung jawab atas aksi ini
+        </label>
+    </div>
+
+    <div class="buttons">
+        <button class="btn-cancel" onclick="kembali()">← BATAL</button>
+        <button class="btn-reset" id="btnReset" disabled onclick="resetDatabase()">
+            🗑️ RESET SEKARANG
+        </button>
+    </div>
+
+    <div class="footer">
+        © 2026 SSB Wind Soccer - Database Management
+    </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="db-sync.js"></script>
+
+<script>
+    console.log("⚠️ Reset Database page loaded");
+
+    // ===== PERBAIKAN: Update Button State =====
+    function updateButtonState() {
+        console.log("🔘 Checking confirmation state...");
+        
+        const confirm1 = document.getElementById("confirm1").checked;
+        const confirm2 = document.getElementById("confirm2").checked;
+        const confirm3 = document.getElementById("confirm3").checked;
+        const btnReset = document.getElementById("btnReset");
+
+        const allConfirmed = confirm1 && confirm2 && confirm3;
+        btnReset.disabled = !allConfirmed;
+
+        console.log("✅ Button state updated:", allConfirmed ? "ENABLED" : "DISABLED");
+    }
+
+    // ===== PERBAIKAN: Reset Database dengan Confirmation =====
+    function resetDatabase() {
+        console.log("🗑️ Reset database initiated");
+
+        // Double confirmation
+        const confirmed = confirm(
+            "⚠️ TERAKHIR KALI KONFIRMASI!\n\n" +
+            "Anda yakin ingin menghapus SEMUA data?\n" +
+            "Aksi ini TIDAK DAPAT DIKEMBALIKAN!"
+        );
+
+        if (!confirmed) {
+            console.log("❌ Reset cancelled by user");
+            return;
         }
-    </script>
+
+        const btnReset = document.getElementById("btnReset");
+        btnReset.disabled = true;
+        btnReset.innerHTML = '<span class="loading-spinner"></span> Menghapus...';
+
+        console.log("🔄 Starting reset process...");
+
+        try {
+            // Collections to reset
+            const collections = [
+                "dataSiswa",
+                "dataBeasiswa",
+                "dataPendaftar",
+                "dataAbsensi",
+                "dataKeuangan",
+                "dataNilai",
+                "dataSaran",
+                "db_latihan",
+                "db_turnamen"
+            ];
+
+            let resetCount = 0;
+
+            // Reset each collection
+            collections.forEach(collection => {
+                console.log(`🗑️ Resetting collection: ${collection}`);
+
+                firebase.firestore().collection(collection).get()
+                    .then(snapshot => {
+                        snapshot.docs.forEach(doc => {
+                            doc.ref.delete().then(() => {
+                                resetCount++;
+                                console.log(`✅ Document deleted from ${collection}: ${doc.id}`);
+                            }).catch(err => {
+                                console.error(`❌ Error deleting from ${collection}:`, err);
+                            });
+                        });
+                    })
+                    .catch(err => {
+                        console.error(`❌ Error resetting ${collection}:`, err);
+                    });
+            });
+
+            // Clear localStorage
+            console.log("🗑️ Clearing localStorage...");
+            localStorage.clear();
+            sessionStorage.clear();
+            console.log("✅ LocalStorage & SessionStorage cleared");
+
+            // Show success message
+            setTimeout(() => {
+                document.getElementById("successMsg").classList.add("show");
+                console.log("✅ Reset completed successfully");
+                
+                setTimeout(() => {
+                    window.location.href = "index.html";
+                }, 3000);
+            }, 1000);
+
+        } catch (error) {
+            console.error("❌ Error during reset:", error);
+            alert("❌ Terjadi kesalahan: " + error.message);
+            btnReset.disabled = false;
+            btnReset.innerHTML = '🗑️ RESET SEKARANG';
+        }
+    }
+
+    // ===== PERBAIKAN: Kembali ke Home =====
+    function kembali() {
+        console.log("🔙 User cancelled reset");
+        window.location.href = "index.html";
+    }
+
+    // ===== INIT HALAMAN =====
+    document.addEventListener('DOMContentLoaded', async function() {
+        console.log("🌐 Reset Database page initialized");
+        
+        if (typeof initializeFirebase === 'function') {
+            console.log("🔧 Initializing Firebase...");
+            await initializeFirebase();
+        }
+
+        // Initial button state
+        updateButtonState();
+    });
+</script>
+
 </body>
 </html>
