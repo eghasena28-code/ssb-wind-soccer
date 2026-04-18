@@ -5,33 +5,92 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kegiatan & Prestasi - SSB Wind Soccer</title>
   <style>
-    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #003399; color: white; min-height: 100vh; padding-bottom: 60px; }
+    body { 
+      font-family: 'Segoe UI', Arial, sans-serif; 
+      margin: 0; 
+      background: #003399; 
+      color: white; 
+      min-height: 100vh; 
+      padding-bottom: 60px; 
+    }
     
     /* Background Lapangan */
-    body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: url("lapangan.jpeg") no-repeat center center/cover; z-index: -2; opacity: 0.15; }
+    body::before { 
+      content: ""; 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      background: url("lapangan.jpeg") no-repeat center center/cover; 
+      z-index: -2; 
+      opacity: 0.15; 
+    }
 
-    .container { max-width: 900px; margin: 0 auto; padding: 15px; text-align: center; }
+    .container { 
+      max-width: 900px; 
+      margin: 0 auto; 
+      padding: 15px; 
+      text-align: center; 
+    }
     
-    .header { margin-bottom: 25px; }
-    .logo { width: 70px; margin-bottom: 10px; }
-    h1 { font-size: 24px; border-bottom: 4px solid #ffb400; display: inline-block; padding-bottom: 8px; text-transform: uppercase; }
+    .header { 
+      margin-bottom: 25px; 
+    }
+    
+    .logo { 
+      width: 70px; 
+      margin-bottom: 10px; 
+    }
+    
+    h1 { 
+      font-size: 24px; 
+      border-bottom: 4px solid #ffb400; 
+      display: inline-block; 
+      padding-bottom: 8px; 
+      text-transform: uppercase; 
+    }
 
-    .section-title { background: #ffb400; color: #003399; padding: 10px; border-radius: 8px; margin: 30px 0 20px; font-weight: bold; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+    .section-title { 
+      background: #ffb400; 
+      color: #003399; 
+      padding: 10px; 
+      border-radius: 8px; 
+      margin: 30px 0 20px; 
+      font-weight: bold; 
+      font-size: 14px; 
+      text-transform: uppercase; 
+      letter-spacing: 1px; 
+    }
 
-    /* --- SEKSI ALUMNI (PASTI 3 KOLOM) --- */
+    /* --- ALUMNI SECTION (3 KOLOM) --- */
     .grid-alumni { 
       display: grid; 
-      grid-template-columns: repeat(3, 1fr); /* Mengunci 3 kolom agar tidak ada yang kosong */
+      grid-template-columns: repeat(3, 1fr); 
       gap: 15px; 
       margin-bottom: 30px; 
     }
-    .alumni-card { background: white; color: #333; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.4); border-top: 4px solid #ff416c; }
+
+    .alumni-card { 
+      background: white; 
+      color: #333; 
+      border-radius: 12px; 
+      overflow: hidden; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4); 
+      border-top: 4px solid #ff416c; 
+      transition: 0.3s;
+    }
+
+    .alumni-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+    }
     
     /* Frame Foto Alumni */
     .alumni-frame { 
       width: 100%; 
       height: 250px; 
-      background: #f0f0f0; /* Warna dasar jika foto contain menyisakan ruang */
+      background: #f0f0f0; 
       display: flex;
       align-items: center;
       justify-content: center;
@@ -42,7 +101,7 @@
     .img-full-badan { 
       width: 100%; 
       height: 100%; 
-      object-fit: contain; /* Memastikan seluruh badan masuk frame */
+      object-fit: contain; 
     }
 
     /* KHUSUS SIGIT & HAIKAL: Fokus Kepala (Cover + Position) */
@@ -50,38 +109,162 @@
       width: 100%; 
       height: 100%; 
       object-fit: cover; 
-      object-position: center 5%; /* Menurunkan foto agar kepala terlihat jelas */
+      object-position: center 5%; 
     }
 
-    .alumni-info { padding: 12px; }
-    .alumni-info h3 { margin: 0; font-size: 14px; color: #003399; }
-    .alumni-info p { margin: 4px 0 0; font-size: 11px; font-weight: bold; color: #ff416c; text-transform: uppercase; }
+    .alumni-info { 
+      padding: 12px; 
+    }
+
+    .alumni-info h3 { 
+      margin: 0; 
+      font-size: 14px; 
+      color: #003399; 
+    }
+
+    .alumni-info p { 
+      margin: 4px 0 0; 
+      font-size: 11px; 
+      font-weight: bold; 
+      color: #ff416c; 
+      text-transform: uppercase; 
+    }
 
     /* --- PRESTASI RESMI --- */
-    .grid-resmi { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-    .resmi-card { background: white; color: #333; border-radius: 15px; overflow: hidden; text-align: left; box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
-    .resmi-img { width: 100%; height: 200px; object-fit: cover; }
-    
-    .slider-u17 { display: flex; overflow-x: auto; gap: 2px; background: #222; height: 200px; scroll-snap-type: x mandatory; }
-    .slider-u17 img { flex: 0 0 100%; object-fit: contain; scroll-snap-align: start; }
+    .grid-resmi { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+      gap: 20px; 
+    }
 
-    .resmi-info { padding: 15px; }
-    .resmi-info h3 { margin: 0; font-size: 15px; color: #003399; line-height: 1.4; }
+    .resmi-card { 
+      background: white; 
+      color: #333; 
+      border-radius: 15px; 
+      overflow: hidden; 
+      text-align: left; 
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3); 
+      transition: 0.3s;
+    }
+
+    .resmi-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.4);
+    }
+
+    .resmi-img { 
+      width: 100%; 
+      height: 200px; 
+      object-fit: cover; 
+      background: #f0f0f0;
+    }
+    
+    .slider-u17 { 
+      display: flex; 
+      overflow-x: auto; 
+      gap: 2px; 
+      background: #222; 
+      height: 200px; 
+      scroll-snap-type: x mandatory; 
+    }
+
+    .slider-u17 img { 
+      flex: 0 0 100%; 
+      object-fit: contain; 
+      scroll-snap-align: start; 
+      background: #f0f0f0;
+    }
+
+    .resmi-info { 
+      padding: 15px; 
+    }
+
+    .resmi-info h3 { 
+      margin: 0; 
+      font-size: 15px; 
+      color: #003399; 
+      line-height: 1.4; 
+    }
 
     /* --- GALERI 4 FOTO --- */
-    .grid-galeri { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-    .galeri-item { border-radius: 10px; overflow: hidden; height: 120px; background: #eee; border: 2px solid rgba(255,255,255,0.2); }
-    .galeri-item img { width: 100%; height: 100%; object-fit: cover; }
+    .grid-galeri { 
+      display: grid; 
+      grid-template-columns: repeat(4, 1fr); 
+      gap: 10px; 
+    }
 
-    .btn-back { display: inline-block; margin-top: 40px; background: #ffb400; color: #003399; padding: 14px 40px; border-radius: 30px; text-decoration: none; font-weight: bold; transition: 0.3s; }
-    .btn-back:hover { background: white; transform: translateY(-3px); }
+    .galeri-item { 
+      border-radius: 10px; 
+      overflow: hidden; 
+      height: 120px; 
+      background: #eee; 
+      border: 2px solid rgba(255,255,255,0.2); 
+      transition: 0.3s;
+    }
+
+    .galeri-item img { 
+      width: 100%; 
+      height: 100%; 
+      object-fit: cover; 
+    }
+
+    .galeri-item:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .btn-back { 
+      display: inline-block; 
+      margin-top: 40px; 
+      background: #ffb400; 
+      color: #003399; 
+      padding: 14px 40px; 
+      border-radius: 30px; 
+      text-decoration: none; 
+      font-weight: bold; 
+      transition: 0.3s; 
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-back:hover { 
+      background: white; 
+      transform: translateY(-3px); 
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid #ffb400;
+      border-radius: 50%;
+      border-top: 2px solid transparent;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
 
     /* Responsif HP */
     @media (max-width: 600px) { 
-      .grid-alumni { gap: 8px; }
-      .alumni-frame { height: 160px; }
-      .alumni-info h3 { font-size: 11px; }
-      .grid-galeri { grid-template-columns: repeat(2, 1fr); }
+      .grid-alumni { 
+        grid-template-columns: 1fr; 
+        gap: 8px; 
+      }
+      .alumni-frame { 
+        height: 160px; 
+      }
+      .alumni-info h3 { 
+        font-size: 11px; 
+      }
+      .grid-galeri { 
+        grid-template-columns: repeat(2, 1fr); 
+      }
+      h1 {
+        font-size: 18px;
+      }
     }
   </style>
 </head>
@@ -99,7 +282,7 @@
       
       <div class="alumni-card">
         <div class="alumni-frame">
-          <img src="senja.png" class="img-full-badan" onerror="this.src='https://via.placeholder.com/150x200?text=Senja'">
+          <img src="senja.png" class="img-full-badan" alt="Senja Espania" onerror="this.src='https://via.placeholder.com/150x200?text=Senja'">
         </div>
         <div class="alumni-info">
           <h3>Senja Espania</h3>
@@ -109,7 +292,7 @@
 
       <div class="alumni-card">
         <div class="alumni-frame">
-          <img src="sigit.png" class="img-fokus-kepala" onerror="this.src='https://via.placeholder.com/150x200?text=Sigit'">
+          <img src="sigit.png" class="img-fokus-kepala" alt="Sigit Permana" onerror="this.src='https://via.placeholder.com/150x200?text=Sigit'">
         </div>
         <div class="alumni-info">
           <h3>Sigit Permana</h3>
@@ -119,7 +302,7 @@
 
       <div class="alumni-card">
         <div class="alumni-frame">
-          <img src="haikal.png" class="img-fokus-kepala" onerror="this.src='https://via.placeholder.com/150x200?text=Haikal'">
+          <img src="haikal.png" class="img-fokus-kepala" alt="Haikal" onerror="this.src='https://via.placeholder.com/150x200?text=Haikal'">
         </div>
         <div class="alumni-info">
           <h3>Haikal</h3>
@@ -132,14 +315,14 @@
     <div class="section-title">🏆 Kompetisi Resmi</div>
     <div class="grid-resmi">
       <div class="resmi-card">
-        <img src="u12.jpg" class="resmi-img" onerror="this.src='https://via.placeholder.com/300x200?text=U12+DKI'">
+        <img src="u12.jpg" class="resmi-img" alt="U12 DKI" onerror="this.src='https://via.placeholder.com/300x200?text=U12+DKI'">
         <div class="resmi-info"><h3>Juara 3 Liga Sentra Regional DKI</h3></div>
       </div>
       <div class="resmi-card">
         <div class="slider-u17">
-          <img src="u17.jpg">
-          <img src="u17b.jpg">
-          <img src="u17c.jpg">
+          <img src="u17.jpg" alt="U17 1" onerror="this.src='https://via.placeholder.com/300x200?text=U17'">
+          <img src="u17b.jpg" alt="U17 2" onerror="this.src='https://via.placeholder.com/300x200?text=U17'">
+          <img src="u17c.jpg" alt="U17 3" onerror="this.src='https://via.placeholder.com/300x200?text=U17'">
         </div>
         <div class="resmi-info"><h3>Juara 3 Tangerang League U-17</h3></div>
       </div>
@@ -147,14 +330,72 @@
 
     <div class="section-title">🥇 Galeri Juara</div>
     <div class="grid-galeri">
-      <div class="galeri-item"><img src="u8b.jpg" onerror="this.src='https://via.placeholder.com/100?text=U8'"></div>
-      <div class="galeri-item"><img src="u10.jpg" onerror="this.src='https://via.placeholder.com/100?text=U10'"></div>
-      <div class="galeri-item"><img src="/u15.jpg" onerror="this.src='https://via.placeholder.com/100?text=U15'"></div>
-      <div class="galeri-item"><img src="umum.jpg" onerror="this.src='https://via.placeholder.com/100?text=Umum'"></div>
+      <div class="galeri-item"><img src="u8b.jpg" alt="U8" onerror="this.src='https://via.placeholder.com/100?text=U8'"></div>
+      <div class="galeri-item"><img src="u10.jpg" alt="U10" onerror="this.src='https://via.placeholder.com/100?text=U10'"></div>
+      <div class="galeri-item"><img src="u15.jpg" alt="U15" onerror="this.src='https://via.placeholder.com/100?text=U15'"></div>
+      <div class="galeri-item"><img src="umum.jpg" alt="Umum" onerror="this.src='https://via.placeholder.com/100?text=Umum'"></div>
     </div>
 
-    <a href="beranda.html" class="btn-back">⬅ Kembali ke Beranda</a>
+    <button class="btn-back" onclick="window.location.href='beranda.html'">⬅ Kembali ke Beranda</button>
   </div>
+
+  <!-- Firebase SDK (untuk potential future features) -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="db-sync.js"></script>
+
+  <script>
+    console.log("🏆 Kegiatan & Prestasi page loaded");
+
+    // ===== PERBAIKAN: Image Error Handling =====
+    function handleImageError(img) {
+      console.warn("⚠️ Image failed to load:", img.src);
+      img.src = 'https://via.placeholder.com/150x200?text=Foto+Tidak+Tersedia';
+      img.style.opacity = '0.7';
+    }
+
+    // ===== PERBAIKAN: Slider Navigation untuk U17 =====
+    function initSliders() {
+      console.log("📸 Initializing sliders...");
+      
+      const sliders = document.querySelectorAll('.slider-u17');
+      sliders.forEach((slider, idx) => {
+        slider.addEventListener('wheel', (e) => {
+          e.preventDefault();
+          slider.scrollLeft += e.deltaY;
+        });
+        console.log("✅ Slider", idx + 1, "initialized");
+      });
+    }
+
+    // ===== PERBAIKAN: Lazy Loading untuk Gambar =====
+    function initLazyLoading() {
+      console.log("🖼️ Initializing lazy loading...");
+      
+      if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const img = entry.target;
+              // Image already in HTML, just log
+              console.log("📸 Image visible:", img.alt);
+              observer.unobserve(img);
+            }
+          });
+        });
+
+        document.querySelectorAll('img').forEach(img => imageObserver.observe(img));
+      }
+    }
+
+    // ===== INIT HALAMAN =====
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log("🌐 Kegiatan page DOMContentLoaded");
+      initSliders();
+      initLazyLoading();
+    });
+  </script>
 
 </body>
 </html>
