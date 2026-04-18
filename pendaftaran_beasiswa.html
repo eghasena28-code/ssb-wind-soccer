@@ -32,7 +32,7 @@
     .alert-success { background: #d4edda; color: #155724; border-left-color: #28a745; display: block; }
     .auto-fill-info { background: #e8f5e9; padding: 8px; border-radius: 6px; font-size: 12px; color: #27ae60; margin-top: 4px; }
     .alasan-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-    .alasan-btn { padding: 10px; border: 2px solid #ddd; border-radius: 8px; text-align: center; cursor: pointer; transition: 0.3s; font-size: 12px; font-weight: bold; }
+    .alasan-btn { padding: 10px; border: 2px solid #ddd; border-radius: 8px; text-align: center; cursor: pointer; transition: 0.3s; font-size: 12px; font-weight: bold; background: white; }
     .alasan-btn:hover { border-color: #28a745; background: #e8f5e9; }
     .alasan-btn.selected { background: #e8f5e9; border-color: #28a745; color: #27ae60; }
   </style>
@@ -102,12 +102,12 @@
       <label><strong>Alasan Beasiswa <span class="required">*</span></strong></label>
       
       <div class="alasan-options">
-        <div class="alasan-btn" onclick="pilihAlasan('Prestasi Olahraga')">🏆 Prestasi</div>
-        <div class="alasan-btn" onclick="pilihAlasan('Juara Turnamen')">🥇 Juara</div>
-        <div class="alasan-btn" onclick="pilihAlasan('Tidak Mampu')">💔 Tidak Mampu</div>
-        <div class="alasan-btn" onclick="pilihAlasan('Yatim Piatu')" style="background: #d4edda; border: 2px solid #28a745;">🤝 Yatim (FREE)</div>
-        <div class="alasan-btn" onclick="pilihAlasan('Rekomendasi Pelatih')">📋 Rekomendasi</div>
-        <div class="alasan-btn" onclick="pilihAlasan('Lainnya')">❓ Lainnya</div>
+        <div class="alasan-btn" onclick="pilihAlasan(this, 'Prestasi Olahraga')">🏆 Prestasi</div>
+        <div class="alasan-btn" onclick="pilihAlasan(this, 'Juara Turnamen')">🥇 Juara</div>
+        <div class="alasan-btn" onclick="pilihAlasan(this, 'Tidak Mampu')">💔 Tidak Mampu</div>
+        <div class="alasan-btn" onclick="pilihAlasan(this, 'Yatim Piatu')" style="background: #d4edda; border: 2px solid #28a745;">🤝 Yatim (FREE)</div>
+        <div class="alasan-btn" onclick="pilihAlasan(this, 'Rekomendasi Pelatih')">📋 Rekomendasi</div>
+        <div class="alasan-btn" onclick="pilihAlasan(this, 'Lainnya')">❓ Lainnya</div>
       </div>
 
       <input type="hidden" id="alasan" required>
@@ -140,6 +140,17 @@
 <script src="db-sync.js"></script>
 
 <script>
+  function waitForDBManager(callback, attempt = 0) {
+    if (typeof DBManager !== 'undefined') {
+      callback();
+    } else if (attempt < 20) {
+      setTimeout(() => waitForDBManager(callback, attempt + 1), 100);
+    } else {
+      console.error("❌ DBManager tidak dapat dimuat!");
+      showAlert("❌ Error: Sistem gagal dimuat. Refresh halaman.");
+    }
+  }
+
   function getKategoriUmur(usia) {
     if (usia >= 17) return "KU-17";
     if (usia >= 15) return "KU-16";
@@ -173,14 +184,14 @@
     document.getElementById("kategori").value = getKategoriUmur(usia);
   }
 
-  function pilihAlasan(alasan) {
+  function pilihAlasan(element, alasan) {
     document.getElementById("alasan").value = alasan;
     document.getElementById("alasanDisplay").value = alasan;
 
     document.querySelectorAll(".alasan-btn").forEach(btn => {
       btn.classList.remove("selected");
     });
-    event.target.classList.add("selected");
+    element.classList.add("selected");
   }
 
   function showAlert(msg) {
@@ -232,9 +243,7 @@
     btn.innerHTML = '<span class="spinner"></span> Mengirim...';
 
     try {
-      if (typeof initializeFirebase === 'function') {
-        await initializeFirebase();
-      }
+      await new Promise(resolve => waitForDBManager(resolve));
 
       const tglLahir = document.getElementById("tglLahir").value;
       const tahunLahir = new Date(tglLahir).getFullYear();
@@ -253,27 +262,14 @@
         alasan: document.getElementById("alasan").value,
         penjelasanAlasan: document.getElementById("penjelasanAlasan").value.trim(),
         tipe: "Beasiswa",
-        status: "Menunggu Verifikasi",
-        tglDaftar: new Date().toLocaleDateString('id-ID'),
-        tglDaftarFull: new Date().toISOString()
+        status: "Menunggu Verifikasi"
       };
 
       const niswBaru = await DBManager.addPendaftar(dataBaru);
 
-      let pendaftarData = [];
-      const stored = localStorage.getItem('pendaftarData');
-      if (stored) {
-        pendaftarData = JSON.parse(stored);
-      }
-      
-      dataBaru.nisw = niswBaru;
-      dataBaru.foto = "default-foto";
-      pendaftarData.push(dataBaru);
-      localStorage.setItem('pendaftarData', JSON.stringify(pendaftarData));
-
       const alertEl = document.getElementById("alertError");
       alertEl.className = "alert alert-success";
-      alertEl.innerHTML = `✅ Berhasil! NISW: ${niswBaru}<br>Alasan: ${document.getElementById("alasan").value}`;
+      alertEl.innerHTML = `✅ Berhasil! NISW: ${niswBaru}<br>Alasan: ${dataBaru.alasan}`;
       alertEl.style.display = "block";
 
       setTimeout(() => {
@@ -281,11 +277,18 @@
       }, 3000);
 
     } catch (err) {
+      console.error("Error:", err);
       showAlert("❌ " + (err.message || "Gagal"));
       btn.disabled = false;
       btn.innerHTML = origText;
     }
   };
+
+  window.addEventListener('load', function() {
+    waitForDBManager(function() {
+      console.log("✅ DBManager siap!");
+    });
+  });
 </script>
 </body>
 </html>
