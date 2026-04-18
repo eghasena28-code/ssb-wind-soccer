@@ -20,12 +20,14 @@
         .photo-frame img { width: 100%; height: 100%; object-fit: cover; }
         .info-section { padding: 25px 30px; text-align: center; }
         .student-name { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 800; color: #28a745; text-transform: uppercase; }
+        .student-meta { color: #777; margin-bottom: 10px; }
         .badge-status { display: inline-block; padding: 8px 20px; border-radius: 50px; background: #28a745; color: white; font-size: 11px; font-weight: 700; margin: 15px 0; }
         .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .data-card { background: #f8fafb; padding: 14px; border-radius: 12px; border-left: 4px solid #28a745; text-align: left; }
         .data-label { font-size: 9px; font-weight: 700; color: #7a8fa3; text-transform: uppercase; }
         .data-value { font-size: 13px; font-weight: 700; color: #28a745; }
-        .btn-action { width: 100%; padding: 13px; background: #28a745; color: white; border: none; border-radius: 11px; cursor: pointer; font-weight: 700; margin-top: 15px; }
+        .btn-action { width: 100%; padding: 13px; background: #28a745; color: white; border: none; border-radius: 11px; cursor: pointer; font-weight: 700; margin-top: 15px; transition: 0.3s; }
+        .btn-action:hover { background: #1e7e34; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3); }
     </style>
 </head>
 <body>
@@ -37,12 +39,12 @@
             </div>
             <div class="photo-container">
                 <div class="photo-frame">
-                    <img id="imgSiswa" src="default.png">
+                    <img id="imgSiswa" src="default.png" alt="Foto Siswa">
                 </div>
             </div>
             <div class="info-section">
                 <div class="student-name" id="namaSiswa">NAMA SISWA</div>
-                <div class="student-meta" style="color:#777">NISW: <strong id="niswSiswa">-</strong></div>
+                <div class="student-meta">NISW: <strong id="niswSiswa">-</strong></div>
                 <div class="badge-status">Penerima Beasiswa</div>
                 <div class="data-grid">
                     <div class="data-card">
@@ -71,26 +73,89 @@
         </div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
     <script src="db-sync.js"></script>
     <script>
-        const s = DBManager.getLoginUser();
-        if (!s) {
-            alert("Siswa tidak ditemukan!");
-            window.location.href = "index.html";
-        } else {
-            document.getElementById("imgSiswa").src = s.foto || "default.png";
-            document.getElementById("namaSiswa").innerText = (s.nama || "").toUpperCase();
-            document.getElementById("niswSiswa").innerText = s.nisw || "-";
-            
-            // JARING PENGAMAN: Mencari tglLahir di berbagai kemungkinan nama variabel
-            const tglRaw = s.tglLahir || s.tanggalLahir || s.tanggal_lahir || s.ttl || "-";
-            document.getElementById("dTglLahir").innerText = tglRaw;
-            
-            document.getElementById("dKat").innerText = s.kategori || "-";
-            document.getElementById("dPos").innerText = s.posisi || "-";
-            document.getElementById("dOrtu").innerText = s.namaOrtu || "-";
-            document.getElementById("dAlm").innerText = s.alamat || "-";
+        // ===== PERBAIKAN: Helper Function untuk Format Tanggal =====
+        function formatTanggal(tgl) {
+            if (!tgl || tgl === "-" || tgl === "") return "-";
+            try {
+                // Jika formatnya sudah DD/MM/YYYY, kembalikan langsung
+                if (tgl.includes("/")) return tgl;
+                
+                // Jika format YYYY-MM-DD (dari date input), ubah ke DD/MM/YYYY
+                if (tgl.includes("-")) {
+                    const parts = tgl.split("-");
+                    if (parts.length === 3) {
+                        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+                    }
+                }
+                
+                // Coba parse sebagai Date object
+                const date = new Date(tgl);
+                if (isNaN(date.getTime())) return tgl;
+                
+                const bulanID = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+                return `${date.getDate()} ${bulanID[date.getMonth()]} ${date.getFullYear()}`;
+            } catch(e) {
+                console.error("Error formatting date:", e);
+                return tgl;
+            }
         }
+
+        // ===== LOAD DATA SISWA BEASISWA =====
+        function loadDataSiswa() {
+            console.log("📂 Loading profil siswa beasiswa...");
+            
+            const s = DBManager.getLoginUser();
+
+            if (!s) {
+                alert("❌ Siswa tidak ditemukan! Silakan login ulang.");
+                window.location.href = "index.html";
+                return;
+            }
+
+            console.log("✅ Data siswa beasiswa ditemukan:", s);
+
+            // Display foto
+            document.getElementById("imgSiswa").src = s.foto || "default.png";
+            document.getElementById("imgSiswa").onerror = function() {
+                this.src = "https://via.placeholder.com/140?text=Foto+Siswa";
+            };
+
+            // Display nama
+            document.getElementById("namaSiswa").innerText = (s.nama || "NAMA SISWA").toUpperCase();
+
+            // Display NISW
+            document.getElementById("niswSiswa").innerText = s.nisw || "-";
+
+            // ===== PERBAIKAN: Cari tglLahir di berbagai kemungkinan field =====
+            const tglRaw = s.tglLahir || s.tanggalLahir || s.tanggal_lahir || s.ttl || "-";
+            const tglFormatted = formatTanggal(tglRaw);
+            document.getElementById("dTglLahir").innerText = tglFormatted;
+
+            // Display kategori
+            document.getElementById("dKat").innerText = s.kategori || "-";
+
+            // Display posisi
+            document.getElementById("dPos").innerText = s.posisi || "-";
+
+            // Display nama orang tua
+            document.getElementById("dOrtu").innerText = s.namaOrtu || "-";
+
+            // Display alamat
+            document.getElementById("dAlm").innerText = s.alamat || "-";
+
+            console.log("✅ Profil siswa beasiswa berhasil ditampilkan");
+        }
+
+        // ===== INIT HALAMAN =====
+        window.addEventListener('load', function() {
+            console.log("🌐 Siswabeasiswa page loaded");
+            loadDataSiswa();
+        });
     </script>
 </body>
 </html>
