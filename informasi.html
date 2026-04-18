@@ -201,6 +201,8 @@
       border-top: 1px dashed rgba(255,255,255,0.3);
       font-size: 14px;
       line-height: 1.6;
+      position: relative;
+      z-index: 1;
     }
     .nisw-input {
       margin-bottom: 20px;
@@ -225,7 +227,13 @@
       border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
+      transition: 0.3s;
     }
+    .nisw-input button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255,180,0,0.3);
+    }
+
     .extra-buttons {
       text-align: center;
       margin-top: 40px;
@@ -254,6 +262,7 @@
       margin-top: auto;
     }
     footer a { color: var(--accent-gold); text-decoration: none; }
+
     @keyframes fadeInDown {
       from { opacity: 0; transform: translateY(-30px); }
       to { opacity: 1; transform: translateY(0); }
@@ -317,7 +326,7 @@
         <li>• <strong>Loyalitas:</strong> Dilarang mengikuti kompetisi/SSB lain tanpa izin manajemen.</li>
       </ul>
 
-      <!-- ==================== TAGIHAN UANG (DINAMIS SESUAI ADMIN) ==================== -->
+      <!-- TAGIHAN UANG -->
       <div class="section-title">💰 TAGIHAN UANG</div>
       <div class="tagihan-box">
         <div class="nisw-input">
@@ -339,7 +348,7 @@
               </tr>
             </thead>
             <tbody>
-              <!-- Akan diisi secara dinamis oleh JavaScript -->
+              <!-- Akan diisi oleh JavaScript -->
             </tbody>
           </table>
         </div>
@@ -364,50 +373,102 @@
     <p>Kontak: 📞 0812 9333 8781 | Instagram: <a href="https://instagram.com/windsoccer.official" target="_blank">@windsoccer.official</a></p>
   </footer>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="db-sync.js"></script>
+
   <script>
+    console.log("ℹ️ Informasi page loaded");
+
+    // ===== PERBAIKAN: Cek Tagihan Pribadi dengan Error Handling =====
     function cekTagihanPribadi() {
+      console.log("💰 Checking tagihan pribadi...");
+      
       const nisw = document.getElementById("inputNisw").value.trim().toUpperCase();
+      
       if (!nisw) {
         alert("❌ Masukkan NISW Anda terlebih dahulu!");
         return;
       }
 
-      const dataTagihan = JSON.parse(localStorage.getItem("dataTagihan")) || {};
-      const tagihan = dataTagihan[nisw];
+      console.log("🔍 Searching tagihan for NISW:", nisw);
 
       const tbody = document.getElementById("tableTagihan").getElementsByTagName("tbody")[0];
 
-      if (tagihan) {
-        const total = (tagihan.iuran || 0) + (tagihan.dendaAbsen || 0) + (tagihan.dendaTurnamen || 0);
+      try {
+        // Query tagihan dari Firestore
+        DBManager.getKeuangan(function(dataKeuangan) {
+          console.log("✅ Keuangan data received:", dataKeuangan);
 
+          // Filter tagihan berdasarkan NISW
+          const tagihanSiswa = dataKeuangan.filter(item => 
+            item.nisw === nisw && item.jenisMasukKeluar === 'Masuk'
+          );
+
+          console.log("💳 Tagihan for NISW:", tagihanSiswa);
+
+          if (tagihanSiswa.length === 0) {
+            tbody.innerHTML = `
+              <tr><td colspan="2" style="text-align:center; padding:40px; color:#ddd;">
+                Belum ada tagihan untuk NISW <strong>${nisw}</strong><br>
+                <small>Admin belum menginput data tagihan untuk siswa ini.</small>
+              </td></tr>
+            `;
+            return;
+          }
+
+          // Hitung total tagihan
+          let totalTagihan = 0;
+          let tagihanHTML = '';
+
+          tagihanSiswa.forEach((tagihan, idx) => {
+            const nominal = tagihan.nominal || 0;
+            const keterangan = tagihan.keterangan || 'Tidak ada keterangan';
+            const tanggal = tagihan.tanggal || new Date().toLocaleDateString('id-ID');
+
+            totalTagihan += nominal;
+
+            tagihanHTML += `
+              <tr>
+                <td style="text-align:left"><strong>${keterangan}</strong><br><small>${tanggal}</small></td>
+                <td style="text-align:right">Rp ${nominal.toLocaleString('id-ID')}</td>
+              </tr>
+            `;
+          });
+
+          tagihanHTML += `
+            <tr class="total-row">
+              <td style="text-align:left"><strong>TOTAL TAGIHAN</strong></td>
+              <td style="text-align:right"><strong>Rp ${totalTagihan.toLocaleString('id-ID')}</strong></td>
+            </tr>
+          `;
+
+          tbody.innerHTML = tagihanHTML;
+          console.log("✅ Tagihan displayed");
+        });
+
+      } catch (error) {
+        console.error("❌ Error checking tagihan:", error);
         tbody.innerHTML = `
-          <tr><td><strong>Bulan</strong></td><td style="text-align:right">${tagihan.bulan || '-'}</td></tr>
-          <tr><td>Iuran Bulanan</td><td style="text-align:right">Rp ${(tagihan.iuran || 0).toLocaleString()}</td></tr>
-          <tr><td>Denda Absensi ${tagihan.keteranganDenda ? `(${tagihan.keteranganDenda})` : ''}</td><td style="text-align:right">Rp ${(tagihan.dendaAbsen || 0).toLocaleString()}</td></tr>
-          <tr><td>Denda Absen Turnamen</td><td style="text-align:right">Rp ${(tagihan.dendaTurnamen || 0).toLocaleString()}</td></tr>
-          <tr class="total-row">
-            <td><strong>TOTAL TAGIHAN BULAN INI</strong></td>
-            <td style="text-align:right"><strong>Rp ${total.toLocaleString()}</strong></td>
-          </tr>
-          <tr>
-            <td colspan="2" style="text-align:center; padding:15px; font-weight:bold; font-size:16px; color:${tagihan.status === 'Lunas' ? '#28a745' : '#ffc107'}">
-              STATUS: ${tagihan.status || 'Belum Lunas'}
-            </td>
-          </tr>
-        `;
-      } else {
-        tbody.innerHTML = `
-          <tr><td colspan="2" style="text-align:center; padding:40px; color:#ddd;">
-            Belum ada tagihan untuk NISW <strong>${nisw}</strong><br>
-            <small>Admin belum menginput data tagihan untuk siswa ini.</small>
+          <tr><td colspan="2" style="text-align:center; color:red;">
+            ⚠️ Error memuat tagihan. Coba lagi.
           </td></tr>
         `;
       }
     }
 
+    // ===== KEMBALI KE BERANDA =====
     function kembaliKeBeranda() {
+      console.log("🔙 Navigating back to beranda");
       window.location.href = "beranda.html";
     }
+
+    // ===== INIT =====
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log("🌐 Informasi page DOMContentLoaded");
+    });
   </script>
 </body>
 </html>
