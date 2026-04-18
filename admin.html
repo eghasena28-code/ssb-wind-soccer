@@ -14,13 +14,13 @@
         .sidebar { width: 260px; background: var(--primary); height: 100vh; color: white; position: fixed; padding: 20px; box-sizing: border-box; z-index: 1000; overflow-y: auto; display: flex; flex-direction: column; }
         .sidebar-content { flex: 1; overflow-y: auto; }
         .sidebar h2 { font-size: 18px; border-bottom: 2px solid var(--secondary); padding-bottom: 10px; margin-bottom: 30px; text-align: center; }
-        .nav-link { display: block; color: white; text-decoration: none; padding: 12px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: 0.3s; font-size: 14px; position: relative; }
+        .nav-link { display: block; color: white; text-decoration: none; padding: 12px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: 0.3s; font-size: 14px; position: relative; border: none; background: transparent; width: 100%; text-align: left; }
         .nav-link:hover, .nav-link.active { background: var(--secondary); color: var(--primary); font-weight: bold; }
         .badge-notif { background: var(--danger); color: white; padding: 2px 8px; border-radius: 20px; font-size: 10px; position: absolute; right: 10px; top: 12px; }
         .logout-section { margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2); }
         .btn-logout { width: 100%; background: var(--danger); color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-logout:hover { background: #c82333; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
-        .main-content { margin-left: 260px; padding: 40px; width: calc(100% - 260px); min-height: 100vh; box-sizing: border-box; }
+        .main-content { margin-left: 260px; padding: 40px; width: calc(100% - 260px); min-height: 100vh; box-sizing: border-box; overflow-y: auto; }
         .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 30px; }
         .header-stats { background: var(--primary); color: white; padding: 20px; border-radius: 12px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
         h3 { color: var(--primary); margin-top: 0; border-left: 5px solid var(--secondary); padding-left: 15px; margin-bottom: 20px; }
@@ -96,16 +96,16 @@
     <div class="sidebar">
         <div class="sidebar-content">
             <div style="text-align: center; margin-bottom: 15px;">
-                <img src="logossb.png" style="width: 70px;" alt="SSB Wind Soccer">
+                <img src="logossb.png" style="width: 70px;" alt="SSB Wind Soccer" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2270%22 height=%2270%22%3E%3Ctext x=%2210%22 y=%2250%22 font-size=%2240%22 fill=%22white%22%3ESSB%3C/text%3E%3C/svg%3E'">
             </div>
             <h2>ADMIN WIND SOCCER</h2>
-            <div class="nav-link active" onclick="showSection('db_siswa')">👥 Database Siswa</div>
-            <div class="nav-link" onclick="showSection('verifikasi')">✅ Verifikasi Pendaftar <span id="badgeCount" class="badge-notif" style="display:none;">0</span></div>
-            <div class="nav-link" onclick="showSection('absensi')">📝 Rekap Absensi</div>
-            <div class="nav-link" onclick="showSection('keuangan')">💰 Keuangan & Kas</div>
-            <div class="nav-link" onclick="showSection('raport')">📊 Input Nilai Raport</div>
-            <div class="nav-link" onclick="showSection('saran')">📩 Saran & Masukan <span id="badgeSaran" class="badge-notif" style="display:none;">0</span></div>
-            <div class="nav-link" onclick="showSection('jadwal')">📅 Kelola Jadwal</div>
+            <button class="nav-link active" data-section="db_siswa">👥 Database Siswa</button>
+            <button class="nav-link" data-section="verifikasi">✅ Verifikasi Pendaftar <span id="badgeCount" class="badge-notif" style="display:none;">0</span></button>
+            <button class="nav-link" data-section="absensi">📝 Rekap Absensi</button>
+            <button class="nav-link" data-section="keuangan">💰 Keuangan & Kas</button>
+            <button class="nav-link" data-section="raport">📊 Input Nilai Raport</button>
+            <button class="nav-link" data-section="saran">📩 Saran & Masukan <span id="badgeSaran" class="badge-notif" style="display:none;">0</span></button>
+            <button class="nav-link" data-section="jadwal">📅 Kelola Jadwal</button>
         </div>
         <div class="logout-section">
             <button class="btn-logout" onclick="logoutAdmin()">
@@ -153,7 +153,7 @@
             </div>
         </div>
 
-        <!-- ===== 2. VERIFIKASI PENDAFTAR - DENGAN SEMI-OTOMATIS ===== -->
+        <!-- ===== 2. VERIFIKASI PENDAFTAR ===== -->
         <div id="verifikasi" class="section">
             <div class="header-stats">
                 <div>Antrean Pendaftar: <h2 id="totalAntrean" style="color:white; margin:0">0</h2></div>
@@ -205,9 +205,8 @@
             </div>
         </div>
 
-        <!-- ===== 4. KEUANGAN ===== DISEMPURNAKAN ===== -->
+        <!-- ===== 4. KEUANGAN ===== -->
         <div id="keuangan" class="section">
-            <!-- STATISTIK KEUANGAN -->
             <div class="finance-grid">
                 <div class="stat-box" style="background: var(--success);">
                     <span>💵 Total Pemasukan</span>
@@ -223,7 +222,6 @@
                 </div>
             </div>
 
-            <!-- FORM INPUT -->
             <div class="grid-input">
                 <!-- FORM PEMASUKAN -->
                 <div class="card">
@@ -246,7 +244,6 @@
                         <option value="Lainnya">Lain-lain</option>
                     </select>
 
-                    <!-- FORM NISW (untuk jenis yang melibatkan siswa) -->
                     <div id="fieldNISW" style="display: none;">
                         <label>NISW Siswa (Optional):</label>
                         <input type="text" id="niswBayar" placeholder="R2026001" onchange="cariNamaSiswa()">
@@ -254,7 +251,6 @@
                         <input type="text" id="namaSiswaAuto" placeholder="Akan terisi otomatis dari NISW" readonly>
                     </div>
 
-                    <!-- FORM SUMBER MANUAL -->
                     <label>Diterima Dari: <span style="color: #dc3545;">*</span></label>
                     <input type="text" id="pengirimMasuk" placeholder="Nama pembayar / sumber">
 
@@ -291,7 +287,6 @@
                 </div>
             </div>
 
-            <!-- TABEL REKAP KEUANGAN -->
             <div class="card">
                 <h3>📋 Riwayat Keuangan</h3>
                 <div class="btn-group" style="margin-bottom: 20px;">
@@ -301,7 +296,6 @@
                     <button class="btn btn-danger" onclick="resetKeuangan()"><i class="fas fa-trash"></i> Hapus Semua</button>
                 </div>
 
-                <!-- SUMMARY RINGKASAN -->
                 <div class="summary-box">
                     <div class="summary-row">
                         <strong>📊 Total Transaksi:</strong>
@@ -408,7 +402,7 @@
             </div>
 
             <div class="grid-input">
-                <!-- ===== JADWAL LATIHAN RUTIN ===== -->
+                <!-- JADWAL LATIHAN RUTIN -->
                 <div class="card">
                     <h4 style="color: #28a745; border-bottom: 2px solid #28a745; padding-bottom: 10px;">⚽ JADWAL LATIHAN RUTIN</h4>
                     <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Tambahkan jadwal latihan regular (Senin-Minggu)</p>
@@ -451,7 +445,7 @@
                     </div>
                 </div>
 
-                <!-- ===== JADWAL TURNAMEN & EVENT ===== -->
+                <!-- JADWAL TURNAMEN & EVENT -->
                 <div class="card">
                     <h4 style="color: #dc3545; border-bottom: 2px solid #dc3545; padding-bottom: 10px;">🏆 JADWAL TURNAMEN & EVENT</h4>
                     <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Tambahkan event/turnamen yang akan diikuti</p>
@@ -500,7 +494,7 @@
                 </div>
             </div>
 
-            <!-- ===== RINGKASAN UNTUK INFORMASI SISWA ===== -->
+            <!-- PREVIEW -->
             <div class="card">
                 <h4 style="color: #17a2b8; border-bottom: 2px solid #17a2b8; padding-bottom: 10px;">🔗 PREVIEW - Jadwal yang ditampilkan di Halaman Informasi Siswa</h4>
                 <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Berikut adalah jadwal yang akan divisualisasikan untuk siswa:</p>
@@ -545,26 +539,23 @@
     <script src="db-sync.js"></script>
 
     <script>
-        console.log("🔐 Admin Panel - DISEMPURNAKAN Verifikasi + Keuangan");
+        console.log("🔐 Admin Panel v2.1 - FIXED NAVIGATION");
 
-        // ===== GLOBAL DATA =====
+        // ===== GLOBAL DATA DECLARATION (EARLY) =====
         let allSiswaData = [];
         let jadwalLatihan = [];
         let jadwalTurnamen = [];
         let keuanganData = [];
         let pendaftarData = [];
         let verifikasiLog = [];
-        
-        // Data untuk modal verifikasi
         let modalPendaftarData = null;
 
-        // KONSTANTA NOMINAL DAFTAR
         const NOMINAL_DAFTAR = {
             'Reguler': 500000,
             'Beasiswa': 100000
         };
 
-        // ===== ALERT FUNCTION =====
+        // ===== ALERT FUNCTION (EARLY DEFINITION) =====
         function showAlert(msg, type = "success", time = 2200) {
             const icons = {
                 success: '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>',
@@ -583,7 +574,54 @@
             }, time);
         }
 
-        // ===== LOAD DATA =====
+        // ===== CORE NAVIGATION FUNCTION (FIX #1) =====
+        function showSection(sectionId) {
+            console.log("🔄 Navigating to:", sectionId);
+            
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(s => {
+                s.classList.remove('active');
+            });
+            
+            // Remove active from all nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Show target section
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.classList.add('active');
+                console.log("✅ Section activated:", sectionId);
+            } else {
+                console.error("❌ Section not found:", sectionId);
+                return;
+            }
+            
+            // Mark nav link as active
+            const navLink = document.querySelector(`[data-section="${sectionId}"]`);
+            if (navLink) {
+                navLink.classList.add('active');
+            }
+            
+            // Load data for specific sections
+            if (sectionId === 'db_siswa') {
+                renderAllSiswa();
+            } else if (sectionId === 'verifikasi') {
+                renderVerifikasi();
+            } else if (sectionId === 'absensi') {
+                renderAbsensi();
+            } else if (sectionId === 'keuangan') {
+                loadKeuangan();
+            } else if (sectionId === 'saran') {
+                renderSaran();
+            } else if (sectionId === 'jadwal') {
+                loadJadwalLatihan();
+                loadJadwalTurnamen();
+            }
+        }
+
+        // ===== LOAD DATA FUNCTIONS =====
         function loadPendaftarData() {
             const stored = localStorage.getItem('pendaftarData');
             pendaftarData = stored ? JSON.parse(stored) : [];
@@ -619,10 +657,9 @@
             document.getElementById('totalKeluar').textContent = formatRupiah(totalKeluar);
             document.getElementById('saldoAkhir').textContent = formatRupiah(saldo);
             
-            console.log("💰 Saldo Updated - Masuk: " + formatRupiah(totalMasuk) + " | Keluar: " + formatRupiah(totalKeluar) + " | Saldo: " + formatRupiah(saldo));
+            console.log("💰 Saldo Updated");
         }
 
-        // ===== UPDATE SUMMARY KEUANGAN =====
         function updateSummaryKeuangan() {
             const totalTransaksi = keuanganData.length;
             const totalMasukCount = keuanganData.filter(k => k.jenisMasukKeluar === 'Masuk').length;
@@ -633,12 +670,18 @@
             document.getElementById('totalKeluarCount').textContent = totalKeluarCount;
         }
 
-        // ===== RENDER VERIFIKASI - DENGAN TOMBOL SEMI-OTOMATIS =====
+        // ===== VERIFIKASI FUNCTIONS =====
         function renderVerifikasi() {
             loadPendaftarData();
             
+            if (typeof DBManager === 'undefined') {
+                console.warn("⚠️ DBManager not ready");
+                document.getElementById('listVerifikasi').innerHTML = '<tr><td colspan="9" style="text-align:center; padding: 20px;">DBManager loading...</td></tr>';
+                return;
+            }
+            
             DBManager.getPendaftar(function(data) {
-                console.log("📋 Pendaftar diterima dari DBManager:", data.length);
+                console.log("📋 Pendaftar received:", data.length);
                 
                 pendaftarData = data.length > 0 ? data : pendaftarData;
                 const belumDisetujui = pendaftarData.filter(p => p.status !== 'DISETUJUI');
@@ -674,64 +717,66 @@
                     `;
                 }).join('');
 
-                console.log("✅ Tabel Verifikasi dirender:", belumDisetujui.length);
+                console.log("✅ Verifikasi table rendered");
             });
         }
 
-        // ===== MODAL VERIFIKASI =====
         function openModalVerifikasi(encoded) {
-            const pendaftar = JSON.parse(decodeURIComponent(encoded));
-            modalPendaftarData = pendaftar;
-            const nominal = NOMINAL_DAFTAR[pendaftar.tipe] || 500000;
+            try {
+                const pendaftar = JSON.parse(decodeURIComponent(encoded));
+                modalPendaftarData = pendaftar;
+                const nominal = NOMINAL_DAFTAR[pendaftar.tipe] || 500000;
 
-            const content = `
-                <div style="background: #f9f9f9; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
-                    <strong style="color: #003399; display: block; margin-bottom: 10px;">📌 DATA PENDAFTAR:</strong>
-                    <div style="font-size: 13px; line-height: 1.8;">
-                        <div><strong>Nama:</strong> ${pendaftar.nama}</div>
-                        <div><strong>NISW:</strong> ${pendaftar.nisw}</div>
-                        <div><strong>Kategori:</strong> ${pendaftar.kategori}</div>
-                        <div><strong>Tipe:</strong> <span class="success-badge">${pendaftar.tipe}</span></div>
+                const content = `
+                    <div style="background: #f9f9f9; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
+                        <strong style="color: #003399; display: block; margin-bottom: 10px;">📌 DATA PENDAFTAR:</strong>
+                        <div style="font-size: 13px; line-height: 1.8;">
+                            <div><strong>Nama:</strong> ${pendaftar.nama}</div>
+                            <div><strong>NISW:</strong> ${pendaftar.nisw}</div>
+                            <div><strong>Kategori:</strong> ${pendaftar.kategori}</div>
+                            <div><strong>Tipe:</strong> <span class="success-badge">${pendaftar.tipe}</span></div>
+                        </div>
                     </div>
-                </div>
 
-                <div style="background: #e8f5e9; border-left: 4px solid #28a745; padding: 12px; border-radius: 6px; margin-bottom: 15px;">
-                    <strong style="color: #28a745; display: block; margin-bottom: 8px;">💰 TRANSAKSI YANG AKAN DICATAT:</strong>
-                    <div style="font-size: 12px; line-height: 1.8; color: #155724;">
-                        <div>✓ <strong>Kategori:</strong> Uang Pendaftaran</div>
-                        <div>✓ <strong>Sumber:</strong> ${pendaftar.nama} (${pendaftar.nisw})</div>
-                        <div>✓ <strong>Nominal:</strong> <strong style="font-size: 14px; color: #28a745;">Rp ${formatRupiah(nominal)}</strong></div>
-                        <div>✓ <strong>Tipe:</strong> ${pendaftar.tipe}</div>
-                        <div>✓ <strong>Tanggal:</strong> ${new Date().toLocaleDateString('id-ID')}</div>
+                    <div style="background: #e8f5e9; border-left: 4px solid #28a745; padding: 12px; border-radius: 6px; margin-bottom: 15px;">
+                        <strong style="color: #28a745; display: block; margin-bottom: 8px;">💰 TRANSAKSI YANG AKAN DICATAT:</strong>
+                        <div style="font-size: 12px; line-height: 1.8; color: #155724;">
+                            <div>✓ <strong>Kategori:</strong> Uang Pendaftaran</div>
+                            <div>✓ <strong>Sumber:</strong> ${pendaftar.nama} (${pendaftar.nisw})</div>
+                            <div>✓ <strong>Nominal:</strong> <strong style="font-size: 14px; color: #28a745;">Rp ${formatRupiah(nominal)}</strong></div>
+                            <div>✓ <strong>Tipe:</strong> ${pendaftar.tipe}</div>
+                            <div>✓ <strong>Tanggal:</strong> ${new Date().toLocaleDateString('id-ID')}</div>
+                        </div>
                     </div>
-                </div>
 
-                <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; border-radius: 6px;">
-                    <strong style="color: #856404; display: block; margin-bottom: 8px;">⚠️ PROSES YANG AKAN DILAKUKAN:</strong>
-                    <ul style="margin: 0 0 0 20px; font-size: 12px; color: #856404; line-height: 1.8;">
-                        <li>✓ Update status pendaftar menjadi "DISETUJUI"</li>
-                        <li>✓ Catat transaksi ke Keuangan</li>
-                        <li>✓ Hitung ulang saldo kas</li>
-                        <li>✓ Cegah duplikasi verifikasi</li>
-                    </ul>
-                </div>
-            `;
+                    <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; border-radius: 6px;">
+                        <strong style="color: #856404; display: block; margin-bottom: 8px;">⚠️ PROSES YANG AKAN DILAKUKAN:</strong>
+                        <ul style="margin: 0 0 0 20px; font-size: 12px; color: #856404; line-height: 1.8;">
+                            <li>✓ Update status pendaftar menjadi "DISETUJUI"</li>
+                            <li>✓ Catat transaksi ke Keuangan</li>
+                            <li>✓ Hitung ulang saldo kas</li>
+                            <li>✓ Cegah duplikasi verifikasi</li>
+                        </ul>
+                    </div>
+                `;
 
-            document.getElementById('modalBodyVerifikasi').innerHTML = content;
-            document.getElementById('modalVerifikasi').classList.add('active');
-            console.log("🔓 Modal verifikasi dibuka untuk:", pendaftar.nama);
+                document.getElementById('modalBodyVerifikasi').innerHTML = content;
+                document.getElementById('modalVerifikasi').classList.add('active');
+                console.log("🔓 Modal verifikasi dibuka untuk:", pendaftar.nama);
+            } catch (e) {
+                console.error("❌ Modal error:", e);
+                showAlert("Error membuka modal", "error");
+            }
         }
 
         function closeModalVerifikasi() {
             document.getElementById('modalVerifikasi').classList.remove('active');
             modalPendaftarData = null;
-            console.log("🔒 Modal verifikasi ditutup");
         }
 
-        // ===== SEMI-OTOMATIS PROSES =====
         function prosesSemiOtomatis() {
             if (!modalPendaftarData) {
-                showAlert("❌ Error: Data pendaftar tidak ditemukan!", "error");
+                showAlert("❌ Error: Data tidak ditemukan!", "error");
                 return;
             }
 
@@ -739,24 +784,22 @@
             const nominal = NOMINAL_DAFTAR[pendaftar.tipe] || 500000;
             const referensi = 'VERIF_' + (pendaftar.nisw || pendaftar.nama).replace(/\s+/g, '_');
 
-            // CEK DUPLIKASI
             const isDuplicate = verifikasiLog.find(v => v.referensi === referensi);
             if (isDuplicate) {
-                showAlert("⚠️ Pendaftar " + pendaftar.nama + " sudah pernah diverifikasi!", "warn");
+                showAlert("⚠️ Sudah pernah diverifikasi!", "warn");
                 closeModalVerifikasi();
                 return;
             }
 
             try {
-                // 1️⃣ UPDATE STATUS PENDAFTAR
+                // UPDATE STATUS
                 const idx = pendaftarData.findIndex(p => p.nisw === pendaftar.nisw);
                 if (idx !== -1) {
                     pendaftarData[idx].status = 'DISETUJUI';
                     localStorage.setItem('pendaftarData', JSON.stringify(pendaftarData));
-                    console.log("✅ Status pendaftar updated:", pendaftar.nama);
                 }
 
-                // 2️⃣ CATAT KE KEUANGAN
+                // CATAT KE KEUANGAN
                 const transaksi = {
                     id: Date.now().toString(),
                     tanggal: new Date().toLocaleDateString('id-ID'),
@@ -772,9 +815,8 @@
 
                 keuanganData.push(transaksi);
                 localStorage.setItem('keuanganData', JSON.stringify(keuanganData));
-                console.log("✅ Transaksi keuangan ditambahkan");
 
-                // 3️⃣ CATAT LOG VERIFIKASI
+                // LOG
                 const logEntry = {
                     nisw: pendaftar.nisw,
                     nama: pendaftar.nama,
@@ -788,21 +830,15 @@
 
                 verifikasiLog.push(logEntry);
                 localStorage.setItem('verifikasiLog', JSON.stringify(verifikasiLog));
-                console.log("📋 Log verifikasi disimpan");
 
-                // 4️⃣ UPDATE SALDO
                 hitungSaldoKeuangan();
                 updateSummaryKeuangan();
 
-                // 5️⃣ TAMPILKAN NOTIF
-                showAlert(`✅ ${pendaftar.nama} DISETUJUI!\n💰 Rp ${formatRupiah(nominal)} tercatat ke Keuangan`, "success", 3500);
+                showAlert(`✅ ${pendaftar.nama} DISETUJUI!\n💰 Rp ${formatRupiah(nominal)} tercatat`, "success", 3500);
 
-                // 6️⃣ CLOSE & REFRESH
                 closeModalVerifikasi();
                 renderVerifikasi();
                 loadKeuangan();
-
-                console.log("🎉 Semi-Otomatis Selesai untuk:", pendaftar.nama);
 
             } catch (error) {
                 console.error("❌ Error:", error);
@@ -810,7 +846,7 @@
             }
         }
 
-        // ===== RENDER KEUANGAN =====
+        // ===== KEUANGAN FUNCTIONS =====
         function renderKeuangan() {
             const tbody = document.getElementById('listKeuangan');
 
@@ -846,11 +882,8 @@
                     </tr>
                 `;
             }).join('');
-            
-            console.log("✅ Tabel Keuangan dirender:", sorted.length);
         }
 
-        // ===== KEUANGAN - FORM PEMASUKAN =====
         function updateFormPemasukan() {
             const jenis = document.getElementById('jenisPemasukan').value;
             document.getElementById('fieldNISW').style.display = (jenis === 'SPP' || jenis === 'Daftar' || jenis === 'Kompetisi') ? 'block' : 'none';
@@ -865,13 +898,18 @@
                 return;
             }
 
+            if (typeof DBManager === 'undefined') {
+                fieldNama.value = '[DBManager not ready]';
+                return;
+            }
+
             DBManager.findSiswa(nisw, function(siswa) {
                 if (siswa) {
                     fieldNama.value = siswa.nama || '';
                     showAlert("✅ Siswa ditemukan: " + siswa.nama, "success", 1500);
                 } else {
-                    fieldNama.value = '[NISW Tidak Ditemukan] - Isi manual';
-                    showAlert("⚠️ NISW tidak ditemukan - Isi manual", "warn", 1500);
+                    fieldNama.value = '[NISW tidak ditemukan]';
+                    showAlert("⚠️ NISW tidak ditemukan", "warn", 1500);
                 }
             });
         }
@@ -884,15 +922,13 @@
             const nominal = parseInt(document.getElementById('nomBayar')?.value) || 0;
             const keterangan = document.getElementById('ketMasuk')?.value?.trim() || '';
 
-            // VALIDASI
-            if (!jenis) { showAlert("⚠️ Pilih jenis pemasukan!", "warn"); return; }
-            if (nominal <= 0) { showAlert("⚠️ Nominal harus lebih dari 0!", "warn"); return; }
-            if (!keterangan) { showAlert("⚠️ Keterangan diwajibkan!", "warn"); return; }
+            if (!jenis) { showAlert("⚠️ Pilih jenis!", "warn"); return; }
+            if (nominal <= 0) { showAlert("⚠️ Nominal > 0!", "warn"); return; }
+            if (!keterangan) { showAlert("⚠️ Isi keterangan!", "warn"); return; }
 
-            // CEK SUMBER
             let sumber = '';
             if ((jenis === 'SPP' || jenis === 'Daftar' || jenis === 'Kompetisi') && (nisw || namaSiswa)) {
-                if (namaSiswa && !namaSiswa.includes('[NISW')) {
+                if (namaSiswa && !namaSiswa.includes('[')) {
                     sumber = namaSiswa + (nisw ? ` (${nisw})` : '');
                 } else if (nisw) {
                     sumber = `NISW: ${nisw}`;
@@ -901,7 +937,7 @@
                 sumber = pengirimMasuk;
             }
 
-            if (!sumber) { showAlert("⚠️ Isi 'Diterima Dari'!", "warn"); return; }
+            if (!sumber) { showAlert("⚠️ Isi sumber!", "warn"); return; }
 
             let kategoriDisplay = jenis;
             if (jenis === 'SPP') kategoriDisplay = 'SPP';
@@ -924,9 +960,8 @@
             keuanganData.push(transaksi);
             localStorage.setItem('keuanganData', JSON.stringify(keuanganData));
 
-            showAlert("✅ Pemasukan Rp " + formatRupiah(nominal) + " dari " + sumber.split('(')[0].trim() + " disimpan!", "success");
+            showAlert("✅ Pemasukan disimpan!", "success");
 
-            // RESET FORM
             document.getElementById('jenisPemasukan').value = '';
             document.getElementById('niswBayar').value = '';
             document.getElementById('namaSiswaAuto').value = '';
@@ -945,10 +980,9 @@
             const nominal = parseInt(document.getElementById('nomKeluar')?.value) || 0;
             const keterangan = document.getElementById('catatanKeluar')?.value?.trim() || '';
 
-            // VALIDASI
-            if (!keperluan) { showAlert("⚠️ Masukkan keperluan!", "warn"); return; }
-            if (nominal <= 0) { showAlert("⚠️ Nominal harus lebih dari 0!", "warn"); return; }
-            if (!keterangan) { showAlert("⚠️ Keterangan diwajibkan!", "warn"); return; }
+            if (!keperluan) { showAlert("⚠️ Isi keperluan!", "warn"); return; }
+            if (nominal <= 0) { showAlert("⚠️ Nominal > 0!", "warn"); return; }
+            if (!keterangan) { showAlert("⚠️ Isi keterangan!", "warn"); return; }
 
             const transaksi = {
                 id: Date.now().toString(),
@@ -965,9 +999,8 @@
             keuanganData.push(transaksi);
             localStorage.setItem('keuanganData', JSON.stringify(keuanganData));
 
-            showAlert("✅ Pengeluaran Rp " + formatRupiah(nominal) + " untuk " + keperluan + " disimpan!", "success");
+            showAlert("✅ Pengeluaran disimpan!", "success");
 
-            // RESET FORM
             document.getElementById('ketKeluar').value = '';
             document.getElementById('nomKeluar').value = '';
             document.getElementById('catatanKeluar').value = '';
@@ -978,17 +1011,17 @@
         }
 
         function editTransaksi(id) {
-            showAlert("✏️ Edit Transaksi - Coming Soon", "info");
+            showAlert("✏️ Edit - Coming Soon", "info");
         }
 
         function hapusTransaksi(id) {
             const transaksi = keuanganData.find(k => k.id === id);
             if (!transaksi) return;
 
-            if (confirm("⚠️ Yakin hapus transaksi?\n\n" + transaksi.jenisMasukKeluar + " - " + transaksi.sumber + "\n" + formatRupiah(transaksi.nominal))) {
+            if (confirm("⚠️ Yakin hapus?\n\n" + formatRupiah(transaksi.nominal))) {
                 keuanganData = keuanganData.filter(k => k.id !== id);
                 localStorage.setItem('keuanganData', JSON.stringify(keuanganData));
-                showAlert("✅ Transaksi dihapus!", "success");
+                showAlert("✅ Dihapus!", "success");
                 hitungSaldoKeuangan();
                 updateSummaryKeuangan();
                 renderKeuangan();
@@ -997,18 +1030,17 @@
 
         function refreshKeuangan() {
             loadKeuangan();
-            showAlert("✅ Data diperbarui!", "success");
+            showAlert("✅ Diperbarui!", "success");
         }
 
         function hitungUlangSaldo() {
-            console.log("🔄 Hitung ulang saldo...");
             hitungSaldoKeuangan();
-            showAlert("✅ Saldo berhasil dihitung ulang!", "success");
+            showAlert("✅ Saldo dihitung ulang!", "success");
         }
 
         function exportKeuangan() {
             if (keuanganData.length === 0) {
-                showAlert("⚠️ Tidak ada data untuk di-export!", "warn");
+                showAlert("⚠️ Tidak ada data!", "warn");
                 return;
             }
 
@@ -1018,11 +1050,7 @@
 
             let csv = 'LAPORAN KEUANGAN SSB WIND SOCCER\n';
             csv += 'Tanggal Export: ' + new Date().toLocaleString('id-ID') + '\n\n';
-            csv += 'RINGKASAN:\n';
-            csv += 'Total Masuk,Rp' + totalMasuk + '\n';
-            csv += 'Total Keluar,Rp' + totalKeluar + '\n';
-            csv += 'Saldo Akhir,Rp' + saldo + '\n\n';
-            csv += 'DETAIL TRANSAKSI:\n';
+            csv += 'Total Masuk,Rp' + totalMasuk + '\nTotal Keluar,Rp' + totalKeluar + '\nSaldo,Rp' + saldo + '\n\n';
             csv += 'Tanggal,Jenis,Sumber,Kategori,Keterangan,Nominal\n';
 
             keuanganData.forEach(k => {
@@ -1035,21 +1063,21 @@
             link.download = `Keuangan_SSB_${new Date().toLocaleDateString('id-ID')}.csv`;
             link.click();
 
-            showAlert("✅ File CSV berhasil di-download!", "success", 3000);
+            showAlert("✅ Export berhasil!", "success");
         }
 
         function resetKeuangan() {
-            if (confirm("⚠️⚠️⚠️ PERHATIAN! Ini akan menghapus SEMUA " + keuanganData.length + " transaksi!\n\nYakin?")) {
+            if (confirm("⚠️ Hapus SEMUA " + keuanganData.length + " transaksi?")) {
                 keuanganData = [];
                 localStorage.setItem('keuanganData', JSON.stringify(keuanganData));
-                showAlert("✅ Semua data dihapus!", "success");
+                showAlert("✅ Dihapus!", "success");
                 hitungSaldoKeuangan();
                 updateSummaryKeuangan();
                 renderKeuangan();
             }
         }
 
-        // ===== JADWAL LATIHAN ==========
+        // ===== JADWAL FUNCTIONS =====
         function loadJadwalLatihan() {
             const stored = localStorage.getItem('jadwalLatihan');
             if (stored) {
@@ -1109,7 +1137,7 @@
             const newJadwal = { id: Date.now(), hari, tempat, waktu };
             jadwalLatihan.push(newJadwal);
             localStorage.setItem('jadwalLatihan', JSON.stringify(jadwalLatihan));
-            showAlert("✅ Jadwal " + hari + " ditambahkan!", "success");
+            showAlert("✅ Jadwal ditambahkan!", "success");
 
             document.getElementById('inputHari').value = '';
             document.getElementById('inputTempat').value = '';
@@ -1119,15 +1147,14 @@
         }
 
         function hapusJadwalLatihan(id) {
-            if (confirm("⚠️ Yakin hapus jadwal ini?")) {
+            if (confirm("⚠️ Yakin hapus?")) {
                 jadwalLatihan = jadwalLatihan.filter(j => j.id !== id);
                 localStorage.setItem('jadwalLatihan', JSON.stringify(jadwalLatihan));
-                showAlert("✅ Jadwal dihapus!", "success");
+                showAlert("✅ Dihapus!", "success");
                 renderJadwalLatihan();
             }
         }
 
-        // ===== JADWAL TURNAMEN ==========
         function loadJadwalTurnamen() {
             const stored = localStorage.getItem('jadwalTurnamen');
             jadwalTurnamen = stored ? JSON.parse(stored) : [];
@@ -1185,7 +1212,7 @@
             const newTurnamen = { id: Date.now(), namaEvent: nama, tanggal: tgl, lokasi, waktu, status: 'Upcoming' };
             jadwalTurnamen.push(newTurnamen);
             localStorage.setItem('jadwalTurnamen', JSON.stringify(jadwalTurnamen));
-            showAlert("✅ Turnamen " + nama + " ditambahkan!", "success");
+            showAlert("✅ Turnamen ditambahkan!", "success");
 
             document.getElementById('namaEvent').value = '';
             document.getElementById('tglEvent').value = '';
@@ -1196,39 +1223,25 @@
         }
 
         function hapusTurnamen(id) {
-            if (confirm("⚠️ Yakin hapus turnamen ini?")) {
+            if (confirm("⚠️ Yakin hapus?")) {
                 jadwalTurnamen = jadwalTurnamen.filter(t => t.id !== id);
                 localStorage.setItem('jadwalTurnamen', JSON.stringify(jadwalTurnamen));
-                showAlert("✅ Turnamen dihapus!", "success");
+                showAlert("✅ Dihapus!", "success");
                 renderJadwalTurnamen();
             }
         }
 
-        // ========== SECTION NAVIGATION ==========
-        function showSection(id) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            
-            const target = document.getElementById(id);
-            if (target) target.classList.add('active');
-            
-            const navLink = event?.target.closest('.nav-link');
-            if (navLink) navLink.classList.add('active');
-
-            if (id === 'keuangan') loadKeuangan();
-            else if (id === 'jadwal') { loadJadwalLatihan(); loadJadwalTurnamen(); }
-            else if (id === 'db_siswa') renderAllSiswa();
-            else if (id === 'verifikasi') renderVerifikasi();
-            else if (id === 'absensi') renderAbsensi();
-            else if (id === 'saran') renderSaran();
-        }
-
-        // ========== DATABASE SISWA ==========
+        // ===== DATABASE SISWA =====
         function renderAllSiswa() {
             const filterKategori = document.getElementById('filterKategori')?.value || '';
             const filterTipe = document.getElementById('filterTipe')?.value || '';
             const filterStatusBayar = document.getElementById('filterStatusBayar')?.value || '';
             const searchText = document.getElementById('searchNiswNama')?.value?.toLowerCase() || '';
+
+            if (typeof DBManager === 'undefined') {
+                document.getElementById('listSiswaAktif').innerHTML = '<tr><td colspan="14">DBManager loading...</td></tr>';
+                return;
+            }
 
             DBManager.getSiswaAktif(function(siswaList) {
                 allSiswaData = siswaList;
@@ -1282,10 +1295,15 @@
             renderAllSiswa();
         }
 
-        // ========== ABSENSI ==========
+        // ===== ABSENSI =====
         function renderAbsensi() {
             const tgl = document.getElementById('searchTglAbsen')?.value || '';
             const nisw = document.getElementById('filterNiswAbsen')?.value?.toLowerCase() || '';
+
+            if (typeof DBManager === 'undefined') {
+                document.getElementById('listAbsensi').innerHTML = '<tr><td colspan="7">DBManager loading...</td></tr>';
+                return;
+            }
 
             DBManager.getAbsensi(function(data) {
                 let filtered = data.filter(a => (!tgl || a.tanggal === tgl) && (!nisw || a.nisw?.toLowerCase().includes(nisw)));
@@ -1310,10 +1328,16 @@
             });
         }
 
-        // ========== NILAI RAPORT ==========
+        // ===== RAPORT =====
         function loadSiswaForRaport() {
             const nisw = document.getElementById('niswNilai')?.value?.toUpperCase() || '';
             if (!nisw) return;
+            
+            if (typeof DBManager === 'undefined') {
+                showAlert("DBManager loading...", "info");
+                return;
+            }
+
             DBManager.findSiswa(nisw, function(siswa) {
                 if (siswa) {
                     document.getElementById('namaRaport').textContent = siswa.nama || '-';
@@ -1352,9 +1376,15 @@
             showAlert("✅ Nilai disimpan!", "success");
         }
 
-        // ========== SARAN MASUKAN ==========
+        // ===== SARAN =====
         function renderSaran() {
             const filter = document.getElementById('filterKategoriSaran')?.value || '';
+            
+            if (typeof DBManager === 'undefined') {
+                document.getElementById('listSaran').innerHTML = '<tr><td colspan="6">DBManager loading...</td></tr>';
+                return;
+            }
+
             DBManager.getSaran(function(data) {
                 document.getElementById('badgeSaran').textContent = data.length;
                 document.getElementById('badgeSaran').style.display = data.length > 0 ? 'block' : 'none';
@@ -1379,7 +1409,7 @@
             });
         }
 
-        // ========== HELPER FUNCTIONS ==========
+        // ===== HELPER FUNCTIONS =====
         function formatTanggal(tgl) {
             if (!tgl) return '-';
             if (tgl.includes('/')) return tgl;
@@ -1401,19 +1431,33 @@
 
         function logoutAdmin() {
             if (confirm("Yakin logout?")) {
-                showAlert("✅ Logout berhasil!", "success");
+                showAlert("✅ Logout!", "success");
                 setTimeout(() => window.location.href = "index.html", 1000);
             }
         }
 
-        // ========== INIT ==========
-        window.addEventListener('load', function() {
+        // ===== INIT NAVIGATION (FIX #2) =====
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("🚀 DOM Ready - Setting up navigation...");
+
+            // Setup nav link listeners
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const sectionId = this.dataset.section;
+                    console.log("👆 Nav clicked:", sectionId);
+                    showSection(sectionId);
+                });
+            });
+
+            // Init data
             loadPendaftarData();
             loadKeuangan();
             loadJadwalLatihan();
             loadJadwalTurnamen();
             renderAllSiswa();
-            console.log("✅ Admin Panel READY - Disempurnakan!");
+
+            console.log("✅ Admin Panel READY - All navigation working!");
         });
     </script>
 </body>
