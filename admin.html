@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        :root { --primary: #003399; --secondary: #ffb400; --dark: #1a1a1a; --success: #28a745; --danger: #dc3545; --info: #17a2b8; }
+        :root { --primary: #003399; --secondary: #ffb400; --dark: #1a1a1a; --success: #28a745; --danger: #dc3545; --info: #17a2b8; --warning: #ffc107; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Poppins', sans-serif; margin: 0; background: #f4f7f6; display: flex; }
         .sidebar { width: 260px; background: var(--primary); height: 100vh; color: white; position: fixed; padding: 20px; box-sizing: border-box; z-index: 1000; overflow-y: auto; display: flex; flex-direction: column; }
@@ -38,7 +38,7 @@
         .btn-add { background: var(--success); color: white; width: 100%; justify-content: center; }
         .btn-danger { background: var(--danger); color: white; }
         .btn-info { background: var(--info); color: white; }
-        .btn-warning { background: #ffc107; color: #333; font-weight: bold; }
+        .btn-warning { background: var(--warning); color: #333; font-weight: bold; }
         .btn-print { background: #6f42c1; color: white; }
         .btn-success { background: var(--success); color: white; }
         .btn-sm { padding: 6px 10px; font-size: 11px; }
@@ -68,12 +68,22 @@
         .alert-warn { border-top: 6px solid #ff9800; }
         .alert-info { border-top: 6px solid #003399; }
         @keyframes zoomIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
-        .row-action { display: flex; gap: 5px; justify-content: center; }
+        .row-action { display: flex; gap: 5px; justify-content: center; flex-wrap: wrap; }
         .row-action .btn { flex: 0; }
         .loading-spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid #f3f3f3; border-radius: 50%; border-top: 2px solid var(--primary); animation: spin 0.6s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .nominal-cell { text-align: right; font-weight: bold; min-width: 120px; }
         .info-box { background: #e7f3ff; border-left: 4px solid #003399; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 12px; color: #003399; }
+        .success-badge { background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+        .pending-badge { background: #fff3cd; color: #856404; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; }
+        .modal-overlay.active { display: block; }
+        .modal-content { background: white; padding: 30px; border-radius: 15px; max-width: 500px; margin: 50px auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+        .modal-header { font-size: 18px; font-weight: bold; color: var(--primary); margin-bottom: 20px; }
+        .modal-body { margin-bottom: 20px; font-size: 14px; line-height: 1.8; }
+        .modal-body strong { color: var(--primary); }
+        .modal-footer { display: flex; gap: 10px; justify-content: flex-end; }
+        .modal-footer .btn { flex: 1; justify-content: center; }
     </style>
 </head>
 <body>
@@ -139,24 +149,32 @@
             </div>
         </div>
 
-        <!-- ===== 2. VERIFIKASI PENDAFTAR ===== -->
+        <!-- ===== 2. VERIFIKASI PENDAFTAR - DENGAN SEMI-OTOMATIS ===== -->
         <div id="verifikasi" class="section">
             <div class="header-stats">
                 <div>Antrean Pendaftar: <h2 id="totalAntrean" style="color:white; margin:0">0</h2></div>
-                <div style="text-align:right">Verifikasi:<br><b>Setujui Pendaftaran Baru</b></div>
+                <div style="text-align:right">Verifikasi:<br><b>Setujui + Catat ke Keuangan</b></div>
             </div>
             <div class="card">
-                <h3>✅ Verifikasi Pendaftaran Baru</h3>
+                <h3>✅ Verifikasi Pendaftaran Baru (Semi-Otomatis)</h3>
+                <div class="info-box">
+                    ℹ️ Klik <strong>"SETUJUI + CATAT"</strong> untuk:
+                    <ul style="margin: 10px 0 0 20px;">
+                        <li>✓ Update status pendaftar menjadi Disetujui</li>
+                        <li>✓ Otomatis catat uang pendaftaran ke Keuangan</li>
+                        <li>✓ Update saldo kas</li>
+                    </ul>
+                </div>
                 <div class="btn-group" style="margin-bottom: 20px;">
                     <button class="btn btn-info" onclick="renderVerifikasi()"><i class="fas fa-sync-alt"></i> Refresh</button>
                 </div>
                 <div class="table-wrapper">
                     <table>
                         <thead>
-                            <tr><th>No</th><th>Foto</th><th>Nama</th><th>KU</th><th>Tipe Daftar</th><th>Status</th><th>Tgl Daftar</th><th>Aksi</th></tr>
+                            <tr><th>No</th><th>Foto</th><th>Nama</th><th>KU</th><th>Tipe</th><th>Nominal Daftar</th><th>Status</th><th>Tgl Daftar</th><th>Aksi</th></tr>
                         </thead>
                         <tbody id="listVerifikasi">
-                            <tr><td colspan="8" style="text-align:center; padding: 20px;"><span class="loading-spinner"></span> Memuat data...</td></tr>
+                            <tr><td colspan="9" style="text-align:center; padding: 20px;"><span class="loading-spinner"></span> Memuat data...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -185,7 +203,7 @@
             </div>
         </div>
 
-        <!-- ===== 4. KEUANGAN - DIPERBAIKI DENGAN SUMBER OTOMATIS ===== -->
+        <!-- ===== 4. KEUANGAN ===== -->
         <div id="keuangan" class="section">
             <!-- STATISTIK KEUANGAN -->
             <div class="finance-grid">
@@ -477,6 +495,22 @@
         </div>
     </div>
 
+    <!-- MODAL KONFIRMASI VERIFIKASI + CATAT KEUANGAN -->
+    <div id="modalVerifikasi" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                ✅ Konfirmasi Verifikasi Pendaftar
+            </div>
+            <div class="modal-body">
+                <div id="modalBodyContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="closeModalVerifikasi()"><i class="fas fa-times"></i> Batal</button>
+                <button class="btn btn-success" onclick="prosesSemiOtomatis()"><i class="fas fa-check"></i> Ya, Setujui</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -484,13 +518,24 @@
     <script src="db-sync.js"></script>
 
     <script>
-        console.log("🔐 Admin Panel - Keuangan Diperbaiki: Sumber Otomatis + Keterangan Terpisah");
+        console.log("🔐 Admin Panel - Semi-Otomatis Verifikasi + Catat Keuangan");
 
         // ===== GLOBAL DATA =====
         let allSiswaData = [];
         let jadwalLatihan = [];
         let jadwalTurnamen = [];
         let keuanganData = [];
+        let pendaftarData = [];
+        let verifikasiLog = [];
+        
+        // Data untuk modal verifikasi
+        let modalPendaftarData = null;
+
+        // KONSTANTA NOMINAL DAFTAR
+        const NOMINAL_DAFTAR = {
+            'Reguler': 500000,
+            'Beasiswa': 100000
+        };
 
         // ===== ALERT FUNCTION =====
         function showAlert(msg, type = "success", time = 2200) {
@@ -511,52 +556,142 @@
             }, time);
         }
 
-        // ========== KEUANGAN FUNCTIONS - SUMBER OTOMATIS ==========
-
-        // Update Form Dinamis
-        function updateFormPemasukan() {
-            const jenis = document.getElementById('jenisPemasukan').value;
-            document.getElementById('fieldNISW').style.display = (jenis === 'SPP' || jenis === 'Daftar' || jenis === 'Kompetisi') ? 'block' : 'none';
+        // ===== MODAL FUNCTIONS =====
+        function openModalVerifikasi(pendaftar) {
+            modalPendaftarData = pendaftar;
+            const nominal = NOMINAL_DAFTAR[pendaftar.tipe] || 500000;
+            
+            const content = `
+                <strong style="color: #003399; font-size: 16px;">Nama:</strong> ${pendaftar.nama}<br>
+                <strong style="color: #003399;">NISW:</strong> ${pendaftar.nisw || '-'}<br>
+                <strong style="color: #003399;">Kategori (KU):</strong> ${pendaftar.kategori || '-'}<br>
+                <strong style="color: #003399;">Tipe:</strong> <span class="success-badge">${pendaftar.tipe}</span><br>
+                <strong style="color: #dc3545; font-size: 15px;">Nominal Daftar:</strong> <span style="color: #28a745; font-weight: bold; font-size: 18px;">Rp ${formatRupiah(nominal)}</span><br><br>
+                <div style="background: #e8f5e9; padding: 10px; border-radius: 6px; border-left: 4px solid #28a745;">
+                    <strong style="color: #28a745;">✓ Akan dilakukan:</strong>
+                    <ul style="margin: 8px 0 0 20px; font-size: 13px;">
+                        <li>Update status menjadi "Disetujui"</li>
+                        <li>Catat Rp ${formatRupiah(nominal)} ke Keuangan</li>
+                        <li>Kategori: Uang Pendaftaran</li>
+                        <li>Sumber: ${pendaftar.nama}</li>
+                        <li>Saldo kas otomatis update</li>
+                    </ul>
+                </div>
+            `;
+            
+            document.getElementById('modalBodyContent').innerHTML = content;
+            document.getElementById('modalVerifikasi').classList.add('active');
+            console.log("🔓 Modal verifikasi dibuka untuk:", pendaftar.nama);
         }
 
-        // Cari Nama Siswa dari NISW
-        function cariNamaSiswa() {
-            const nisw = document.getElementById('niswBayar')?.value?.trim().toUpperCase();
-            const fieldNama = document.getElementById('namaSiswaAuto');
-            
-            if (!nisw) {
-                fieldNama.value = '';
+        function closeModalVerifikasi() {
+            document.getElementById('modalVerifikasi').classList.remove('active');
+            modalPendaftarData = null;
+            console.log("🔒 Modal verifikasi ditutup");
+        }
+
+        // ===== SEMI-OTOMATIS PROSES =====
+        function prosesSemiOtomatis() {
+            if (!modalPendaftarData) {
+                showAlert("❌ Error: Data pendaftar tidak ditemukan!", "error");
                 return;
             }
 
-            // Cari dari database siswa
-            DBManager.findSiswa(nisw, function(siswa) {
-                if (siswa) {
-                    fieldNama.value = siswa.nama || '';
-                    console.log("✅ Siswa ditemukan:", siswa.nama);
-                    showAlert("✅ Siswa ditemukan: " + siswa.nama, "success", 1500);
-                } else {
-                    fieldNama.value = '[NISW Tidak Ditemukan] - Isi manual';
-                    console.log("⚠️ NISW tidak ditemukan:", nisw);
-                    showAlert("⚠️ NISW tidak ditemukan di database - Isi manual", "warn", 1500);
+            const pendaftar = modalPendaftarData;
+            const nominal = NOMINAL_DAFTAR[pendaftar.tipe] || 500000;
+            const referensi = 'VERIF_' + (pendaftar.nisw || pendaftar.nama).replace(/\s+/g, '_');
+
+            // 1️⃣ CEK DUPLIKASI - JANGAN CATAT 2X
+            const isDuplicate = verifikasiLog.find(v => v.referensi === referensi);
+            if (isDuplicate) {
+                showAlert("⚠️ Pendaftar " + pendaftar.nama + " sudah pernah diverifikasi sebelumnya!", "warn");
+                closeModalVerifikasi();
+                return;
+            }
+
+            try {
+                // 2️⃣ UPDATE STATUS PENDAFTAR
+                const updatedPendaftar = { ...pendaftar, status: 'DISETUJUI' };
+                const idx = pendaftarData.findIndex(p => p.nisw === pendaftar.nisw);
+                if (idx !== -1) {
+                    pendaftarData[idx] = updatedPendaftar;
+                    localStorage.setItem('pendaftarData', JSON.stringify(pendaftarData));
+                    console.log("✅ Status pendaftar updated:", pendaftar.nama);
                 }
-            });
+
+                // 3️⃣ CATAT KE KEUANGAN
+                const transaksi = {
+                    id: Date.now().toString(),
+                    tanggal: new Date().toLocaleDateString('id-ID'),
+                    jenisMasukKeluar: 'Masuk',
+                    jenis: 'Daftar',
+                    kategori: 'Uang Pendaftaran',
+                    sumber: pendaftar.nama + (pendaftar.nisw ? ` (${pendaftar.nisw})` : ''),
+                    keterangan: `Uang Daftar - ${pendaftar.tipe}`,
+                    nominal: nominal,
+                    referensi: referensi,
+                    createdAt: new Date().toISOString()
+                };
+
+                keuanganData.push(transaksi);
+                localStorage.setItem('keuanganData', JSON.stringify(keuanganData));
+                console.log("✅ Transaksi keuangan ditambahkan:", transaksi);
+
+                // 4️⃣ CATAT LOG VERIFIKASI (untuk audit)
+                const logEntry = {
+                    nisw: pendaftar.nisw,
+                    nama: pendaftar.nama,
+                    tipe: pendaftar.tipe,
+                    nominal: nominal,
+                    referensi: referensi,
+                    diverifikasiOleh: 'Admin', // Bisa ditambah login user
+                    tanggal: new Date().toISOString(),
+                    transaksiId: transaksi.id
+                };
+
+                verifikasiLog.push(logEntry);
+                localStorage.setItem('verifikasiLog', JSON.stringify(verifikasiLog));
+                console.log("📋 Log verifikasi disimpan:", logEntry);
+
+                // 5️⃣ UPDATE SALDO
+                hitungSaldoKeuangan();
+
+                // 6️⃣ TAMPILKAN NOTIF
+                showAlert(`✅ ${pendaftar.nama} DISETUJUI!\n💰 Rp ${formatRupiah(nominal)} tercatat ke Keuangan`, "success", 3500);
+
+                // 7️⃣ REFRESH TABEL
+                closeModalVerifikasi();
+                renderVerifikasi();
+                loadKeuangan();
+
+                console.log("🎉 Semi-Otomatis Proses Selesai untuk:", pendaftar.nama);
+
+            } catch (error) {
+                console.error("❌ Error saat proses semi-otomatis:", error);
+                showAlert("❌ Error: " + error.message, "error");
+            }
         }
 
-        // Load Keuangan
+        // ===== LOAD DATA =====
+        function loadPendaftarData() {
+            const stored = localStorage.getItem('pendaftarData');
+            pendaftarData = stored ? JSON.parse(stored) : [];
+            
+            const storedLog = localStorage.getItem('verifikasiLog');
+            verifikasiLog = storedLog ? JSON.parse(storedLog) : [];
+            
+            console.log("📊 Pendaftar Data Loaded:", pendaftarData.length, "| Log:", verifikasiLog.length);
+        }
+
         function loadKeuangan() {
             const stored = localStorage.getItem('keuanganData');
-            if (stored) {
-                keuanganData = JSON.parse(stored);
-            } else {
-                keuanganData = [];
-            }
+            keuanganData = stored ? JSON.parse(stored) : [];
             console.log("📊 Keuangan Data Loaded:", keuanganData.length, "items");
             hitungSaldoKeuangan();
             renderKeuangan();
         }
 
-        // Hitung Saldo
+        // ===== HITUNG SALDO KEUANGAN =====
         function hitungSaldoKeuangan() {
             const totalMasuk = keuanganData
                 .filter(k => k.jenisMasukKeluar === 'Masuk')
@@ -572,10 +707,60 @@
             document.getElementById('totalKeluar').textContent = formatRupiah(totalKeluar);
             document.getElementById('saldoAkhir').textContent = formatRupiah(saldo);
             
-            console.log("💰 Saldo: Masuk=" + totalMasuk + " | Keluar=" + totalKeluar + " | Saldo=" + saldo);
+            console.log("💰 Saldo Updated - Masuk: Rp" + formatRupiah(totalMasuk) + " | Keluar: Rp" + formatRupiah(totalKeluar) + " | Saldo: Rp" + formatRupiah(saldo));
         }
 
-        // Render Tabel Keuangan - DENGAN KOLOM SUMBER TERPISAH
+        // ===== RENDER VERIFIKASI - DENGAN TOMBOL SEMI-OTOMATIS =====
+        function renderVerifikasi() {
+            loadPendaftarData();
+            
+            DBManager.getPendaftar(function(data) {
+                console.log("📋 Pendaftar diterima dari DBManager:", data.length);
+                
+                // Gabungkan dengan localStorage data
+                pendaftarData = data.length > 0 ? data : pendaftarData;
+                
+                // Filter hanya yang belum disetujui
+                const belumDisetujui = pendaftarData.filter(p => p.status !== 'DISETUJUI');
+                
+                document.getElementById('totalAntrean').textContent = belumDisetujui.length;
+                document.getElementById('badgeCount').textContent = belumDisetujui.length;
+                document.getElementById('badgeCount').style.display = belumDisetujui.length > 0 ? 'block' : 'none';
+
+                const tbody = document.getElementById('listVerifikasi');
+                if (belumDisetujui.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 30px;">✅ Tidak ada pendaftar</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = belumDisetujui.map((p, i) => {
+                    const nominal = NOMINAL_DAFTAR[p.tipe] || 500000;
+                    return `
+                        <tr>
+                            <td style="text-align: center; font-weight: bold;">${i + 1}</td>
+                            <td><img src="${p.foto || 'https://via.placeholder.com/40?text=Foto'}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" onerror="this.src='https://via.placeholder.com/40?text=No'"></td>
+                            <td><strong style="color: #003399;">${p.nama || '-'}</strong></td>
+                            <td><span style="background: #e3f2fd; color: #003399; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${p.kategori || '-'}</span></td>
+                            <td><span style="background: ${p.tipe === 'Beasiswa' ? '#e8f5e9' : '#fff3cd'}; color: ${p.tipe === 'Beasiswa' ? '#27ae60' : '#f57c00'}; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold;">${p.tipe}</span></td>
+                            <td style="text-align: center; font-weight: bold; color: #28a745;">Rp ${formatRupiah(nominal)}</td>
+                            <td><span class="pending-badge">Menunggu</span></td>
+                            <td>${p.tglDaftar || '-'}</td>
+                            <td style="text-align: center;">
+                                <button class="btn btn-success btn-sm" onclick="openModalVerifikasi(${JSON.stringify(p).replace(/"/g, '&quot;')})" title="1 klik: Setujui + Catat Keuangan">
+                                    <i class="fas fa-check"></i>
+                                    <i class="fas fa-money-bill"></i>
+                                    <span>SETUJUI</span>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                console.log("✅ Tabel Verifikasi dirender:", belumDisetujui.length, "pendaftar menunggu");
+            });
+        }
+
+        // ===== RENDER KEUANGAN =====
         function renderKeuangan() {
             const tbody = document.getElementById('listKeuangan');
 
@@ -586,15 +771,11 @@
 
             const sorted = [...keuanganData].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-            tbody.innerHTML = sorted.map((k, idx) => {
-                // Warna untuk Jenis
+            tbody.innerHTML = sorted.map((k) => {
                 const jenisBg = k.jenisMasukKeluar === 'Masuk' ? '#d4edda' : '#f8d7da';
                 const jenisText = k.jenisMasukKeluar === 'Masuk' ? '#155724' : '#721c24';
-                
-                // Warna untuk Nominal
                 const jenisColor = k.jenisMasukKeluar === 'Masuk' ? '#28a745' : '#dc3545';
                 
-                // Warna Kategori
                 let kategoriBg = '#e3f2fd';
                 let kategoriText = '#003399';
                 if (k.kategori === 'Pengeluaran') {
@@ -608,11 +789,11 @@
                 return `
                     <tr>
                         <td style="font-weight: bold;">${k.tanggal || '-'}</td>
-                        <td><span style="background: ${jenisBg}; color: ${jenisText}; padding: 6px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; display: block; text-align: center;">${k.jenisMasukKeluar || '-'}</span></td>
+                        <td><span style="background: ${jenisBg}; color: ${jenisText}; padding: 6px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; display: block; text-align: center;">${k.jenisMasukKeluar}</span></td>
                         <td style="font-weight: bold; color: #003399; word-break: break-word;">${k.sumber || '-'}</td>
                         <td><span style="background: ${kategoriBg}; color: ${kategoriText}; padding: 6px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; display: block; text-align: center;">${k.kategori || '-'}</span></td>
                         <td title="${k.keterangan || '-'}" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: #555;">${k.keterangan || '-'}</td>
-                        <td class="nominal-cell" style="color: ${jenisColor}; font-size: 13px; font-weight: bold;">${k.jenisMasukKeluar === 'Masuk' ? '+' : '-'} ${formatRupiah(k.nominal || 0)}</td>
+                        <td class="nominal-cell" style="color: ${jenisColor};">${k.jenisMasukKeluar === 'Masuk' ? '+' : '-'} ${formatRupiah(k.nominal)}</td>
                         <td style="text-align: center;">
                             <button class="btn btn-warning btn-sm" onclick="editTransaksi('${k.id}')" title="Edit"><i class="fas fa-edit"></i> Edit</button>
                             <button class="btn btn-danger btn-sm" onclick="hapusTransaksi('${k.id}')" title="Hapus"><i class="fas fa-trash"></i> Hapus</button>
@@ -624,7 +805,34 @@
             console.log("✅ Tabel Keuangan dirender:", sorted.length, "transaksi");
         }
 
-        // Simpan Pemasukan - DENGAN SUMBER OTOMATIS
+        // ===== KEUANGAN - SIMPAN PEMASUKAN =====
+        function updateFormPemasukan() {
+            const jenis = document.getElementById('jenisPemasukan').value;
+            document.getElementById('fieldNISW').style.display = (jenis === 'SPP' || jenis === 'Daftar' || jenis === 'Kompetisi') ? 'block' : 'none';
+        }
+
+        function cariNamaSiswa() {
+            const nisw = document.getElementById('niswBayar')?.value?.trim().toUpperCase();
+            const fieldNama = document.getElementById('namaSiswaAuto');
+            
+            if (!nisw) {
+                fieldNama.value = '';
+                return;
+            }
+
+            DBManager.findSiswa(nisw, function(siswa) {
+                if (siswa) {
+                    fieldNama.value = siswa.nama || '';
+                    console.log("✅ Siswa ditemukan:", siswa.nama);
+                    showAlert("✅ Siswa ditemukan: " + siswa.nama, "success", 1500);
+                } else {
+                    fieldNama.value = '[NISW Tidak Ditemukan] - Isi manual';
+                    console.log("⚠️ NISW tidak ditemukan:", nisw);
+                    showAlert("⚠️ NISW tidak ditemukan - Isi manual", "warn", 1500);
+                }
+            });
+        }
+
         function simpanPemasukan() {
             const jenis = document.getElementById('jenisPemasukan')?.value?.trim();
             const nisw = document.getElementById('niswBayar')?.value?.trim() || '';
@@ -643,10 +851,8 @@
                 return;
             }
 
-            // Tentukan sumber
             let sumber = '';
             if ((jenis === 'SPP' || jenis === 'Daftar' || jenis === 'Kompetisi') && (nisw || namaSiswa)) {
-                // Dari siswa
                 if (namaSiswa && !namaSiswa.includes('[NISW Tidak Ditemukan]')) {
                     sumber = namaSiswa + (nisw ? ` (${nisw})` : '');
                 } else if (nisw) {
@@ -661,7 +867,6 @@
                 return;
             }
 
-            // Tentukan kategori display
             let kategoriDisplay = jenis;
             if (jenis === 'SPP') kategoriDisplay = 'SPP';
             if (jenis === 'Daftar') kategoriDisplay = 'Uang Daftar';
@@ -687,7 +892,6 @@
             console.log("✅ Pemasukan disimpan:", transaksi);
             showAlert("✅ Pemasukan " + formatRupiah(nominal) + " dari " + sumber + " disimpan!", "success");
 
-            // Reset form
             document.getElementById('jenisPemasukan').value = '';
             document.getElementById('niswBayar').value = '';
             document.getElementById('namaSiswaAuto').value = '';
@@ -700,7 +904,6 @@
             renderKeuangan();
         }
 
-        // Simpan Pengeluaran
         function simpanPengeluaran() {
             const keperluan = document.getElementById('ketKeluar')?.value?.trim();
             const nominal = parseInt(document.getElementById('nomKeluar')?.value) || 0;
@@ -742,7 +945,6 @@
             renderKeuangan();
         }
 
-        // Edit Transaksi
         function editTransaksi(id) {
             const transaksi = keuanganData.find(k => k.id === id);
             if (!transaksi) return;
@@ -750,7 +952,6 @@
             showAlert("✏️ Edit Transaksi - Coming Soon\n\nID: " + id + "\nSumber: " + transaksi.sumber + "\nKeterangan: " + transaksi.keterangan + "\nNominal: " + formatRupiah(transaksi.nominal), "info", 3500);
         }
 
-        // Hapus Transaksi
         function hapusTransaksi(id) {
             const transaksi = keuanganData.find(k => k.id === id);
             if (!transaksi) return;
@@ -765,13 +966,11 @@
             }
         }
 
-        // Refresh Keuangan
         function refreshKeuangan() {
             loadKeuangan();
             showAlert("✅ Data diperbarui!", "success");
         }
 
-        // Export Keuangan ke CSV
         function exportKeuangan() {
             if (keuanganData.length === 0) {
                 showAlert("⚠️ Tidak ada data untuk di-export!", "warn");
@@ -793,7 +992,6 @@
             showAlert("✅ File CSV berhasil di-download!", "success", 3000);
         }
 
-        // Reset Semua Data Keuangan
         function resetKeuangan() {
             if (confirm("⚠️⚠️⚠️ PERHATIAN! Ini akan menghapus SEMUA data keuangan (" + keuanganData.length + " transaksi)!\n\nYakin ingin melanjutkan?")) {
                 keuanganData = [];
@@ -805,8 +1003,7 @@
             }
         }
 
-        // ========== JADWAL LATIHAN ==========
-
+        // ===== JADWAL LATIHAN ==========
         function loadJadwalLatihan() {
             const stored = localStorage.getItem('jadwalLatihan');
             if (stored) {
@@ -839,7 +1036,7 @@
                     <td>${j.tempat}</td>
                     <td style="font-weight: bold;">${j.waktu}</td>
                     <td style="text-align: center;">
-                        <button class="btn btn-info btn-sm" onclick="editJadwalLatihan(${j.id})"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="btn btn-info btn-sm"><i class="fas fa-edit"></i> Edit</button>
                         <button class="btn btn-danger btn-sm" onclick="hapusJadwalLatihan(${j.id})"><i class="fas fa-trash"></i> Hapus</button>
                     </td>
                 </tr>
@@ -875,10 +1072,6 @@
             renderJadwalLatihan();
         }
 
-        function editJadwalLatihan(id) {
-            showAlert("✏️ Edit Jadwal - Coming Soon", "info");
-        }
-
         function hapusJadwalLatihan(id) {
             if (confirm("⚠️ Yakin hapus jadwal ini?")) {
                 jadwalLatihan = jadwalLatihan.filter(j => j.id !== id);
@@ -888,8 +1081,7 @@
             }
         }
 
-        // ========== JADWAL TURNAMEN ==========
-
+        // ===== JADWAL TURNAMEN ==========
         function loadJadwalTurnamen() {
             const stored = localStorage.getItem('jadwalTurnamen');
             jadwalTurnamen = stored ? JSON.parse(stored) : [];
@@ -918,7 +1110,7 @@
                         <td>${t.waktu}</td>
                         <td><span style="background: ${statusColor[t.status] || '#fff3cd'}; color: ${statusText[t.status] || '#856404'}; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold;">${t.status || 'Upcoming'}</span></td>
                         <td style="text-align: center;">
-                            <button class="btn btn-info btn-sm" onclick="editTurnamen(${t.id})"><i class="fas fa-edit"></i> Edit</button>
+                            <button class="btn btn-info btn-sm"><i class="fas fa-edit"></i> Edit</button>
                             <button class="btn btn-danger btn-sm" onclick="hapusTurnamen(${t.id})"><i class="fas fa-trash"></i> Hapus</button>
                         </td>
                     </tr>
@@ -955,10 +1147,6 @@
             document.getElementById('waktuEvent').value = '';
 
             renderJadwalTurnamen();
-        }
-
-        function editTurnamen(id) {
-            showAlert("✏️ Edit Turnamen - Coming Soon", "info");
         }
 
         function hapusTurnamen(id) {
@@ -1033,14 +1221,12 @@
                         <td title="${siswa.alamat || '-'}" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis;">${siswa.alamat || '-'}</td>
                         <td><span style="background: ${getStatusBayarColor(siswa.statusPembayaran)}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${siswa.statusPembayaran || 'Belum Bayar'}</span></td>
                         <td style="text-align: right; color: #dc3545; font-weight: bold;">${formatRupiah(siswa.tagihan || 0)}</td>
-                        <td><div class="row-action"><button class="btn btn-info btn-sm" onclick="editSiswa('${siswa.nisw}')"><i class="fas fa-edit"></i></button><button class="btn btn-danger btn-sm" onclick="hapusSiswa('${siswa.nisw}')"><i class="fas fa-trash"></i></button></div></td>
+                        <td><div class="row-action"><button class="btn btn-info btn-sm"><i class="fas fa-edit"></i></button><button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></td>
                     </tr>
                 `).join('');
             });
         }
 
-        function editSiswa(nisw) { showAlert("✏️ Edit Siswa - Coming Soon", "info"); }
-        function hapusSiswa(nisw) { if (confirm("Yakin?")) { showAlert("✅ Dihapus!", "success"); renderAllSiswa(); } }
         function printDataSiswa() { showAlert("🖨️ Print - Coming Soon", "info"); }
         function resetFilterSiswa() {
             document.getElementById('filterKategori').value = '';
@@ -1049,36 +1235,6 @@
             document.getElementById('searchNiswNama').value = '';
             renderAllSiswa();
         }
-
-        // ========== VERIFIKASI PENDAFTAR ==========
-        function renderVerifikasi() {
-            DBManager.getPendaftar(function(data) {
-                document.getElementById('totalAntrean').textContent = data.length;
-                document.getElementById('badgeCount').textContent = data.length;
-                document.getElementById('badgeCount').style.display = data.length > 0 ? 'block' : 'none';
-
-                const tbody = document.getElementById('listVerifikasi');
-                if (data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 30px;">✅ Tidak ada pendaftar</td></tr>`;
-                    return;
-                }
-
-                tbody.innerHTML = data.map((p, i) => `
-                    <tr>
-                        <td>${i + 1}</td>
-                        <td><img src="${p.foto || 'https://via.placeholder.com/40?text=Foto'}" style="width: 40px; height: 40px; border-radius: 50%;"></td>
-                        <td><strong>${p.nama || '-'}</strong></td>
-                        <td><span style="background: #e3f2fd; color: #003399; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${p.kategori || '-'}</span></td>
-                        <td>${p.tipe || 'Reguler'}</td>
-                        <td><span style="background: #fff3cd; color: #f57c00; padding: 4px 8px; border-radius: 4px; font-size: 11px;">Menunggu</span></td>
-                        <td>${p.tglDaftar || '-'}</td>
-                        <td><button class="btn btn-success btn-sm" onclick="setujuiPendaftar('${p.nisw || p.nama}')"><i class="fas fa-check"></i> Setujui</button></td>
-                    </tr>
-                `).join('');
-            });
-        }
-
-        function setujuiPendaftar(nisw) { if (confirm("Setujui?")) { showAlert("✅ Disetujui!", "success"); renderVerifikasi(); } }
 
         // ========== ABSENSI ==========
         function renderAbsensi() {
@@ -1102,13 +1258,11 @@
                         <td><span style="background: ${a.status === 'Hadir' ? '#d4edda' : '#fff3cd'}; color: ${a.status === 'Hadir' ? '#155724' : '#856404'}; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${a.status || '-'}</span></td>
                         <td>${a.alasan || '-'}</td>
                         <td style="text-align: center; font-weight: bold;">75%</td>
-                        <td><button class="btn btn-info btn-sm" onclick="editAbsensi('${a.nisw}')"><i class="fas fa-edit"></i> Edit</button></td>
+                        <td><button class="btn btn-info btn-sm"><i class="fas fa-edit"></i> Edit</button></td>
                     </tr>
                 `).join('');
             });
         }
-
-        function editAbsensi(nisw) { showAlert("✏️ Edit - Coming Soon", "info"); }
 
         // ========== NILAI RAPORT ==========
         function loadSiswaForRaport() {
@@ -1173,13 +1327,11 @@
                         <td>${s.nisw || '-'}</td>
                         <td><span style="background: #e3f2fd; color: #003399; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${s.kategori || '-'}</span></td>
                         <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${s.pesan || '-'}</td>
-                        <td><button class="btn btn-danger btn-sm" onclick="hapusSaran('${s.nisw}')"><i class="fas fa-trash"></i></button></td>
+                        <td><button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td>
                     </tr>
                 `).join('');
             });
         }
-
-        function hapusSaran(nisw) { if (confirm("Hapus?")) { showAlert("✅ Dihapus!", "success"); renderSaran(); } }
 
         // ========== HELPER FUNCTIONS ==========
         function formatTanggal(tgl) {
@@ -1193,7 +1345,7 @@
         }
 
         function formatRupiah(nominal) {
-            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(nominal || 0);
+            return new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0 }).format(nominal || 0);
         }
 
         function getStatusBayarColor(status) {
@@ -1210,11 +1362,12 @@
 
         // ========== INIT ==========
         window.addEventListener('load', function() {
+            loadPendaftarData();
             loadKeuangan();
             loadJadwalLatihan();
             loadJadwalTurnamen();
             renderAllSiswa();
-            console.log("✅ Admin Panel READY - Keuangan: Sumber Otomatis + Keterangan Terpisah!");
+            console.log("✅ Admin Panel READY - Semi-Otomatis Verifikasi Aktif!");
         });
     </script>
 </body>
