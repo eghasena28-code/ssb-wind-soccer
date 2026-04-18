@@ -315,7 +315,8 @@
         }
 
         resetNilai();
-        const siswa = DBManager.findSiswa(nisw);
+        // findSiswa async (callback) - query Firestore
+        DBManager.findSiswa(nisw, function(siswa) {
         if (!siswa) {
             document.getElementById("mainContent").style.display = "none";
             document.getElementById("errorMessage").style.display = "block";
@@ -329,13 +330,14 @@
         document.getElementById("dispFoto").src = siswa.foto || "logossb.png";
         document.getElementById("tipeText").innerText = (siswa.tipe || "Reguler").toUpperCase();
 
-        // ==================== PENEMPATAN PELATIH KEPALA (SUDAH DIPERBAIKI) ====================
+        // ==================== PENEMPATAN PELATIH KEPALA ====================
         const coach = getCoachByKategori(siswa.kategori);
         document.getElementById("sigNamaPelatih").innerText = coach.nama;
         document.getElementById("sigLisensiPelatih").innerText = coach.lisensi;
 
-        // ==================== DATA ANTROPOMETRI ====================
-        const nSiswa = (JSON.parse(localStorage.getItem("dataNilai")) || []).find(n => String(n.nisw).toUpperCase() === nisw);
+        // ==================== DATA ANTROPOMETRI (dari Firestore) ====================
+        DBManager.getNilaiBySiswa(nisw, function(nilaiList) {
+        const nSiswa = nilaiList.length > 0 ? nilaiList[nilaiList.length - 1] : null;
         const tb = parseFloat(siswa.tb || (nSiswa && nSiswa.tb)) || 0;
         const bb = parseFloat(siswa.bb || (nSiswa && nSiswa.bb)) || 0;
         const lingkar = parseFloat(siswa.lingkarPerut || (nSiswa && nSiswa.lingkarPerut)) || 0;
@@ -397,6 +399,10 @@
                 });
         }, 1500);
     }
+
+        }); // end getNilaiBySiswa
+        }); // end findSiswa
+    } // end async block
 
     window.onload = loadRaport;
 </script>
