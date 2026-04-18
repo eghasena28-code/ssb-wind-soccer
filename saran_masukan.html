@@ -213,6 +213,10 @@
     </form>
   </div>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
   <script src="db-sync.js"></script>
   <script>
     console.log("📩 Saran page loading...");
@@ -273,21 +277,20 @@
           tanggal: tglPesan
         };
 
-        const berhasil = DBManager.addSaran(saraBaru);
-
-        if (berhasil) {
-          console.log("✅ Saran berhasil disimpan:", saraBaru);
-          showAlert('✅ Terima kasih! Masukan Anda telah terkirim.', 'success');
-          
-          setTimeout(() => {
-            document.getElementById("formSaran").reset();
-            window.location.href = "beranda.html";
-          }, 2000);
-        } else {
-          showAlert('❌ Gagal mengirim masukan. Coba lagi.', 'error');
-          btn.disabled = false;
-          btn.innerHTML = '📤 KIRIM MASUKAN';
-        }
+        DBManager.addSaran(saraBaru, function(berhasil) {
+          if (berhasil) {
+            console.log("✅ Saran berhasil disimpan:", saraBaru);
+            showAlert('✅ Terima kasih! Masukan Anda telah terkirim.', 'success');
+            setTimeout(() => {
+              document.getElementById("formSaran").reset();
+              window.location.href = "beranda.html";
+            }, 2000);
+          } else {
+            showAlert('❌ Gagal mengirim masukan. Coba lagi.', 'error');
+            btn.disabled = false;
+            btn.innerHTML = '📤 KIRIM MASUKAN';
+          }
+        });
       } catch (error) {
         console.error('❌ Error:', error);
         showAlert('❌ Terjadi kesalahan: ' + error.message, 'error');
