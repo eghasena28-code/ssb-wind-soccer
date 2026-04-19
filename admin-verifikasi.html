@@ -28,16 +28,19 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
         }
         .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { color: var(--primary); font-size: 24px; }
+        .header h1 { color: var(--primary); font-size: 24px; margin-bottom: 10px; }
         .badge-count { 
-            background: var(--danger); color: white; padding: 8px 16px; 
-            border-radius: 50px; font-weight: bold; font-size: 18px; 
+            background: var(--danger); color: white; 
+            padding: 8px 16px; border-radius: 50px; 
+            font-weight: bold; font-size: 18px; 
         }
         .refresh-btn {
             display: block; margin: 20px auto; padding: 12px 30px;
             background: var(--info); color: white; border: none;
             border-radius: 8px; font-weight: bold; cursor: pointer;
+            transition: 0.3s;
         }
+        .refresh-btn:hover { background: #138496; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th { background: var(--primary); color: white; padding: 15px; text-align: left; }
         td { padding: 12px 15px; border-bottom: 1px solid #ddd; }
@@ -71,6 +74,7 @@
         <thead>
             <tr>
                 <th>No</th>
+                <th>NISW</th>
                 <th>Nama</th>
                 <th>Jalur</th>
                 <th>Kategori</th>
@@ -79,7 +83,7 @@
             </tr>
         </thead>
         <tbody id="listPendaftar">
-            <tr><td colspan="6" style="text-align:center; padding:40px;">⏳ Memuat data...</td></tr>
+            <tr><td colspan="7" style="text-align:center; padding:40px;">⏳ Memuat data...</td></tr>
         </tbody>
     </table>
 </div>
@@ -96,7 +100,7 @@
         alertBox.textContent = message;
         alertBox.className = `alert ${type}`;
         if (type !== 'error') {
-            setTimeout(() => alertBox.className = 'alert', 3000);
+            setTimeout(() => { alertBox.className = 'alert'; }, 3000);
         }
     }
 
@@ -108,24 +112,23 @@
             tbody.innerHTML = "";
 
             if (!data || data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:40px;">✅ Tidak ada pendaftar yang menunggu verifikasi</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:40px;">✅ Tidak ada pendaftar yang menunggu verifikasi</td></tr>';
                 countEl.innerText = "0";
                 return;
             }
 
-            data.forEach((s) => {
+            data.forEach((s, i) => {
                 const tipeClass = s.tipe === 'Beasiswa' ? 'badge-beasiswa' : 'badge-reguler';
                 tbody.innerHTML += `
                     <tr>
+                        <td>${i + 1}</td>
                         <td><strong>${s.nisw}</strong></td>
                         <td><strong>${s.nama || '-'}</strong></td>
                         <td><span class="badge ${tipeClass}">${s.tipe || 'Reguler'}</span></td>
                         <td>${s.kategori || '-'}</td>
                         <td><span class="badge badge-pending">Menunggu</span></td>
                         <td>
-                            <button class="btn-ok" onclick="setujui('${s.nisw}')">
-                                ✓ SETUJUI
-                            </button>
+                            <button class="btn-ok" onclick="setujui('${s.nisw}')">✓ SETUJUI</button>
                         </td>
                     </tr>
                 `;
@@ -135,9 +138,9 @@
         });
     }
 
-    // === FUNGSI SETUJUI BARU (PAKAI NISW) ===
+    // === SETUJUI PENDAFTARAN (Pakai NISW) ===
     function setujui(nisw) {
-        if (!confirm(`Yakin menyetujui pendaftaran ${nisw}?`)) return;
+        if (!confirm(`Yakin menyetujui pendaftaran dengan NISW ${nisw}?`)) return;
 
         DBManager.approvePendaftar(nisw, function(berhasil, niswBaru) {
             if (berhasil) {
@@ -153,6 +156,7 @@
         const btn = document.getElementById("btnRefresh");
         btn.disabled = true;
         btn.innerHTML = '🔄 MEMUAT...';
+        
         setTimeout(() => {
             render();
             btn.disabled = false;
@@ -162,9 +166,13 @@
 
     // INIT
     document.addEventListener('DOMContentLoaded', function() {
+        console.log("✅ Admin Verifikasi Page Loaded");
         render();
-        setInterval(render, 300000); // auto refresh 5 menit
+        
+        // Auto refresh setiap 5 menit
+        setInterval(render, 300000);
     });
 </script>
+
 </body>
 </html>
