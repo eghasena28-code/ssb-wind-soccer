@@ -94,7 +94,9 @@
         const alertBox = document.getElementById('alertBox');
         alertBox.textContent = message;
         alertBox.className = `alert ${type}`;
-        setTimeout(() => { alertBox.className = 'alert'; }, 4000);
+        if (type !== 'error') {
+            setTimeout(() => { alertBox.className = 'alert'; }, 4000);
+        }
     }
 
     function render() {
@@ -105,7 +107,7 @@
             tbody.innerHTML = "";
 
             if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;">✅ Tidak ada pendaftar menunggu</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;">✅ Tidak ada pendaftar menunggu verifikasi</td></tr>`;
                 countEl.textContent = "0";
                 return;
             }
@@ -132,7 +134,7 @@
         });
     }
 
-    // ==================== SETUJUI + MODAL BIAYA + WA NOTIF ====================
+    // SETUJUI + Input Biaya + WA Notif
     function setujui(nisw) {
         const biaya = prompt("Masukkan besar biaya pendaftaran (Rp):", "500000");
         if (biaya === null) return;
@@ -143,14 +145,14 @@
             if (berhasil) {
                 showAlert(`✅ Disetujui! NISW: ${nisw}`, 'success');
                 
-                // Buka WhatsApp otomatis
+                // Kirim notif WA otomatis
                 const pendaftar = DBManager.getPendaftar().find(p => p.nisw === nisw) || {};
                 const noHp = pendaftar.noHp || "628xxxxxxxxxx";
                 const nama = pendaftar.nama || "Orang Tua";
 
                 const pesan = encodeURIComponent(
                     `Halo Bapak/Ibu ${nama} 👋\n\n` +
-                    `✅ Pendaftaran SSB Wind Soccer diterima!\n` +
+                    `✅ Pendaftaran SSB Wind Soccer DITERIMA!\n` +
                     `NISW: ${nisw}\n` +
                     `Biaya Pendaftaran: Rp ${nominal.toLocaleString('id-ID')}\n\n` +
                     `Silakan lakukan pembayaran dan konfirmasi ke admin.\n` +
@@ -166,7 +168,7 @@
         });
     }
 
-    // ==================== TOLAK + WA NOTIF ====================
+    // TOLAK + WA Notif
     function tolak(nisw) {
         if (!confirm(`Tolak pendaftaran ${nisw}?`)) return;
 
@@ -180,7 +182,7 @@
 
                 const pesan = encodeURIComponent(
                     `Halo Bapak/Ibu ${nama} 👋\n\n` +
-                    `❌ Mohon maaf, pendaftaran SSB Wind Soccer ditolak.\n` +
+                    `❌ Mohon maaf, pendaftaran SSB Wind Soccer DITOLAK.\n` +
                     `NISW: ${nisw}\n\n` +
                     `Silakan coba lagi di kesempatan berikutnya.\n` +
                     `Terima kasih! ⚽`
@@ -196,7 +198,9 @@
     }
 
     // INIT
-    document.addEventListener('DOMContentLoaded', render);
+    document.addEventListener('DOMContentLoaded', function() {
+        render();
+    });
 </script>
 </body>
 </html>
