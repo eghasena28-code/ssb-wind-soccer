@@ -265,6 +265,33 @@
       color: #666;
     }
 
+    .sidebar-logout {
+      padding: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      margin-top: 20px;
+    }
+
+    .info-box {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+      border-left: 4px solid #003399;
+    }
+
+    .info-box p {
+      color: #555;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+
+    .info-box p:last-child {
+      margin-bottom: 0;
+      color: #999;
+      font-size: 12px;
+    }
+
     @media (max-width: 768px) {
       .sidebar {
         width: 200px;
@@ -275,9 +302,21 @@
         padding: 15px;
       }
 
+      .dashboard-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      }
+
       .top-header {
         flex-direction: column;
         gap: 15px;
+      }
+
+      table {
+        font-size: 12px;
+      }
+
+      th, td {
+        padding: 8px;
       }
     }
 
@@ -295,8 +334,16 @@
         font-size: 20px;
       }
 
-      table {
-        font-size: 12px;
+      .stat-value {
+        font-size: 24px;
+      }
+
+      .table-responsive {
+        overflow-x: auto;
+      }
+
+      .card-title {
+        font-size: 16px;
       }
     }
   </style>
@@ -329,11 +376,12 @@
       <div class="menu-item" data-view="saran">
         <i class="fas fa-comments menu-icon"></i> Saran
       </div>
-      <div style="padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 20px;">
-        <button class="btn-logout" onclick="logoutAdmin()" style="width: 100%;">
-          <i class="fas fa-sign-out-alt"></i> LOGOUT
-        </button>
-      </div>
+    </div>
+
+    <div class="sidebar-logout">
+      <button class="btn-logout" onclick="logoutAdmin()" style="width: 100%;">
+        <i class="fas fa-sign-out-alt"></i> LOGOUT
+      </button>
     </div>
   </div>
 
@@ -379,12 +427,11 @@
         <div class="card-title">
           <i class="fas fa-info-circle"></i> Informasi Sistem
         </div>
-        <p style="color: #666; font-size: 13px; line-height: 1.6;">
-          Selamat datang di Admin Panel SSB Wind Soccer. Gunakan menu di sebelah kiri untuk mengelola data siswa, absensi, keuangan, dan lainnya.
-        </p>
-        <p style="margin-top: 15px; color: #999; font-size: 12px;">
-          Terakhir diakses: <strong id="lastAccess">-</strong>
-        </p>
+        <div class="info-box">
+          <p><strong>Selamat datang di Admin Panel SSB Wind Soccer</strong></p>
+          <p>Gunakan menu di sebelah kiri untuk mengelola data siswa, absensi, keuangan, dan lainnya. Semua data tersimpan dengan aman di database lokal.</p>
+          <p>Terakhir diakses: <strong id="lastAccess">-</strong></p>
+        </div>
       </div>
     </div>
 
@@ -444,7 +491,7 @@
     <div id="absensi" class="view-content">
       <div class="content-card">
         <div class="card-title">
-          <i class="fas fa-calendar-check"></i> Data Absensi
+          <i class="fas fa-calendar-check"></i> Data Absensi Terbaru
         </div>
         <div class="table-responsive">
           <table>
@@ -537,7 +584,9 @@
       document.querySelectorAll('.menu-item').forEach(item => {
         item.addEventListener('click', function() {
           const viewName = this.getAttribute('data-view');
-          switchView(viewName);
+          if (viewName) {
+            switchView(viewName);
+          }
         });
       });
     }
@@ -563,16 +612,19 @@
       }
       
       // Add active to clicked menu item
-      document.querySelector(`[data-view="${viewName}"]`).classList.add('active');
+      const activeItem = document.querySelector(`[data-view="${viewName}"]`);
+      if (activeItem) {
+        activeItem.classList.add('active');
+      }
       
       // Update header
       const titles = {
         'dashboard': ['Dashboard', 'Kelola data SSB Wind Soccer'],
-        'siswa': ['Siswa Aktif', 'Daftar semua siswa yang aktif'],
-        'pendaftar': ['Pendaftar Baru', 'Verifikasi pendaftar baru'],
-        'absensi': ['Data Absensi', 'Rekap absensi latihan'],
-        'keuangan': ['Manajemen Keuangan', 'Kelola keuangan'],
-        'saran': ['Saran & Masukan', 'Lihat saran siswa']
+        'siswa': ['Siswa Aktif', 'Daftar semua siswa yang aktif berlatih'],
+        'pendaftar': ['Pendaftar Baru', 'Verifikasi dan kelola pendaftar baru'],
+        'absensi': ['Data Absensi', 'Lihat rekap absensi latihan semua siswa'],
+        'keuangan': ['Manajemen Keuangan', 'Kelola pemasukan dan pengeluaran'],
+        'saran': ['Saran & Masukan', 'Lihat saran dan masukan dari siswa']
       };
       
       if (titles[viewName]) {
@@ -646,7 +698,7 @@
         const tbody = document.getElementById('siswaTableBody');
         
         if (!siswaList || siswaList.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Tidak ada data</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">Tidak ada data siswa</td></tr>';
           return;
         }
         
@@ -655,16 +707,17 @@
           html += `
             <tr>
               <td>${index + 1}</td>
-              <td>${siswa.nisw || '-'}</td>
+              <td><strong>${siswa.nisw || '-'}</strong></td>
               <td>${siswa.nama || '-'}</td>
               <td>${siswa.kategori || '-'}</td>
-              <td><span class="badge badge-${siswa.tipe?.toLowerCase() || 'reguler'}">${siswa.tipe || '-'}</span></td>
+              <td><span class="badge badge-${siswa.tipe?.toLowerCase() || 'reguler'}">${siswa.tipe || 'Reguler'}</span></td>
               <td><span class="badge badge-aktif">${siswa.status || 'Aktif'}</span></td>
             </tr>
           `;
         });
         
         tbody.innerHTML = html;
+        console.log("✅ Siswa data loaded:", siswaList.length);
       });
     }
 
@@ -676,7 +729,7 @@
         const tbody = document.getElementById('pendaftarTableBody');
         
         if (!pendaftarList || pendaftarList.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Tidak ada data</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">Tidak ada pendaftar</td></tr>';
           return;
         }
         
@@ -685,16 +738,17 @@
           html += `
             <tr>
               <td>${index + 1}</td>
-              <td>${pendaftar.nisw || '-'}</td>
+              <td><strong>${pendaftar.nisw || '-'}</strong></td>
               <td>${pendaftar.nama || '-'}</td>
-              <td><span class="badge badge-${pendaftar.tipe?.toLowerCase() || 'reguler'}">${pendaftar.tipe || '-'}</span></td>
-              <td><span class="badge badge-pending">${pendaftar.status || '-'}</span></td>
+              <td><span class="badge badge-${pendaftar.tipe?.toLowerCase() || 'reguler'}">${pendaftar.tipe || 'Reguler'}</span></td>
+              <td><span class="badge badge-pending">${pendaftar.status || 'Pending'}</span></td>
               <td>${pendaftar.tglDaftar || '-'}</td>
             </tr>
           `;
         });
         
         tbody.innerHTML = html;
+        console.log("✅ Pendaftar data loaded:", pendaftarList.length);
       });
     }
 
@@ -706,25 +760,32 @@
         const tbody = document.getElementById('absensiTableBody');
         
         if (!absensiList || absensiList.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Tidak ada data</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">Tidak ada data absensi</td></tr>';
           return;
         }
         
+        // Sort by tanggal terbaru
+        const sortedList = [...absensiList].sort((a, b) => {
+          return new Date(b.tanggal) - new Date(a.tanggal);
+        });
+        
         let html = '';
-        absensiList.slice(0, 30).forEach((absensi, index) => {
+        sortedList.slice(0, 50).forEach((absensi, index) => {
+          const statusBadge = absensi.status === 'Hadir' ? 'badge-aktif' : 'badge-pending';
           html += `
             <tr>
               <td>${index + 1}</td>
               <td>${absensi.tanggal || '-'}</td>
               <td>${absensi.nisw || '-'}</td>
               <td>${absensi.nama || '-'}</td>
-              <td><span class="badge ${absensi.status === 'Hadir' ? 'badge-aktif' : 'badge-pending'}">${absensi.status || '-'}</span></td>
+              <td><span class="badge ${statusBadge}">${absensi.status || '-'}</span></td>
               <td>${absensi.alasan || '-'}</td>
             </tr>
           `;
         });
         
         tbody.innerHTML = html;
+        console.log("✅ Absensi data loaded:", sortedList.length);
       });
     }
 
@@ -736,27 +797,36 @@
         const tbody = document.getElementById('keuanganTableBody');
         
         if (!keuanganList || keuanganList.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Tidak ada data</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">Tidak ada data keuangan</td></tr>';
           return;
         }
         
+        // Sort by tanggal terbaru
+        const sortedList = [...keuanganList].sort((a, b) => {
+          return new Date(b.tanggal) - new Date(a.tanggal);
+        });
+        
         let html = '';
-        keuanganList.slice(0, 30).forEach((keuangan, index) => {
+        sortedList.slice(0, 50).forEach((keuangan, index) => {
           const isIn = keuangan.jenisMasukKeluar === 'Masuk';
+          const color = isIn ? '#27ae60' : '#dc3545';
+          const sign = isIn ? '+' : '-';
+          
           html += `
             <tr>
               <td>${index + 1}</td>
               <td>${keuangan.tanggal || '-'}</td>
               <td>${keuangan.jenis || '-'}</td>
               <td>${keuangan.keterangan || '-'}</td>
-              <td style="color: ${isIn ? '#27ae60' : '#dc3545'}; font-weight: 700;">
-                ${isIn ? '+' : '-'} Rp ${formatRupiah(keuangan.nominal || 0)}
+              <td style="color: ${color}; font-weight: 700;">
+                ${sign} Rp ${formatRupiah(keuangan.nominal || 0)}
               </td>
             </tr>
           `;
         });
         
         tbody.innerHTML = html;
+        console.log("✅ Keuangan data loaded:", sortedList.length);
       });
     }
 
@@ -768,26 +838,32 @@
         const tbody = document.getElementById('saranTableBody');
         
         if (!saranList || saranList.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Tidak ada data</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">Tidak ada saran</td></tr>';
           return;
         }
         
+        // Sort by tanggal terbaru
+        const sortedList = [...saranList].sort((a, b) => {
+          return new Date(b.tanggal) - new Date(a.tanggal);
+        });
+        
         let html = '';
-        saranList.slice(0, 30).forEach((saran, index) => {
+        sortedList.slice(0, 50).forEach((saran, index) => {
+          const pesan = saran.pesan ? saran.pesan.substring(0, 60) + '...' : '-';
+          
           html += `
             <tr>
               <td>${index + 1}</td>
               <td>${saran.tanggal || '-'}</td>
               <td>${saran.nama || '-'}</td>
               <td>${saran.kategori || '-'}</td>
-              <td style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                ${saran.pesan || '-'}
-              </td>
+              <td title="${saran.pesan || '-'}">${pesan}</td>
             </tr>
           `;
         });
         
         tbody.innerHTML = html;
+        console.log("✅ Saran data loaded:", sortedList.length);
       });
     }
 
@@ -801,36 +877,26 @@
       if (confirm("Yakin ingin logout?")) {
         console.log("🚪 Admin logging out...");
         sessionStorage.removeItem('loginUser');
+        localStorage.removeItem('lastLoginUser');
         window.location.href = "index.html";
       }
-    }
-
-    // ===== CHECK ADMIN AUTH =====
-    function checkAdminAuth() {
-      console.log("🔐 Checking admin authorization...");
-      
-      const user = DBManager.getLoginUser();
-      if (!user) {
-        console.warn("❌ Not authorized - redirecting to login");
-        window.location.href = "index.html";
-        return false;
-      }
-      
-      return true;
     }
 
     // ===== INITIALIZE =====
     document.addEventListener("DOMContentLoaded", function() {
-      console.log("🎬 DOM Content Loaded");
+      console.log("🎬 DOM Content Loaded - Admin Panel");
       
-      if (!checkAdminAuth()) {
-        return;
+      try {
+        // Setup menu listeners
+        setupMenuListeners();
+        
+        // Load initial dashboard data
+        loadDashboardData();
+        
+        console.log("✅ Admin panel initialized successfully");
+      } catch (error) {
+        console.error("❌ Error initializing admin panel:", error);
       }
-      
-      setupMenuListeners();
-      loadDashboardData();
-      
-      console.log("✅ Admin panel initialized successfully");
     });
   </script>
 </body>
