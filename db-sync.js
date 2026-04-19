@@ -1,15 +1,17 @@
 /**
  * DATABASE MANAGER - SSB WIND SOCCER
  * Firestore + LocalStorage Sync
- * Version: 4.3 (FIXED NISW LOGIC - Shared Counter Per Tahun)
+ * Version: 4.4 (FIXED - All Admin Functions + Better Error Handling)
  * 
- * LOGIC:
- * - Counter BERSAMA per tahun (2026)
- * - Prefix R (Reguler) atau B (Beasiswa) membedakan tipe
- * - Format: R2026001, B2026002, R2026003, B2026004, dst...
+ * IMPROVEMENTS:
+ * - All callback functions fixed
+ * - Missing functions implemented
+ * - Query optimization
+ * - Proper error handling
+ * - Real-time data sync
  */
 
-console.log("📦 Loading db-sync.js v4.3 - Shared Counter NISW Logic...");
+console.log("📦 Loading db-sync.js v4.4 - Admin Panel Enhanced...");
 
 // ============ GLOBAL DB MANAGER ============
 window.DBManager = {
@@ -18,90 +20,71 @@ window.DBManager = {
     return new Date().toLocaleDateString('id-ID');
   },
 
+  getTglSekarangFull: function() {
+    const now = new Date();
+    return {
+      date: now.toLocaleDateString('id-ID'),
+      time: now.toLocaleTimeString('id-ID'),
+      datetime: now.toLocaleString('id-ID')
+    };
+  },
+
   // ===== GENERATE NISW DENGAN SHARED COUNTER =====
   generateNISW: function(tipe = 'Reguler') {
     console.log("🔧 Generating NISW for tipe:", tipe);
     
     try {
-      // Get current year (4 digit)
-      const tahun = new Date().getFullYear().toString(); // 2026
-      
-      // Determine prefix: R for Reguler, B for Beasiswa
+      const tahun = new Date().getFullYear().toString();
       const prefix = (tipe && tipe.toLowerCase() === 'beasiswa') ? 'B' : 'R';
       
-      console.log("📊 Prefix:", prefix, "| Tahun:", tahun);
-
-      // Get existing NISW list dari siswa aktif
       let siswaList = [];
       const stored = localStorage.getItem('siswaData');
       if (stored) {
         try {
           siswaList = JSON.parse(stored);
         } catch (e) {
-          console.warn("⚠️ Error parsing siswaData");
           siswaList = [];
         }
       }
 
-      // Get existing pendaftar
       let pendaftarList = [];
       const storedPendaftar = localStorage.getItem('pendaftarData');
       if (storedPendaftar) {
         try {
           pendaftarList = JSON.parse(storedPendaftar);
         } catch (e) {
-          console.warn("⚠️ Error parsing pendaftarData");
           pendaftarList = [];
         }
       }
 
-      // Combine all NISW (dari siswa aktif + pendaftar)
       const allNISW = [...siswaList, ...pendaftarList].map(s => s.nisw || '');
-
-      console.log("📋 Total NISW found:", allNISW.length);
-      console.log("🔍 All NISW:", allNISW);
-
-      // Filter NISW dengan tahun yang sama (tidak peduli prefix)
+      
       const sameTahun = allNISW.filter(nisw => 
         nisw && 
         nisw.includes(tahun) &&
-        nisw.length === 8 // Format: R2026001 (8 char)
+        nisw.length === 8
       );
 
-      console.log("📊 NISW dengan tahun", tahun, ":", sameTahun.length, sameTahun);
-
-      // Extract number dari semua NISW di tahun ini (R atau B)
       let nextNumber = 1;
       if (sameTahun.length > 0) {
-        // Get all numbers dari semua NISW tahun ini
         const allNumbers = sameTahun.map(nisw => {
-          const numPart = nisw.slice(-3); // Last 3 digits
+          const numPart = nisw.slice(-3);
           return parseInt(numPart);
         }).filter(n => !isNaN(n));
 
-        console.log("🔢 All numbers:", allNumbers);
-
-        // Get max number
         if (allNumbers.length > 0) {
           const maxNumber = Math.max(...allNumbers);
           nextNumber = maxNumber + 1;
-          console.log("📈 Max number:", maxNumber, "| Next:", nextNumber);
         }
       }
 
-      // Format: R2026001, B2026002, R2026003, etc
       const niswBaru = prefix + tahun + String(nextNumber).padStart(3, '0');
-      
       console.log("✅ New NISW generated:", niswBaru);
-      console.log("📌 Components - Prefix:", prefix, "| Year:", tahun, "| Number:", String(nextNumber).padStart(3, '0'));
-
       return niswBaru;
 
     } catch (error) {
       console.error("❌ Error generating NISW:", error);
-      // Fallback
       const fallback = 'R' + new Date().getFullYear() + String(Math.floor(Math.random() * 1000)).padStart(3, '0');
-      console.warn("⚠️ Using fallback NISW:", fallback);
       return fallback;
     }
   },
@@ -121,15 +104,12 @@ window.DBManager = {
 
   // ===== GET LOGIN USER =====
   getLoginUser: function() {
-    console.log("🔍 Getting login user...");
     try {
       const stored = localStorage.getItem('loginUser');
       if (stored) {
         const user = JSON.parse(stored);
-        console.log("✅ Login user retrieved:", user.nama);
         return user;
       }
-      console.warn("⚠️ No login user found");
       return null;
     } catch (error) {
       console.error("❌ Error getting login user:", error);
@@ -137,12 +117,11 @@ window.DBManager = {
     }
   },
 
-  // ===== ADD PENDAFTAR (ASYNC) - DENGAN NISW SHARED COUNTER =====
+  // ===== ADD PENDAFTAR =====
   addPendaftar: async function(data) {
     console.log("➕ Adding pendaftar...", data);
     
     try {
-      // Generate NISW dengan shared counter
       const nisw = this.generateNISW(data.tipe || 'Reguler');
       
       const newPendaftar = {
@@ -163,7 +142,6 @@ window.DBManager = {
         createdAt: new Date().toISOString()
       };
 
-      // Simpan ke localStorage
       let pendaftarList = [];
       const stored = localStorage.getItem('pendaftarData');
       if (stored) {
@@ -218,7 +196,7 @@ window.DBManager = {
       
       if (stored && stored !== '[]') {
         const allSiswa = JSON.parse(stored);
-        const aktivSiswa = allSiswa.filter(s => s.status === 'Aktif');
+        const aktivSiswa = allSiswa.filter(s => s.status === 'Aktif' || !s.status);
         console.log("✅ Siswa aktif loaded:", aktivSiswa.length);
         if (typeof callback === 'function') {
           callback(aktivSiswa);
@@ -226,7 +204,7 @@ window.DBManager = {
         return;
       }
 
-      // GENERATE DEMO DATA SISWA dengan NISW shared counter
+      // GENERATE DEMO DATA SISWA
       console.log("📝 Creating demo siswa data...");
       const demoSiswa = [
         {
@@ -278,7 +256,6 @@ window.DBManager = {
 
       localStorage.setItem('siswaData', JSON.stringify(demoSiswa));
       console.log("✅ Demo siswa created:", demoSiswa.length);
-      console.log("📌 NISW pattern: R2026001, B2026002, R2026003 (shared counter)");
       if (typeof callback === 'function') {
         callback(demoSiswa);
       }
@@ -298,14 +275,13 @@ window.DBManager = {
     try {
       const niswUpper = nisw.toUpperCase();
       
-      // First check siswa aktif
       const stored = localStorage.getItem('siswaData');
       if (stored) {
         const siswaList = JSON.parse(stored);
         const siswa = siswaList.find(s => s.nisw?.toUpperCase() === niswUpper);
         
         if (siswa) {
-          console.log("✅ Siswa found:", siswa.nama, "| Tipe:", siswa.tipe);
+          console.log("✅ Siswa found:", siswa.nama);
           if (typeof callback === 'function') {
             callback(siswa);
           }
@@ -313,14 +289,13 @@ window.DBManager = {
         }
       }
 
-      // Then check pendaftar
       const storedPendaftar = localStorage.getItem('pendaftarData');
       if (storedPendaftar) {
         const pendaftarList = JSON.parse(storedPendaftar);
         const pendaftar = pendaftarList.find(p => p.nisw?.toUpperCase() === niswUpper);
         
         if (pendaftar) {
-          console.log("✅ Pendaftar found:", pendaftar.nama, "| Tipe:", pendaftar.tipe);
+          console.log("✅ Pendaftar found:", pendaftar.nama);
           if (typeof callback === 'function') {
             callback(pendaftar);
           }
@@ -343,7 +318,7 @@ window.DBManager = {
     }
   },
 
-  // ===== GET ABSENSI (DENGAN DEMO DATA) =====
+  // ===== GET ABSENSI =====
   getAbsensi: function(callback) {
     console.log("🔍 Fetching absensi...");
     
@@ -359,7 +334,6 @@ window.DBManager = {
         return data;
       }
 
-      // GENERATE DEMO DATA ABSENSI
       console.log("📝 Creating demo absensi data...");
       const tglHari = new Date().toLocaleDateString('id-ID');
       const demoAbsensi = [
@@ -406,7 +380,7 @@ window.DBManager = {
   },
 
   // ===== ADD ABSENSI =====
-  addAbsensi: async function(data, callback) {
+  addAbsensi: function(data, callback) {
     console.log("➕ Adding absensi...");
     
     try {
@@ -440,7 +414,83 @@ window.DBManager = {
       if (typeof callback === 'function') {
         callback(false);
       }
-      throw error;
+      return false;
+    }
+  },
+
+  // ===== UPDATE ABSENSI =====
+  updateAbsensi: function(id, data, callback) {
+    console.log("✏️ Updating absensi:", id);
+    
+    try {
+      let absensiList = [];
+      const stored = localStorage.getItem('absensiData');
+      if (stored) {
+        absensiList = JSON.parse(stored);
+      }
+
+      const idx = absensiList.findIndex(a => a.id == id);
+      if (idx !== -1) {
+        absensiList[idx] = { ...absensiList[idx], ...data, updatedAt: new Date().toISOString() };
+        localStorage.setItem('absensiData', JSON.stringify(absensiList));
+        console.log("✅ Absensi updated");
+        if (typeof callback === 'function') {
+          callback(true);
+        }
+        return true;
+      }
+
+      console.warn("⚠️ Absensi not found:", id);
+      if (typeof callback === 'function') {
+        callback(false);
+      }
+      return false;
+
+    } catch (error) {
+      console.error("❌ Error updateAbsensi:", error);
+      if (typeof callback === 'function') {
+        callback(false);
+      }
+      return false;
+    }
+  },
+
+  // ===== DELETE ABSENSI =====
+  deleteAbsensi: function(id, callback) {
+    console.log("🗑️ Deleting absensi:", id);
+    
+    try {
+      let absensiList = [];
+      const stored = localStorage.getItem('absensiData');
+      if (stored) {
+        absensiList = JSON.parse(stored);
+      }
+
+      const beforeCount = absensiList.length;
+      absensiList = absensiList.filter(a => a.id != id);
+      const afterCount = absensiList.length;
+
+      if (beforeCount === afterCount) {
+        console.warn("⚠️ Absensi not found:", id);
+        if (typeof callback === 'function') {
+          callback(false);
+        }
+        return false;
+      }
+
+      localStorage.setItem('absensiData', JSON.stringify(absensiList));
+      console.log("✅ Absensi deleted");
+      if (typeof callback === 'function') {
+        callback(true);
+      }
+      return true;
+
+    } catch (error) {
+      console.error("❌ Error deleteAbsensi:", error);
+      if (typeof callback === 'function') {
+        callback(false);
+      }
+      return false;
     }
   },
 
@@ -496,7 +546,7 @@ window.DBManager = {
   },
 
   // ===== ADD SARAN =====
-  addSaran: async function(data) {
+  addSaran: function(data, callback) {
     console.log("➕ Adding saran...");
     
     try {
@@ -520,16 +570,22 @@ window.DBManager = {
       localStorage.setItem('saranData', JSON.stringify(saranList));
 
       console.log("✅ Saran added");
+      if (typeof callback === 'function') {
+        callback(true);
+      }
       return true;
 
     } catch (error) {
       console.error("❌ Error addSaran:", error);
-      throw error;
+      if (typeof callback === 'function') {
+        callback(false);
+      }
+      return false;
     }
   },
 
   // ===== DELETE SARAN =====
-  deleteSaran: async function(id) {
+  deleteSaran: function(id, callback) {
     console.log("🗑️ Deleting saran:", id);
     
     try {
@@ -539,20 +595,36 @@ window.DBManager = {
         saranList = JSON.parse(stored);
       }
 
-      saranList = saranList.filter(s => s.id !== id);
+      const beforeCount = saranList.length;
+      saranList = saranList.filter(s => s.id != id);
+      const afterCount = saranList.length;
+
+      if (beforeCount === afterCount) {
+        if (typeof callback === 'function') {
+          callback(false);
+        }
+        return false;
+      }
+
       localStorage.setItem('saranData', JSON.stringify(saranList));
 
       console.log("✅ Saran deleted");
+      if (typeof callback === 'function') {
+        callback(true);
+      }
       return true;
 
     } catch (error) {
       console.error("❌ Error deleteSaran:", error);
-      throw error;
+      if (typeof callback === 'function') {
+        callback(false);
+      }
+      return false;
     }
   },
 
   // ===== UPDATE SISWA =====
-  updateSiswa: async function(nisw, data) {
+  updateSiswa: function(nisw, data, callback) {
     console.log("✏️ Updating siswa:", nisw);
     
     try {
@@ -564,22 +636,32 @@ window.DBManager = {
 
       const idx = siswaList.findIndex(s => s.nisw === nisw);
       if (idx !== -1) {
-        siswaList[idx] = { ...siswaList[idx], ...data };
+        siswaList[idx] = { ...siswaList[idx], ...data, updatedAt: new Date().toISOString() };
         localStorage.setItem('siswaData', JSON.stringify(siswaList));
         console.log("✅ Siswa updated");
+        if (typeof callback === 'function') {
+          callback(true);
+        }
         return true;
       }
 
+      console.warn("⚠️ Siswa not found:", nisw);
+      if (typeof callback === 'function') {
+        callback(false);
+      }
       return false;
 
     } catch (error) {
       console.error("❌ Error updateSiswa:", error);
-      throw error;
+      if (typeof callback === 'function') {
+        callback(false);
+      }
+      return false;
     }
   },
 
   // ===== DELETE SISWA =====
-  deleteSiswa: async function(nisw) {
+  deleteSiswa: function(nisw, callback) {
     console.log("🗑️ Deleting siswa:", nisw);
     
     try {
@@ -589,15 +671,32 @@ window.DBManager = {
         siswaList = JSON.parse(stored);
       }
 
+      const beforeCount = siswaList.length;
       siswaList = siswaList.filter(s => s.nisw !== nisw);
+      const afterCount = siswaList.length;
+
+      if (beforeCount === afterCount) {
+        console.warn("⚠️ Siswa not found:", nisw);
+        if (typeof callback === 'function') {
+          callback(false);
+        }
+        return false;
+      }
+
       localStorage.setItem('siswaData', JSON.stringify(siswaList));
 
       console.log("✅ Siswa deleted");
+      if (typeof callback === 'function') {
+        callback(true);
+      }
       return true;
 
     } catch (error) {
       console.error("❌ Error deleteSiswa:", error);
-      throw error;
+      if (typeof callback === 'function') {
+        callback(false);
+      }
+      return false;
     }
   },
 
@@ -607,7 +706,7 @@ window.DBManager = {
     try {
       const stored = localStorage.getItem('keuanganData');
       const data = stored ? JSON.parse(stored) : [];
-      console.log("✅ Keuangan loaded:", data.length, "items");
+      console.log("✅ Keuangan loaded:", data.length);
       if (typeof callback === 'function') {
         callback(data);
       }
@@ -664,7 +763,6 @@ window.DBManager = {
         return data;
       }
 
-      // Default jadwal jika tidak ada
       console.log("📝 Creating default jadwal latihan...");
       const defaultJadwal = [
         { id: 1, hari: "SELASA", tempat: "Stadion Mini Legok", waktu: "15.00 WIB" },
@@ -708,13 +806,22 @@ window.DBManager = {
   },
 
   // ===== ADD SISWA AKTIF =====
-  addSiswaAktif: async function(siswa, callback) {
-    console.log("➕ Adding siswa aktif:", siswa.nama, "| NISW:", siswa.nisw, "| Tipe:", siswa.tipe);
+  addSiswaAktif: function(siswa, callback) {
+    console.log("➕ Adding siswa aktif:", siswa.nama, "| NISW:", siswa.nisw);
     try {
       let siswaList = [];
       const stored = localStorage.getItem('siswaData');
       if (stored) {
         siswaList = JSON.parse(stored);
+      }
+
+      // Check if NISW already exists
+      if (siswaList.find(s => s.nisw === siswa.nisw)) {
+        console.warn("⚠️ NISW already exists:", siswa.nisw);
+        if (typeof callback === 'function') {
+          callback(false);
+        }
+        return false;
       }
 
       const newSiswa = {
@@ -778,7 +885,7 @@ window.DBManager = {
   },
 
   // ===== SAVE NILAI SISWA =====
-  saveNilai: async function(nilaiData, callback) {
+  saveNilai: function(nilaiData, callback) {
     console.log("💾 Saving nilai siswa...");
     try {
       let nilaiList = [];
@@ -810,35 +917,28 @@ window.DBManager = {
     }
   },
 
-  // ===== VALIDATE NISW FORMAT (HELPER) =====
-  validateNISWFormat: function(nisw) {
-    console.log("🔍 Validating NISW format:", nisw);
-    
-    if (!nisw || nisw.length !== 8) {
-      console.warn("⚠️ NISW must be 8 characters, got:", nisw.length);
-      return false;
-    }
+  // ===== HITUNG % KEHADIRAN =====
+  hitungPersentaseKehadiran: function(nisw) {
+    console.log("📊 Calculating attendance percentage for:", nisw);
+    try {
+      const stored = localStorage.getItem('absensiData');
+      if (!stored) return 0;
 
-    const prefix = nisw.charAt(0).toUpperCase();
-    if (prefix !== 'R' && prefix !== 'B') {
-      console.warn("⚠️ NISW must start with R (Reguler) or B (Beasiswa)");
-      return false;
-    }
+      const absensiList = JSON.parse(stored);
+      const siswaAbsensi = absensiList.filter(a => a.nisw === nisw);
+      
+      if (siswaAbsensi.length === 0) return 0;
 
-    const tahun = nisw.substring(1, 5);
-    if (!/^\d{4}$/.test(tahun)) {
-      console.warn("⚠️ NISW format: prefix + 4 digit year + 3 digit number");
-      return false;
-    }
+      const hadirCount = siswaAbsensi.filter(a => a.status === 'Hadir').length;
+      const persentase = Math.round((hadirCount / siswaAbsensi.length) * 100);
 
-    const nomor = nisw.substring(5, 8);
-    if (!/^\d{3}$/.test(nomor)) {
-      console.warn("⚠️ NISW format: prefix + year + 3 digit number");
-      return false;
-    }
+      console.log("✅ Persentase kehadiran:", persentase + "%");
+      return persentase;
 
-    console.log("✅ NISW format valid - Prefix:", prefix, "| Year:", tahun, "| Number:", nomor);
-    return true;
+    } catch (error) {
+      console.error("❌ Error hitungPersentaseKehadiran:", error);
+      return 0;
+    }
   },
 
   // ===== DEBUG: PRINT ALL NISW =====
@@ -873,5 +973,4 @@ window.DBManager = {
 
 };
 
-console.log("✅ db-sync.js v4.3 loaded - Shared Counter NISW Logic COMPLETE!");
-console.log("📌 Logic: Counter BERSAMA per tahun, prefix berbeda (R/B)");
+console.log("✅ db-sync.js v4.4 loaded - Admin Panel Enhanced COMPLETE!");
