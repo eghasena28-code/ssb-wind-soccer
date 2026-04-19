@@ -38,20 +38,16 @@
     <h2>Pendaftaran Siswa</h2>
     <div class="subtitle">SSB Wind Soccer - Akademi Sepak Bola</div>
   </div>
-
   <div id="alertError" class="alert alert-error"></div>
-
   <div class="info-box">
     ✓ <strong>Uang Pendaftaran: Rp 500.000</strong><br>
     ✓ Kategori otomatis sesuai usia<br>
     ✓ Tunggu verifikasi admin
   </div>
-
   <form id="formPendaftaran">
     <section>
       <label>Nama Lengkap <span class="required">*</span></label>
       <input type="text" id="nama" required placeholder="Nama">
-
       <div class="grid-2">
         <div>
           <label>Tanggal Lahir <span class="required">*</span></label>
@@ -62,7 +58,6 @@
           <input type="text" id="usia" readonly>
         </div>
       </div>
-
       <div class="grid-2">
         <div>
           <label>Kategori KU</label>
@@ -80,40 +75,30 @@
         </div>
       </div>
     </section>
-
     <section>
       <label>Nama Orang Tua <span class="required">*</span></label>
       <input type="text" id="namaOrtu" required placeholder="Nama">
-
       <label>No. WhatsApp <span class="required">*</span></label>
       <input type="tel" id="noHp" required placeholder="08xxxxxxxxxx" pattern="^08[0-9]{8,11}$">
-
       <label>Alamat <span class="required">*</span></label>
       <textarea id="alamat" required placeholder="Alamat lengkap..."></textarea>
     </section>
-
     <section>
       <label>Upload Foto <span class="required">*</span></label>
       <input type="file" id="foto" accept="image/*" required>
       <div style="background: #e8f5e9; padding: 8px; border-radius: 6px; font-size: 12px; color: #27ae60;">JPG/PNG | Maks 5MB</div>
     </section>
-
     <section style="background: #f0f4ff; border: 2px solid #003399;">
       <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
         <input type="checkbox" id="agreeTerms" required style="margin-top: 4px; width: 20px; height: 20px;">
         <span>Saya setuju dengan Syarat & Ketentuan</span>
       </label>
     </section>
-
     <button type="submit" class="btn-submit" id="btnSubmit">✓ KIRIM</button>
   </form>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js"></script>
 <script src="db-sync.js"></script>
-
 <script>
   function getKategoriUmur(usia) {
     if (usia >= 17) return "KU-17";
@@ -128,126 +113,60 @@
   function hitungOtomatis() {
     const tglInput = document.getElementById("tglLahir").value;
     if (!tglInput) return;
-
     const tgl = new Date(tglInput);
     const sekarang = new Date();
-    const tahunSekarang = sekarang.getFullYear();
-    const bulanSekarang = sekarang.getMonth();
-    const hariSekarang = sekarang.getDate();
-
-    const tahunLahir = tgl.getFullYear();
-    const bulanLahir = tgl.getMonth();
-    const hariLahir = tgl.getDate();
-
-    let usia = tahunSekarang - tahunLahir;
-    if (bulanSekarang < bulanLahir || (bulanSekarang === bulanLahir && hariSekarang < hariLahir)) {
-      usia--;
-    }
-
+    let usia = sekarang.getFullYear() - tgl.getFullYear();
+    if (sekarang.getMonth() < tgl.getMonth() || (sekarang.getMonth() === tgl.getMonth() && sekarang.getDate() < tgl.getDate())) usia--;
     document.getElementById("usia").value = usia + " Tahun";
     document.getElementById("kategori").value = getKategoriUmur(usia);
   }
 
-  function showAlert(msg) {
+  function showAlert(msg, isSuccess = false) {
     const el = document.getElementById("alertError");
     el.textContent = msg;
-    el.className = msg.includes('✅') ? 'alert alert-success' : 'alert alert-error';
+    el.className = isSuccess ? 'alert alert-success' : 'alert alert-error';
     el.style.display = "block";
-  }
-
-  function validateForm() {
-    const nama = document.getElementById("nama").value.trim();
-    const tglLahir = document.getElementById("tglLahir").value;
-    const posisi = document.getElementById("posisi").value;
-    const namaOrtu = document.getElementById("namaOrtu").value.trim();
-    const noHp = document.getElementById("noHp").value.trim();
-    const alamat = document.getElementById("alamat").value.trim();
-    const foto = document.getElementById("foto").files[0];
-    const agree = document.getElementById("agreeTerms").checked;
-
-    if (!nama) { showAlert("❌ Nama tidak boleh kosong"); return false; }
-    if (nama.length < 3) { showAlert("❌ Nama minimal 3 karakter"); return false; }
-    if (!tglLahir) { showAlert("❌ Pilih tanggal lahir"); return false; }
-    if (!posisi) { showAlert("❌ Pilih posisi"); return false; }
-    if (!namaOrtu) { showAlert("❌ Nama orang tua tidak boleh kosong"); return false; }
-    if (!noHp) { showAlert("❌ No. WhatsApp tidak boleh kosong"); return false; }
-    if (!/^08[0-9]{8,11}$/.test(noHp)) { showAlert("❌ No. WhatsApp invalid"); return false; }
-    if (!alamat) { showAlert("❌ Alamat tidak boleh kosong"); return false; }
-    if (!foto) { showAlert("❌ Upload foto"); return false; }
-    if (foto.size > 5 * 1024 * 1024) { showAlert("❌ Foto maksimal 5MB"); return false; }
-    if (!/image\/(jpeg|jpg|png)/.test(foto.type)) { showAlert("❌ Format foto hanya JPG/PNG"); return false; }
-    if (!agree) { showAlert("❌ Setujui Syarat & Ketentuan"); return false; }
-
-    return true;
   }
 
   document.getElementById("formPendaftaran").onsubmit = async function(e) {
     e.preventDefault();
 
-    if (!validateForm()) return;
-
     const btn = document.getElementById("btnSubmit");
     const origText = btn.innerHTML;
-
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Mengirim...';
 
     try {
-      // Tunggu DBManager siap
-      let dbReady = false;
-      for (let i = 0; i < 20; i++) {
-        if (typeof DBManager !== 'undefined') {
-          dbReady = true;
-          break;
-        }
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
-
-      if (!dbReady) {
-        throw new Error("DBManager tidak siap");
-      }
-
-      const tglLahir = document.getElementById("tglLahir").value;
-      const tahunLahir = new Date(tglLahir).getFullYear();
-      const usia = new Date().getFullYear() - tahunLahir;
-
       const dataBaru = {
         nama: document.getElementById("nama").value.trim(),
-        tglLahir: tglLahir,
-        tahunLahir: tahunLahir,
-        usia: usia,
-        kategori: getKategoriUmur(usia),
+        tglLahir: document.getElementById("tglLahir").value,
+        kategori: document.getElementById("kategori").value,
         posisi: document.getElementById("posisi").value,
         namaOrtu: document.getElementById("namaOrtu").value.trim(),
         noHp: document.getElementById("noHp").value.trim(),
         alamat: document.getElementById("alamat").value.trim(),
         tipe: "Reguler",
-        status: "Menunggu Verifikasi"
+        alasan: "Pendaftaran reguler",
+        penjelasanAlasan: ""
       };
 
       const niswBaru = await DBManager.addPendaftar(dataBaru);
 
-      const alertEl = document.getElementById("alertError");
-      alertEl.className = "alert alert-success";
-      alertEl.innerHTML = `✅ Berhasil! NISW: ${niswBaru}<br>Kategori: ${dataBaru.kategori}`;
-      alertEl.style.display = "block";
+      showAlert(`✅ Berhasil! NISW: ${niswBaru}`, true);
 
       setTimeout(() => {
         window.location.href = "index.html";
-      }, 2000);
+      }, 1800);
 
     } catch (err) {
-      console.error("Error:", err);
-      showAlert("❌ " + (err.message || "Gagal"));
+      console.error(err);
+      showAlert("❌ Gagal mengirim data. Coba lagi.");
       btn.disabled = false;
       btn.innerHTML = origText;
     }
   };
 
-  // Initialize when page loads
-  window.addEventListener('load', function() {
-    console.log("✅ Form pendaftaran siap!");
-  });
+  console.log("✅ pendaftaran.html siap (tampilan 100% sama)");
 </script>
 </body>
 </html>
