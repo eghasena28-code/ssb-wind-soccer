@@ -76,7 +76,7 @@
         .info-box { background: #e7f3ff; border-left: 4px solid #003399; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 12px; color: #003399; line-height: 1.6; }
         .success-badge { background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
         .pending-badge { background: #fff3cd; color: #856404; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center; overflow-y: auto; }
         .modal-overlay.active { display: flex; }
         .modal-content { background: white; padding: 30px; border-radius: 15px; max-width: 550px; width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
         .modal-header { font-size: 18px; font-weight: bold; color: var(--primary); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
@@ -88,6 +88,7 @@
         .summary-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #ddd; }
         .summary-row:last-child { border-bottom: none; }
         .summary-row strong { color: var(--primary); }
+        .photo-placeholder { display: inline-block; width: 40px; height: 40px; background: #e0e0e0; border-radius: 50%; text-align: center; line-height: 40px; font-size: 20px; }
     </style>
 </head>
 <body>
@@ -96,7 +97,7 @@
     <div class="sidebar">
         <div class="sidebar-content">
             <div style="text-align: center; margin-bottom: 15px;">
-                <img src="logossb.png" style="width: 70px;" alt="SSB Wind Soccer">
+                <div style="font-size: 40px;">⚽</div>
             </div>
             <h2>ADMIN WIND SOCCER</h2>
             <div class="nav-link active" onclick="showSection('db_siswa')">👥 Database Siswa</div>
@@ -474,7 +475,7 @@
             <!-- ===== RINGKASAN UNTUK INFORMASI SISWA ===== -->
             <div class="card">
                 <h4 style="color: #17a2b8; border-bottom: 2px solid #17a2b8; padding-bottom: 10px;">🔗 PREVIEW - Jadwal yang ditampilkan di Halaman Informasi Siswa</h4>
-                <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Berikut adalah jadwal yang akan divisualizasikan untuk siswa:</p>
+                <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Berikut adalah jadwal yang akan divisualisasikan untuk siswa:</p>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                     <div style="background: #e8f5e9; padding: 15px; border-radius: 10px; border-left: 5px solid #28a745;">
@@ -495,6 +496,30 @@
         </div>
     </div>
 
+    <!-- ===== MODAL TAGIHAN ===== -->
+    <div id="modalTagihan" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header"></div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="closeTagihanModal()"><i class="fas fa-times"></i> Batal</button>
+                <button class="btn btn-success" onclick="saveTagihan()"><i class="fas fa-save"></i> Simpan Tagihan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL EDIT SISWA ===== -->
+    <div id="modalEditSiswa" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header"></div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="closeEditSiswaModal()"><i class="fas fa-times"></i> Batal</button>
+                <button class="btn btn-success" onclick="saveSiswaEditFinal()"><i class="fas fa-save"></i> Simpan</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -502,7 +527,7 @@
     <script src="db-sync.js"></script>
 
     <script>
-        console.log("🚀 Admin Panel - DATABASE SISWA SEMPURNA");
+        console.log("🚀 Admin Panel - VERSI LENGKAP DIPERBAIKI");
 
         // ===== GLOBAL DATA =====
         let allSiswaData = [];
@@ -510,7 +535,8 @@
         let jadwalTurnamen = [];
         let keuanganData = [];
         let pendaftarData = [];
-        let tagihanData = {};
+        let currentEditTagihan = null;
+        let currentEditSiswaData = null;
         
         const NOMINAL_DAFTAR = {
             'Reguler': 500000,
@@ -536,15 +562,210 @@
             }, time);
         }
 
-        // ===== LOAD TAGIHAN DATA =====
-        function loadTagihanData() {
-            const stored = localStorage.getItem('dataTagihan');
-            tagihanData = stored ? JSON.parse(stored) : {};
+        // ===== TAGIHAN FUNCTIONS =====
+        function openTagihanModal(nisw) {
+            const siswa = allSiswaData.find(s => s.nisw === nisw);
+            if (!siswa) {
+                showAlert("❌ Siswa tidak ditemukan!", "error");
+                return;
+            }
+
+            let allTagihan = JSON.parse(localStorage.getItem('dataTagihan')) || {};
+            const tagihan = allTagihan[nisw] || {
+                bulan: new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }),
+                iuran: 150000,
+                dendaAbsen: 0,
+                dendaTurnamen: 0,
+                keteranganDenda: '',
+                status: 'Belum Lunas'
+            };
+
+            currentEditTagihan = nisw;
+
+            const modal = document.getElementById('modalTagihan');
+            const modalHeader = modal.querySelector('.modal-header');
+            const modalBody = modal.querySelector('.modal-body');
+
+            modalHeader.innerHTML = `💰 Kelola Tagihan - ${siswa.nama} (${nisw})`;
+
+            const totalTag = (tagihan.iuran || 0) + (tagihan.dendaAbsen || 0) + (tagihan.dendaTurnamen || 0);
+
+            modalBody.innerHTML = `
+                <label>Bulan Iuran:</label>
+                <input type="text" id="editBulan" value="${tagihan.bulan}" placeholder="Misal: April 2026">
+
+                <label>Iuran Bulanan (Rp):</label>
+                <input type="number" id="editIuran" value="${tagihan.iuran}" placeholder="150000">
+
+                <label>Denda Absensi (Rp):</label>
+                <input type="number" id="editDendaAbsen" value="${tagihan.dendaAbsen}" placeholder="0">
+
+                <label>Denda Turnamen (Rp):</label>
+                <input type="number" id="editDendaTurnamen" value="${tagihan.dendaTurnamen}" placeholder="0">
+
+                <label>Keterangan Denda:</label>
+                <input type="text" id="editKeteranganDenda" value="${tagihan.keteranganDenda}" placeholder="Misal: Absen 3x latihan">
+
+                <label>Status Pembayaran:</label>
+                <select id="editStatusTagihan">
+                    <option value="Belum Lunas" ${tagihan.status === 'Belum Lunas' ? 'selected' : ''}>Belum Lunas</option>
+                    <option value="Lunas" ${tagihan.status === 'Lunas' ? 'selected' : ''}>Lunas</option>
+                    <option value="Cicil" ${tagihan.status === 'Cicil' ? 'selected' : ''}>Cicil</option>
+                </select>
+
+                <div style="background: #e8f5e9; padding: 12px; border-radius: 6px; margin-top: 15px;">
+                    <strong style="color: #28a745; display: block; margin-bottom: 8px;">📊 Total Tagihan:</strong>
+                    <div style="font-size: 16px; font-weight: bold; color: #28a745;">
+                        Rp ${formatRupiah(totalTag)}
+                    </div>
+                </div>
+            `;
+
+            modal.classList.add('active');
+        }
+
+        function saveTagihan() {
+            if (!currentEditTagihan) return;
+
+            const bulan = document.getElementById('editBulan').value.trim();
+            const iuran = parseInt(document.getElementById('editIuran').value) || 0;
+            const dendaAbsen = parseInt(document.getElementById('editDendaAbsen').value) || 0;
+            const dendaTurnamen = parseInt(document.getElementById('editDendaTurnamen').value) || 0;
+            const keteranganDenda = document.getElementById('editKeteranganDenda').value.trim();
+            const status = document.getElementById('editStatusTagihan').value;
+
+            if (!bulan) {
+                showAlert("⚠️ Bulan iuran wajib diisi!", "warn");
+                return;
+            }
+
+            let allTagihan = JSON.parse(localStorage.getItem('dataTagihan')) || {};
+            allTagihan[currentEditTagihan] = {
+                bulan,
+                iuran,
+                dendaAbsen,
+                dendaTurnamen,
+                keteranganDenda,
+                status
+            };
+            localStorage.setItem('dataTagihan', JSON.stringify(allTagihan));
+
+            showAlert(`✅ Tagihan ${currentEditTagihan} berhasil disimpan!`, "success");
+            closeTagihanModal();
+            renderAllSiswa();
+        }
+
+        function closeTagihanModal() {
+            const modal = document.getElementById('modalTagihan');
+            if (modal) {
+                modal.classList.remove('active');
+                currentEditTagihan = null;
+            }
+        }
+
+        // ===== EDIT SISWA FUNCTIONS =====
+        function editSiswa(nisw) {
+            const siswa = allSiswaData.find(s => s.nisw === nisw);
+            if (!siswa) return;
+
+            currentEditSiswaData = nisw;
+
+            const modal = document.getElementById('modalEditSiswa');
+            const modalHeader = modal.querySelector('.modal-header');
+            const modalBody = modal.querySelector('.modal-body');
+
+            modalHeader.innerHTML = `✏️ Edit Data Siswa - ${siswa.nama}`;
+
+            modalBody.innerHTML = `
+                <label>Nama Lengkap:</label>
+                <input type="text" id="editNamaSiswa" value="${siswa.nama}">
+
+                <label>Posisi:</label>
+                <input type="text" id="editPosisiSiswa" value="${siswa.posisi || ''}">
+
+                <label>Nama Orang Tua:</label>
+                <input type="text" id="editOrangtua" value="${siswa.namaOrtu || ''}">
+
+                <label>No HP:</label>
+                <input type="text" id="editHpSiswa" value="${siswa.noHp || ''}">
+
+                <label>Alamat:</label>
+                <textarea id="editAlamatSiswa" rows="3">${siswa.alamat || ''}</textarea>
+            `;
+
+            modal.classList.add('active');
+        }
+
+        function saveSiswaEditFinal() {
+            if (!currentEditSiswaData) return;
+
+            const nama = document.getElementById('editNamaSiswa').value.trim();
+            const posisi = document.getElementById('editPosisiSiswa').value.trim();
+            const namaOrtu = document.getElementById('editOrangtua').value.trim();
+            const noHp = document.getElementById('editHpSiswa').value.trim();
+            const alamat = document.getElementById('editAlamatSiswa').value.trim();
+
+            if (!nama) {
+                showAlert("⚠️ Nama wajib diisi!", "warn");
+                return;
+            }
+
+            const idx = allSiswaData.findIndex(s => s.nisw === currentEditSiswaData);
+            if (idx !== -1) {
+                allSiswaData[idx].nama = nama;
+                allSiswaData[idx].posisi = posisi;
+                allSiswaData[idx].namaOrtu = namaOrtu;
+                allSiswaData[idx].noHp = noHp;
+                allSiswaData[idx].alamat = alamat;
+                
+                localStorage.setItem('siswaAktif', JSON.stringify(allSiswaData));
+                showAlert(`✅ Data ${currentEditSiswaData} berhasil diperbarui!`, "success");
+                closeEditSiswaModal();
+                renderAllSiswa();
+            }
+        }
+
+        function closeEditSiswaModal() {
+            const modal = document.getElementById('modalEditSiswa');
+            if (modal) {
+                modal.classList.remove('active');
+                currentEditSiswaData = null;
+            }
+        }
+
+        // ===== HAPUS SISWA =====
+        function hapusSiswa(nisw) {
+            const siswa = allSiswaData.find(s => s.nisw === nisw);
+            if (!siswa) return;
+
+            if (confirm(`⚠️ Hapus siswa ${siswa.nama} (${nisw}) dari database?\n\nTindakan ini tidak bisa dibatalkan!`)) {
+                allSiswaData = allSiswaData.filter(s => s.nisw !== nisw);
+                localStorage.setItem('siswaAktif', JSON.stringify(allSiswaData));
+                
+                let allTagihan = JSON.parse(localStorage.getItem('dataTagihan')) || {};
+                delete allTagihan[nisw];
+                localStorage.setItem('dataTagihan', JSON.stringify(allTagihan));
+
+                showAlert(`✅ Siswa ${nisw} berhasil dihapus!`, "success");
+                renderAllSiswa();
+            }
+        }
+
+        // ===== GET TOTAL TAGIHAN =====
+        function getTotalTagihan(nisw) {
+            let allTagihan = JSON.parse(localStorage.getItem('dataTagihan')) || {};
+            const tagihan = allTagihan[nisw];
+            if (!tagihan) return 0;
+            return (tagihan.iuran || 0) + (tagihan.dendaAbsen || 0) + (tagihan.dendaTurnamen || 0);
+        }
+
+        function getStatusTagihan(nisw) {
+            let allTagihan = JSON.parse(localStorage.getItem('dataTagihan')) || {};
+            return allTagihan[nisw]?.status || 'Belum Bayar';
         }
 
         // ===== RENDER SISWA =====
         function renderAllSiswa() {
-            loadTagihanData();
             const filterKategori = document.getElementById('filterKategori')?.value || '';
             const filterTipe = document.getElementById('filterTipe')?.value || '';
             const filterStatusBayar = document.getElementById('filterStatusBayar')?.value || '';
@@ -575,226 +796,35 @@
                 }
 
                 tbody.innerHTML = filteredData.map((siswa, index) => {
-                    const tagihanSiswa = tagihanData[siswa.nisw];
-                    const totalTagihan = tagihanSiswa ? (tagihanSiswa.iuran + tagihanSiswa.dendaAbsen + tagihanSiswa.dendaTurnamen) : 0;
+                    const totalTagihan = getTotalTagihan(siswa.nisw);
+                    const statusTagihan = getStatusTagihan(siswa.nisw);
                     
                     return `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td><img src="${siswa.foto || 'https://via.placeholder.com/40?text=No'}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" onerror="this.src='https://via.placeholder.com/40?text=Photo'"></td>
-                        <td><strong style="color: #003399;">${siswa.nisw || '-'}</strong></td>
-                        <td><strong>${siswa.nama || '-'}</strong></td>
-                        <td><span style="background: #e3f2fd; color: #003399; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${siswa.kategori || '-'}</span></td>
-                        <td><span style="background: ${siswa.tipe === 'Beasiswa' ? '#e8f5e9' : '#fff3cd'}; color: ${siswa.tipe === 'Beasiswa' ? '#27ae60' : '#f57c00'}; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${siswa.tipe || 'Reguler'}</span></td>
-                        <td>${siswa.posisi || '-'}</td>
-                        <td>${formatTanggal(siswa.tglLahir) || '-'}</td>
-                        <td><a href="https://wa.me/${siswa.noHp?.replace(/\D/g, '')}" target="_blank" style="color: #28a745; text-decoration: none; font-weight: bold;">${siswa.noHp || '-'}</a></td>
-                        <td>${siswa.namaOrtu || '-'}</td>
-                        <td title="${siswa.alamat || '-'}" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis;">${siswa.alamat || '-'}</td>
-                        <td><span style="background: ${getStatusBayarColor(siswa.statusPembayaran)}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${siswa.statusPembayaran || 'Belum Bayar'}</span></td>
-                        <td style="text-align: right; color: #dc3545; font-weight: bold;">Rp ${formatRupiah(totalTagihan)}</td>
-                        <td><div class="row-action">
-                            <button class="btn btn-warning btn-sm" onclick="openTagihanModal('${siswa.nisw}')" title="Tagihan"><i class="fas fa-money-bill"></i> Tagihan</button>
-                            <button class="btn btn-info btn-sm" onclick="openEditModal('${siswa.nisw}')" title="Edit"><i class="fas fa-edit"></i> Edit</button>
-                            <button class="btn btn-danger btn-sm" onclick="hapusSiswa('${siswa.nisw}')" title="Hapus"><i class="fas fa-trash"></i> Hapus</button>
-                        </div></td>
-                    </tr>
-                `}).join('');
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td><div class="photo-placeholder">📸</div></td>
+                            <td><strong style="color: #003399;">${siswa.nisw || '-'}</strong></td>
+                            <td><strong>${siswa.nama || '-'}</strong></td>
+                            <td><span style="background: #e3f2fd; color: #003399; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${siswa.kategori || '-'}</span></td>
+                            <td><span style="background: ${siswa.tipe === 'Beasiswa' ? '#e8f5e9' : '#fff3cd'}; color: ${siswa.tipe === 'Beasiswa' ? '#27ae60' : '#f57c00'}; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${siswa.tipe || 'Reguler'}</span></td>
+                            <td>${siswa.posisi || '-'}</td>
+                            <td>${formatTanggal(siswa.tglLahir) || '-'}</td>
+                            <td><a href="https://wa.me/${siswa.noHp?.replace(/\D/g, '')}" target="_blank" style="color: #28a745; text-decoration: none; font-weight: bold;">${siswa.noHp || '-'}</a></td>
+                            <td>${siswa.namaOrtu || '-'}</td>
+                            <td title="${siswa.alamat || '-'}" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis;">${siswa.alamat || '-'}</td>
+                            <td><span style="background: ${getStatusBayarColor(statusTagihan)}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${statusTagihan}</span></td>
+                            <td style="text-align: right; color: #dc3545; font-weight: bold;">Rp ${formatRupiah(totalTagihan)}</td>
+                            <td>
+                                <div class="row-action">
+                                    <button class="btn btn-warning btn-sm" onclick="openTagihanModal('${siswa.nisw}')" title="Kelola Tagihan"><i class="fas fa-receipt"></i> Tagihan</button>
+                                    <button class="btn btn-info btn-sm" onclick="editSiswa('${siswa.nisw}')" title="Edit Data"><i class="fas fa-edit"></i> Edit</button>
+                                    <button class="btn btn-danger btn-sm" onclick="hapusSiswa('${siswa.nisw}')" title="Hapus"><i class="fas fa-trash"></i> Hapus</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
             });
-        }
-
-        // ===== MODAL TAGIHAN =====
-        function openTagihanModal(nisw) {
-            loadTagihanData();
-            const siswa = allSiswaData.find(s => s.nisw === nisw);
-            if (!siswa) { showAlert("❌ Siswa tidak ditemukan!", "error"); return; }
-
-            const tagihan = tagihanData[nisw] || {
-                bulan: new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }),
-                iuran: 150000,
-                dendaAbsen: 0,
-                dendaTurnamen: 0,
-                keterangan: '',
-                status: 'Belum Lunas'
-            };
-
-            const total = tagihan.iuran + tagihan.dendaAbsen + tagihan.dendaTurnamen;
-
-            const modal = `
-                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;" id="tagihanBg" onclick="if(event.target.id==='tagihanBg') closeTagihanModal()">
-                    <div style="background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 95%; max-height: 85vh; overflow-y: auto;">
-                        <div style="font-size: 18px; font-weight: bold; color: var(--primary); margin-bottom: 20px; border-bottom: 2px solid var(--secondary); padding-bottom: 15px;">💰 TAGIHAN - ${siswa.nama} (${nisw})</div>
-                        
-                        <div style="background: #f0f4ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid var(--primary);">
-                            <strong style="color: var(--primary);">TOTAL TAGIHAN</strong><br>
-                            <div id="tagihanTotalDisplay" style="font-size: 24px; font-weight: bold; color: var(--primary); margin-top: 8px;">Rp ${formatRupiah(total)}</div>
-                        </div>
-
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 13px;">Bulan Iuran</label>
-                        <input type="text" id="modalTagihanBulan" value="${tagihan.bulan}" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 10px; font-size: 13px;">
-
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 13px;">Iuran Bulanan Rp</label>
-                        <input type="number" id="modalTagihanIuran" value="${tagihan.iuran}" onchange="updateModalTagihanTotal()" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 10px; font-size: 13px;">
-
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 13px;">Denda Absensi Rp</label>
-                        <input type="number" id="modalTagihanDendaAbsen" value="${tagihan.dendaAbsen}" onchange="updateModalTagihanTotal()" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 10px; font-size: 13px;">
-
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 13px;">Denda Turnamen Rp</label>
-                        <input type="number" id="modalTagihanDendaTurnamen" value="${tagihan.dendaTurnamen}" onchange="updateModalTagihanTotal()" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 10px; font-size: 13px;">
-
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 13px;">Keterangan Denda</label>
-                        <input type="text" id="modalTagihanKeterangan" value="${tagihan.keterangan}" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 10px; font-size: 13px;">
-
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 13px;">Status Pembayaran</label>
-                        <select id="modalTagihanStatus" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 20px; font-size: 13px;">
-                            <option value="Belum Lunas" ${tagihan.status === 'Belum Lunas' ? 'selected' : ''}>⏳ Belum Lunas</option>
-                            <option value="Lunas" ${tagihan.status === 'Lunas' ? 'selected' : ''}>✅ Lunas</option>
-                            <option value="Cicilan" ${tagihan.status === 'Cicilan' ? 'selected' : ''}>🔄 Cicilan</option>
-                        </select>
-
-                        <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                            <button class="btn btn-success" onclick="saveTagihanModal('${nisw}')" style="padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin: 0; background: var(--success); color: white;">
-                                <i class="fas fa-save"></i> Simpan
-                            </button>
-                            <button class="btn btn-danger" onclick="closeTagihanModal()" style="padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin: 0; background: var(--danger); color: white;">
-                                <i class="fas fa-times"></i> Batal
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.body.insertAdjacentHTML('beforeend', modal);
-        }
-
-        function updateModalTagihanTotal() {
-            const iuran = parseInt(document.getElementById('modalTagihanIuran')?.value) || 0;
-            const dendaAbsen = parseInt(document.getElementById('modalTagihanDendaAbsen')?.value) || 0;
-            const dendaTurnamen = parseInt(document.getElementById('modalTagihanDendaTurnamen')?.value) || 0;
-            const total = iuran + dendaAbsen + dendaTurnamen;
-            const display = document.getElementById('tagihanTotalDisplay');
-            if (display) display.textContent = 'Rp ' + formatRupiah(total);
-        }
-
-        function saveTagihanModal(nisw) {
-            const bulan = document.getElementById('modalTagihanBulan')?.value?.trim();
-            const iuran = parseInt(document.getElementById('modalTagihanIuran')?.value) || 0;
-            const dendaAbsen = parseInt(document.getElementById('modalTagihanDendaAbsen')?.value) || 0;
-            const dendaTurnamen = parseInt(document.getElementById('modalTagihanDendaTurnamen')?.value) || 0;
-            const keterangan = document.getElementById('modalTagihanKeterangan')?.value?.trim() || '';
-            const status = document.getElementById('modalTagihanStatus')?.value;
-
-            if (!bulan) { showAlert("⚠️ Bulan iuran wajib diisi!", "warn"); return; }
-
-            tagihanData[nisw] = {
-                bulan, iuran, dendaAbsen, dendaTurnamen, keterangan, status,
-                totalTagihan: iuran + dendaAbsen + dendaTurnamen,
-                tglUpdate: new Date().toISOString()
-            };
-            localStorage.setItem('dataTagihan', JSON.stringify(tagihanData));
-
-            showAlert(`✅ Tagihan ${nisw} disimpan!\nRp ${formatRupiah(iuran + dendaAbsen + dendaTurnamen)}`, "success");
-            closeTagihanModal();
-            renderAllSiswa();
-        }
-
-        function closeTagihanModal() {
-            const bg = document.getElementById('tagihanBg');
-            if (bg) {
-                bg.style.opacity = '0';
-                bg.style.transition = '0.3s ease';
-                setTimeout(() => bg.remove(), 300);
-            }
-        }
-
-        // ===== MODAL EDIT =====
-        function openEditModal(nisw) {
-            const siswa = allSiswaData.find(s => s.nisw === nisw);
-            if (!siswa) { showAlert("❌ Siswa tidak ditemukan!", "error"); return; }
-
-            const modal = `
-                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;" id="editBg" onclick="if(event.target.id==='editBg') closeEditModal()">
-                    <div style="background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 95%; max-height: 85vh; overflow-y: auto;">
-                        <div style="font-size: 18px; font-weight: bold; color: var(--primary); margin-bottom: 20px; border-bottom: 2px solid var(--secondary); padding-bottom: 15px;">✏️ EDIT SISWA - ${siswa.nama}</div>
-                        
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 13px;">Nama Lengkap</label>
-                        <input type="text" id="modalEditNama" value="${siswa.nama}" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 10px; font-size: 13px;">
-
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 13px;">Posisi</label>
-                        <input type="text" id="modalEditPosisi" value="${siswa.posisi || ''}" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 10px; font-size: 13px;">
-
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 13px;">Nama Orang Tua</label>
-                        <input type="text" id="modalEditOrtu" value="${siswa.namaOrtu || ''}" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 10px; font-size: 13px;">
-
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 13px;">No HP</label>
-                        <input type="text" id="modalEditNoHp" value="${siswa.noHp || ''}" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 10px; font-size: 13px;">
-
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 13px;">Alamat</label>
-                        <textarea id="modalEditAlamat" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 20px; font-size: 13px; resize: vertical; min-height: 60px;">${siswa.alamat || ''}</textarea>
-
-                        <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                            <button class="btn btn-success" onclick="saveEditModal('${nisw}')" style="padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin: 0; background: var(--success); color: white;">
-                                <i class="fas fa-save"></i> Simpan
-                            </button>
-                            <button class="btn btn-danger" onclick="closeEditModal()" style="padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin: 0; background: var(--danger); color: white;">
-                                <i class="fas fa-times"></i> Batal
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.body.insertAdjacentHTML('beforeend', modal);
-        }
-
-        function saveEditModal(nisw) {
-            const nama = document.getElementById('modalEditNama')?.value?.trim();
-            const posisi = document.getElementById('modalEditPosisi')?.value?.trim();
-            const ortu = document.getElementById('modalEditOrtu')?.value?.trim();
-            const noHp = document.getElementById('modalEditNoHp')?.value?.trim();
-            const alamat = document.getElementById('modalEditAlamat')?.value?.trim();
-
-            if (!nama) { showAlert("⚠️ Nama wajib diisi!", "warn"); return; }
-
-            const siswaIdx = allSiswaData.findIndex(s => s.nisw === nisw);
-            if (siswaIdx !== -1) {
-                allSiswaData[siswaIdx].nama = nama;
-                allSiswaData[siswaIdx].posisi = posisi;
-                allSiswaData[siswaIdx].namaOrtu = ortu;
-                allSiswaData[siswaIdx].noHp = noHp;
-                allSiswaData[siswaIdx].alamat = alamat;
-                
-                DBManager.updateSiswaAktif(nisw, allSiswaData[siswaIdx]);
-                showAlert("✅ Data siswa " + nama + " berhasil diperbarui!", "success");
-                closeEditModal();
-                renderAllSiswa();
-            }
-        }
-
-        function closeEditModal() {
-            const bg = document.getElementById('editBg');
-            if (bg) {
-                bg.style.opacity = '0';
-                bg.style.transition = '0.3s ease';
-                setTimeout(() => bg.remove(), 300);
-            }
-        }
-
-        // ===== HAPUS SISWA =====
-        function hapusSiswa(nisw) {
-            const siswa = allSiswaData.find(s => s.nisw === nisw);
-            if (!siswa) { showAlert("❌ Siswa tidak ditemukan!", "error"); return; }
-
-            if (confirm(`⚠️ Yakin hapus siswa ${siswa.nama} (${nisw})?\n\nAksi ini tidak bisa dibatalkan!`)) {
-                allSiswaData = allSiswaData.filter(s => s.nisw !== nisw);
-                DBManager.deleteSiswaAktif(nisw);
-                
-                if (tagihanData[nisw]) {
-                    delete tagihanData[nisw];
-                    localStorage.setItem('dataTagihan', JSON.stringify(tagihanData));
-                }
-                
-                showAlert(`✅ Siswa ${siswa.nama} berhasil dihapus!`, "success");
-                renderAllSiswa();
-            }
         }
 
         // ===== RENDER VERIFIKASI =====
@@ -818,7 +848,7 @@
                     return `
                         <tr>
                             <td style="text-align: center; font-weight: bold;">${i + 1}</td>
-                            <td><img src="${p.foto || 'https://via.placeholder.com/40?text=No'}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" onerror="this.src='https://via.placeholder.com/40?text=Photo'"></td>
+                            <td><div class="photo-placeholder">📸</div></td>
                             <td><strong style="color: #003399;">${p.nama || '-'}</strong></td>
                             <td><span style="background: #e3f2fd; color: #003399; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${p.kategori || '-'}</span></td>
                             <td><span style="background: ${p.tipe === 'Beasiswa' ? '#e8f5e9' : '#fff3cd'}; color: ${p.tipe === 'Beasiswa' ? '#27ae60' : '#f57c00'}; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${p.tipe}</span></td>
@@ -826,7 +856,7 @@
                             <td><span class="pending-badge">⏳ Menunggu</span></td>
                             <td style="font-size: 12px;">${p.tglDaftar || '-'}</td>
                             <td style="text-align: center;">
-                                <button class="btn btn-success btn-sm" onclick="approveVerifikasi(${i}, '${p.nisw}', '${p.nama}', ${nominal})">
+                                <button class="btn btn-success btn-sm" onclick="approveVerifikasi('${p.nisw}', '${p.nama}', ${nominal})">
                                     <i class="fas fa-check"></i> SETUJUI
                                 </button>
                             </td>
@@ -836,28 +866,32 @@
             });
         }
 
-        function approveVerifikasi(idx, nisw, nama, nominal) {
+        function approveVerifikasi(nisw, nama, nominal) {
             if (confirm(`Setujui ${nama}?\n\nNominal: Rp ${formatRupiah(nominal)}`)) {
-                pendaftarData[idx].status = 'DISETUJUI';
-                
-                const transaksi = {
-                    id: Date.now().toString(),
-                    tanggal: new Date().toLocaleDateString('id-ID'),
-                    jenisMasukKeluar: 'Masuk',
-                    jenis: 'Daftar',
-                    kategori: 'Uang Daftar',
-                    sumber: nama + ` (${nisw})`,
-                    keterangan: `Uang Pendaftaran - ${pendaftarData[idx].tipe}`,
-                    nominal: nominal,
-                    createdAt: new Date().toISOString()
-                };
-                
-                keuanganData.push(transaksi);
-                localStorage.setItem('pendaftarData', JSON.stringify(pendaftarData));
-                localStorage.setItem('keuanganData', JSON.stringify(keuanganData));
-                
-                showAlert(`✅ ${nama} disetujui! Rp ${formatRupiah(nominal)} tercatat ke keuangan.`, "success");
-                renderVerifikasi();
+                const idx = pendaftarData.findIndex(p => p.nisw === nisw);
+                if (idx !== -1) {
+                    pendaftarData[idx].status = 'DISETUJUI';
+                    
+                    const transaksi = {
+                        id: Date.now().toString(),
+                        tanggal: new Date().toLocaleDateString('id-ID'),
+                        jenisMasukKeluar: 'Masuk',
+                        jenis: 'Daftar',
+                        kategori: 'Uang Daftar',
+                        sumber: nama + ` (${nisw})`,
+                        keterangan: `Uang Pendaftaran - ${pendaftarData[idx].tipe}`,
+                        nominal: nominal,
+                        createdAt: new Date().toISOString()
+                    };
+                    
+                    keuanganData.push(transaksi);
+                    localStorage.setItem('pendaftarData', JSON.stringify(pendaftarData));
+                    localStorage.setItem('keuanganData', JSON.stringify(keuanganData));
+                    
+                    showAlert(`✅ ${nama} disetujui! Rp ${formatRupiah(nominal)} tercatat ke keuangan.`, "success");
+                    renderVerifikasi();
+                    hitungSaldoKeuangan();
+                }
             }
         }
 
@@ -938,7 +972,7 @@
 
             const sorted = [...keuanganData].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
             
-            tbody.innerHTML = sorted.map((k) => {
+            tbody.innerHTML = sorted.map((k, idx) => {
                 const jenisBg = k.jenisMasukKeluar === 'Masuk' ? '#d4edda' : '#f8d7da';
                 const jenisText = k.jenisMasukKeluar === 'Masuk' ? '#155724' : '#721c24';
                 const jenisColor = k.jenisMasukKeluar === 'Masuk' ? '#28a745' : '#dc3545';
@@ -1375,7 +1409,7 @@
         }
 
         function getStatusBayarColor(status) {
-            const colors = { 'Lunas': '#28a745', 'Cicilan': '#ffc107', 'Belum Bayar': '#dc3545' };
+            const colors = { 'Lunas': '#28a745', 'Cicilan': '#ffc107', 'Cicil': '#ffc107', 'Belum Bayar': '#dc3545' };
             return colors[status] || '#6c757d';
         }
 
@@ -1400,10 +1434,22 @@
 
         // ===== INITIALIZE =====
         window.addEventListener('load', function() {
-            console.log("✅ Admin Panel - DATABASE SISWA SEMPURNA!");
+            console.log("✅ Admin Panel - Fungsi Lengkap SIAP!");
+            
+            // Cek DBManager
+            if (typeof DBManager === 'undefined') {
+                console.error('❌ CRITICAL: DBManager tidak tersedia!');
+                showAlert('❌ ERROR: Database tidak dapat dimuat!', 'error', 5000);
+                return;
+            }
+            
             renderAllSiswa();
             loadJadwalLatihan();
             loadJadwalTurnamen();
+        });
+
+        window.addEventListener('error', function(event) {
+            console.error('❌ Global Error:', event.error);
         });
     </script>
 </body>
