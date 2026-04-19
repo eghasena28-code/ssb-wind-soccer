@@ -1,29 +1,27 @@
 /**
  * DATABASE MANAGER - SSB WIND SOCCER
  * Firestore + LocalStorage Sync
- * Version: 3.0 (Production Ready)
+ * Version: 4.0 (FIXED - Async/Await Pattern)
  */
 
-console.log("📦 Loading db-sync.js...");
+console.log("📦 Loading db-sync.js v4.0...");
 
 // ============ GLOBAL DB MANAGER ============
 window.DBManager = {
 
-  // ===== GET CURRENT DATE =====
   getTglSekarang: function() {
     return new Date().toLocaleDateString('id-ID');
   },
 
-  // ===== GENERATE NISW =====
   generateNISW: function() {
     const tahun = new Date().getFullYear().toString().slice(-2);
     const randomNum = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
     return 'R' + tahun + randomNum;
   },
 
-  // ===== ADD PENDAFTAR =====
-  addPendaftar: function(data, callback) {
-    console.log("➕ Adding pendaftar...");
+  // ===== ADD PENDAFTAR (ASYNC) =====
+  addPendaftar: async function(data) {
+    console.log("➕ Adding pendaftar...", data);
     
     try {
       const nisw = this.generateNISW();
@@ -37,8 +35,11 @@ window.DBManager = {
         namaOrtu: data.namaOrtu || '',
         noHp: data.noHp || '',
         alamat: data.alamat || '',
+        alasan: data.alasan || '',
+        penjelasanAlasan: data.penjelasanAlasan || '',
         tipe: data.tipe || 'Reguler',
-        status: 'Menunggu',
+        foto: data.foto || '',
+        status: 'Menunggu Verifikasi',
         tglDaftar: this.getTglSekarang(),
         createdAt: new Date().toISOString()
       };
@@ -47,17 +48,22 @@ window.DBManager = {
       let pendaftarList = [];
       const stored = localStorage.getItem('pendaftarData');
       if (stored) {
-        pendaftarList = JSON.parse(stored);
+        try {
+          pendaftarList = JSON.parse(stored);
+        } catch (e) {
+          pendaftarList = [];
+        }
       }
+      
       pendaftarList.push(newPendaftar);
       localStorage.setItem('pendaftarData', JSON.stringify(pendaftarList));
 
       console.log("✅ Pendaftar added:", nisw);
-      callback(true);
+      return nisw;
 
     } catch (error) {
       console.error("❌ Error addPendaftar:", error);
-      callback(false);
+      throw error;
     }
   },
 
@@ -70,31 +76,38 @@ window.DBManager = {
       const data = stored ? JSON.parse(stored) : [];
       
       console.log("✅ Pendaftar loaded:", data.length);
-      callback(data);
+      if (typeof callback === 'function') {
+        callback(data);
+      }
+      return data;
 
     } catch (error) {
       console.error("❌ Error getPendaftar:", error);
-      callback([]);
+      if (typeof callback === 'function') {
+        callback([]);
+      }
+      return [];
     }
   },
 
-  // ===== GET SISWA AKTIF =====
+  // ===== GET SISWA AKTIF (DENGAN DEMO DATA) =====
   getSiswaAktif: function(callback) {
     console.log("🔍 Fetching siswa aktif...");
     
     try {
-      // Cek localStorage dulu
       const stored = localStorage.getItem('siswaData');
       
       if (stored && stored !== '[]') {
         const allSiswa = JSON.parse(stored);
         const aktivSiswa = allSiswa.filter(s => s.status === 'Aktif');
         console.log("✅ Siswa aktif loaded:", aktivSiswa.length);
-        callback(aktivSiswa);
+        if (typeof callback === 'function') {
+          callback(aktivSiswa);
+        }
         return;
       }
 
-      // Jika tidak ada, buat demo data
+      // GENERATE DEMO DATA SISWA
       console.log("📝 Creating demo siswa data...");
       const demoSiswa = [
         {
@@ -146,11 +159,15 @@ window.DBManager = {
 
       localStorage.setItem('siswaData', JSON.stringify(demoSiswa));
       console.log("✅ Demo siswa created:", demoSiswa.length);
-      callback(demoSiswa);
+      if (typeof callback === 'function') {
+        callback(demoSiswa);
+      }
 
     } catch (error) {
       console.error("❌ Error getSiswaAktif:", error);
-      callback([]);
+      if (typeof callback === 'function') {
+        callback([]);
+      }
     }
   },
 
@@ -159,7 +176,6 @@ window.DBManager = {
     console.log("🔍 Finding siswa:", nisw.toUpperCase());
     
     try {
-      // Pertama cek di siswaData
       const stored = localStorage.getItem('siswaData');
       if (stored) {
         const siswaList = JSON.parse(stored);
@@ -167,52 +183,92 @@ window.DBManager = {
         
         if (siswa) {
           console.log("✅ Siswa found:", siswa.nama);
-          callback(siswa);
-          return;
-        }
-      }
-
-      // Jika tidak ketemu, cek di pendaftarData
-      const pendaftarStored = localStorage.getItem('pendaftarData');
-      if (pendaftarStored) {
-        const pendaftarList = JSON.parse(pendaftarStored);
-        const pendaftar = pendaftarList.find(p => p.nisw?.toUpperCase() === nisw.toUpperCase());
-        
-        if (pendaftar) {
-          console.log("✅ Pendaftar found:", pendaftar.nama);
-          callback(pendaftar);
-          return;
+          if (typeof callback === 'function') {
+            callback(siswa);
+          }
+          return siswa;
         }
       }
 
       console.warn("⚠️ Siswa not found:", nisw);
-      callback(null);
+      if (typeof callback === 'function') {
+        callback(null);
+      }
+      return null;
 
     } catch (error) {
       console.error("❌ Error findSiswa:", error);
-      callback(null);
+      if (typeof callback === 'function') {
+        callback(null);
+      }
+      return null;
     }
   },
 
-  // ===== GET ABSENSI =====
+  // ===== GET ABSENSI (DENGAN DEMO DATA) =====
   getAbsensi: function(callback) {
     console.log("🔍 Fetching absensi...");
     
     try {
       const stored = localStorage.getItem('absensiData');
-      const data = stored ? JSON.parse(stored) : [];
       
-      console.log("✅ Absensi loaded:", data.length);
-      callback(data);
+      if (stored && stored !== '[]') {
+        const data = JSON.parse(stored);
+        console.log("✅ Absensi loaded:", data.length);
+        if (typeof callback === 'function') {
+          callback(data);
+        }
+        return data;
+      }
+
+      // GENERATE DEMO DATA ABSENSI
+      console.log("📝 Creating demo absensi data...");
+      const tglHari = new Date().toLocaleDateString('id-ID');
+      const demoAbsensi = [
+        {
+          id: 1,
+          tanggal: tglHari,
+          nisw: 'R260001',
+          nama: 'Ahmad Rizky',
+          status: 'Hadir',
+          alasan: '-'
+        },
+        {
+          id: 2,
+          tanggal: tglHari,
+          nisw: 'R260002',
+          nama: 'Sinta Purwanto',
+          status: 'Hadir',
+          alasan: '-'
+        },
+        {
+          id: 3,
+          tanggal: tglHari,
+          nisw: 'R260003',
+          nama: 'Rendi Maulana',
+          status: 'Izin',
+          alasan: 'Sakit'
+        }
+      ];
+
+      localStorage.setItem('absensiData', JSON.stringify(demoAbsensi));
+      console.log("✅ Demo absensi created:", demoAbsensi.length);
+      if (typeof callback === 'function') {
+        callback(demoAbsensi);
+      }
+      return demoAbsensi;
 
     } catch (error) {
       console.error("❌ Error getAbsensi:", error);
-      callback([]);
+      if (typeof callback === 'function') {
+        callback([]);
+      }
+      return [];
     }
   },
 
   // ===== ADD ABSENSI =====
-  addAbsensi: function(data, callback) {
+  addAbsensi: async function(data) {
     console.log("➕ Adding absensi...");
     
     try {
@@ -236,11 +292,11 @@ window.DBManager = {
       localStorage.setItem('absensiData', JSON.stringify(absensiList));
 
       console.log("✅ Absensi added");
-      callback(true);
+      return true;
 
     } catch (error) {
       console.error("❌ Error addAbsensi:", error);
-      callback(false);
+      throw error;
     }
   },
 
@@ -253,16 +309,22 @@ window.DBManager = {
       const data = stored ? JSON.parse(stored) : [];
       
       console.log("✅ Saran loaded:", data.length);
-      callback(data);
+      if (typeof callback === 'function') {
+        callback(data);
+      }
+      return data;
 
     } catch (error) {
       console.error("❌ Error getSaran:", error);
-      callback([]);
+      if (typeof callback === 'function') {
+        callback([]);
+      }
+      return [];
     }
   },
 
   // ===== ADD SARAN =====
-  addSaran: function(data, callback) {
+  addSaran: async function(data) {
     console.log("➕ Adding saran...");
     
     try {
@@ -286,16 +348,16 @@ window.DBManager = {
       localStorage.setItem('saranData', JSON.stringify(saranList));
 
       console.log("✅ Saran added");
-      callback(true);
+      return true;
 
     } catch (error) {
       console.error("❌ Error addSaran:", error);
-      callback(false);
+      throw error;
     }
   },
 
   // ===== DELETE SARAN =====
-  deleteSaran: function(id, callback) {
+  deleteSaran: async function(id) {
     console.log("🗑️ Deleting saran:", id);
     
     try {
@@ -309,89 +371,63 @@ window.DBManager = {
       localStorage.setItem('saranData', JSON.stringify(saranList));
 
       console.log("✅ Saran deleted");
-      callback(true);
+      return true;
 
     } catch (error) {
       console.error("❌ Error deleteSaran:", error);
-      callback(false);
+      throw error;
     }
   },
 
-  // ===== GET RAPORT =====
-  getRaport: function(callback) {
-    console.log("🔍 Fetching raport...");
+  // ===== UPDATE SISWA =====
+  updateSiswa: async function(nisw, data) {
+    console.log("✏️ Updating siswa:", nisw);
     
     try {
-      const stored = localStorage.getItem('raportData');
-      const data = stored ? JSON.parse(stored) : [];
-      
-      console.log("✅ Raport loaded:", data.length);
-      callback(data);
-
-    } catch (error) {
-      console.error("❌ Error getRaport:", error);
-      callback([]);
-    }
-  },
-
-  // ===== ADD RAPORT =====
-  addRaport: function(data, callback) {
-    console.log("➕ Adding raport...");
-    
-    try {
-      let raportList = [];
-      const stored = localStorage.getItem('raportData');
+      let siswaList = [];
+      const stored = localStorage.getItem('siswaData');
       if (stored) {
-        raportList = JSON.parse(stored);
+        siswaList = JSON.parse(stored);
       }
 
-      const newRaport = {
-        id: Date.now(),
-        nisw: data.nisw || '',
-        nama: data.nama || '',
-        ...data,
-        createdAt: new Date().toISOString()
-      };
-
-      raportList.push(newRaport);
-      localStorage.setItem('raportData', JSON.stringify(raportList));
-
-      console.log("✅ Raport added");
-      callback(true);
-
-    } catch (error) {
-      console.error("❌ Error addRaport:", error);
-      callback(false);
-    }
-  },
-
-  // ===== UPDATE PENDAFTAR STATUS =====
-  updatePendaftarStatus: function(nisw, status, callback) {
-    console.log("✏️ Updating status:", nisw, status);
-    
-    try {
-      let pendaftarList = [];
-      const stored = localStorage.getItem('pendaftarData');
-      if (stored) {
-        pendaftarList = JSON.parse(stored);
-      }
-
-      const idx = pendaftarList.findIndex(p => p.nisw === nisw);
+      const idx = siswaList.findIndex(s => s.nisw === nisw);
       if (idx !== -1) {
-        pendaftarList[idx].status = status;
-        localStorage.setItem('pendaftarData', JSON.stringify(pendaftarList));
-        console.log("✅ Status updated");
-        callback(true);
-      } else {
-        console.warn("⚠️ Pendaftar not found");
-        callback(false);
+        siswaList[idx] = { ...siswaList[idx], ...data };
+        localStorage.setItem('siswaData', JSON.stringify(siswaList));
+        console.log("✅ Siswa updated");
+        return true;
       }
 
+      return false;
+
     } catch (error) {
-      console.error("❌ Error updatePendaftarStatus:", error);
-      callback(false);
+      console.error("❌ Error updateSiswa:", error);
+      throw error;
+    }
+  },
+
+  // ===== DELETE SISWA =====
+  deleteSiswa: async function(nisw) {
+    console.log("🗑️ Deleting siswa:", nisw);
+    
+    try {
+      let siswaList = [];
+      const stored = localStorage.getItem('siswaData');
+      if (stored) {
+        siswaList = JSON.parse(stored);
+      }
+
+      siswaList = siswaList.filter(s => s.nisw !== nisw);
+      localStorage.setItem('siswaData', JSON.stringify(siswaList));
+
+      console.log("✅ Siswa deleted");
+      return true;
+
+    } catch (error) {
+      console.error("❌ Error deleteSiswa:", error);
+      throw error;
     }
   }
 };
 
-console.log("✅ db-sync.js loaded - DBManager ready!");
+console.log("✅ db-sync.js v4.0 loaded - DBManager ready!");
