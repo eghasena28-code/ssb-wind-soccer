@@ -18,7 +18,6 @@
       background: #f5f5f5;
     }
 
-    /* Sidebar */
     .sidebar {
       position: fixed;
       left: 0;
@@ -86,13 +85,11 @@
       text-align: center;
     }
 
-    /* Main Content */
     .main-content {
       margin-left: 260px;
       padding: 20px;
     }
 
-    /* Header */
     .top-header {
       background: white;
       padding: 20px;
@@ -108,16 +105,12 @@
       color: #003399;
       font-size: 24px;
       margin-bottom: 5px;
+      font-weight: 700;
     }
 
     .header-title p {
       color: #666;
       font-size: 13px;
-    }
-
-    .header-actions {
-      display: flex;
-      gap: 12px;
     }
 
     .btn-logout {
@@ -141,7 +134,6 @@
       transform: translateY(-2px);
     }
 
-    /* Dashboard Grid */
     .dashboard-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -179,7 +171,6 @@
       color: #003399;
     }
 
-    /* Content Card */
     .content-card {
       background: white;
       padding: 25px;
@@ -200,7 +191,6 @@
       padding-bottom: 15px;
     }
 
-    /* Data Table */
     .table-responsive {
       overflow-x: auto;
     }
@@ -261,107 +251,20 @@
       color: #27ae60;
     }
 
-    /* Buttons */
-    .btn-group {
-      display: flex;
-      gap: 6px;
+    .view-content {
+      display: none;
     }
 
-    .btn-small {
-      padding: 6px 10px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 11px;
-      font-weight: 600;
-      transition: all 0.3s;
-      text-transform: uppercase;
-      font-family: 'Poppins', sans-serif;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
+    .view-content.active {
+      display: block;
     }
 
-    .btn-approve {
-      background: #28a745;
-      color: white;
-    }
-
-    .btn-approve:hover {
-      background: #218838;
-    }
-
-    .btn-reject {
-      background: #dc3545;
-      color: white;
-    }
-
-    .btn-reject:hover {
-      background: #c82333;
-    }
-
-    .btn-view {
-      background: #003399;
-      color: white;
-    }
-
-    .btn-view:hover {
-      background: #002266;
-    }
-
-    /* Empty State */
     .empty-state {
       text-align: center;
       padding: 40px;
       color: #666;
     }
 
-    .empty-icon {
-      font-size: 50px;
-      margin-bottom: 15px;
-      opacity: 0.5;
-    }
-
-    /* Alert */
-    .alert-container {
-      margin-bottom: 20px;
-    }
-
-    .alert {
-      padding: 14px 16px;
-      border-radius: 10px;
-      border-left: 4px solid;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 13px;
-      animation: slideDown 0.4s ease-out;
-    }
-
-    @keyframes slideDown {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .alert-success {
-      background: #d4edda;
-      color: #155724;
-      border-left-color: #28a745;
-    }
-
-    .alert-error {
-      background: #f8d7da;
-      color: #721c24;
-      border-left-color: #dc3545;
-    }
-
-    /* Responsive */
     @media (max-width: 768px) {
       .sidebar {
         width: 200px;
@@ -372,21 +275,9 @@
         padding: 15px;
       }
 
-      .dashboard-grid {
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      }
-
       .top-header {
         flex-direction: column;
         gap: 15px;
-      }
-
-      table {
-        font-size: 12px;
-      }
-
-      th, td {
-        padding: 8px;
       }
     }
 
@@ -404,12 +295,8 @@
         font-size: 20px;
       }
 
-      .stat-value {
-        font-size: 24px;
-      }
-
-      .table-responsive {
-        overflow-x: auto;
+      table {
+        font-size: 12px;
       }
     }
   </style>
@@ -424,22 +311,22 @@
     </div>
 
     <div class="sidebar-menu">
-      <div class="menu-item active" onclick="switchView('dashboard')">
+      <div class="menu-item active" data-view="dashboard">
         <i class="fas fa-chart-line menu-icon"></i> Dashboard
       </div>
-      <div class="menu-item" onclick="switchView('siswa')">
+      <div class="menu-item" data-view="siswa">
         <i class="fas fa-users menu-icon"></i> Siswa Aktif
       </div>
-      <div class="menu-item" onclick="switchView('pendaftar')">
+      <div class="menu-item" data-view="pendaftar">
         <i class="fas fa-user-plus menu-icon"></i> Pendaftar
       </div>
-      <div class="menu-item" onclick="switchView('absensi')">
+      <div class="menu-item" data-view="absensi">
         <i class="fas fa-calendar-check menu-icon"></i> Absensi
       </div>
-      <div class="menu-item" onclick="switchView('keuangan')">
+      <div class="menu-item" data-view="keuangan">
         <i class="fas fa-money-bill menu-icon"></i> Keuangan
       </div>
-      <div class="menu-item" onclick="switchView('saran')">
+      <div class="menu-item" data-view="saran">
         <i class="fas fa-comments menu-icon"></i> Saran
       </div>
       <div style="padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 20px;">
@@ -458,18 +345,13 @@
         <h1 id="pageTitle">Dashboard</h1>
         <p id="pageSubtitle">Kelola data SSB Wind Soccer</p>
       </div>
-      <div class="header-actions">
-        <button class="btn-logout" onclick="logoutAdmin()">
-          <i class="fas fa-sign-out-alt"></i> LOGOUT
-        </button>
-      </div>
+      <button class="btn-logout" onclick="logoutAdmin()">
+        <i class="fas fa-sign-out-alt"></i> LOGOUT
+      </button>
     </div>
 
-    <!-- Alert Container -->
-    <div class="alert-container" id="alertContainer"></div>
-
     <!-- Dashboard View -->
-    <div id="dashboardView" class="view-content">
+    <div id="dashboard" class="view-content active">
       <div class="dashboard-grid">
         <div class="stat-card">
           <div class="stat-icon">👥</div>
@@ -483,8 +365,8 @@
         </div>
         <div class="stat-card">
           <div class="stat-icon">✅</div>
-          <div class="stat-label">Absensi Hari Ini</div>
-          <div class="stat-value" id="totalAbsensiHariIni">0</div>
+          <div class="stat-label">Total Absensi</div>
+          <div class="stat-value" id="totalAbsensi">0</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon">💰</div>
@@ -497,16 +379,17 @@
         <div class="card-title">
           <i class="fas fa-info-circle"></i> Informasi Sistem
         </div>
-        <div style="padding: 20px;">
-          <p><strong>Selamat datang di Admin Panel SSB Wind Soccer</strong></p>
-          <p style="margin-top: 10px; color: #666; font-size: 13px;">Gunakan menu di sebelah kiri untuk mengelola data siswa, absensi, keuangan, dan lainnya.</p>
-          <p style="margin-top: 15px; color: #999; font-size: 12px;">Terakhir diakses: <span id="lastAccess">-</span></p>
-        </div>
+        <p style="color: #666; font-size: 13px; line-height: 1.6;">
+          Selamat datang di Admin Panel SSB Wind Soccer. Gunakan menu di sebelah kiri untuk mengelola data siswa, absensi, keuangan, dan lainnya.
+        </p>
+        <p style="margin-top: 15px; color: #999; font-size: 12px;">
+          Terakhir diakses: <strong id="lastAccess">-</strong>
+        </p>
       </div>
     </div>
 
     <!-- Siswa View -->
-    <div id="siswaView" class="view-content" style="display: none;">
+    <div id="siswa" class="view-content">
       <div class="content-card">
         <div class="card-title">
           <i class="fas fa-users"></i> Daftar Siswa Aktif
@@ -521,11 +404,10 @@
                 <th>Kategori</th>
                 <th>Tipe</th>
                 <th>Status</th>
-                <th>Aksi</th>
               </tr>
             </thead>
             <tbody id="siswaTableBody">
-              <tr><td colspan="7" style="text-align: center; color: #999;">Loading...</td></tr>
+              <tr><td colspan="6" style="text-align: center; color: #999;">Loading...</td></tr>
             </tbody>
           </table>
         </div>
@@ -533,7 +415,7 @@
     </div>
 
     <!-- Pendaftar View -->
-    <div id="pendaftarView" class="view-content" style="display: none;">
+    <div id="pendaftar" class="view-content">
       <div class="content-card">
         <div class="card-title">
           <i class="fas fa-user-plus"></i> Daftar Pendaftar Baru
@@ -548,11 +430,10 @@
                 <th>Tipe</th>
                 <th>Status</th>
                 <th>Tanggal</th>
-                <th>Aksi</th>
               </tr>
             </thead>
             <tbody id="pendaftarTableBody">
-              <tr><td colspan="7" style="text-align: center; color: #999;">Loading...</td></tr>
+              <tr><td colspan="6" style="text-align: center; color: #999;">Loading...</td></tr>
             </tbody>
           </table>
         </div>
@@ -560,10 +441,10 @@
     </div>
 
     <!-- Absensi View -->
-    <div id="absensiView" class="view-content" style="display: none;">
+    <div id="absensi" class="view-content">
       <div class="content-card">
         <div class="card-title">
-          <i class="fas fa-calendar-check"></i> Data Absensi Terbaru
+          <i class="fas fa-calendar-check"></i> Data Absensi
         </div>
         <div class="table-responsive">
           <table>
@@ -586,7 +467,7 @@
     </div>
 
     <!-- Keuangan View -->
-    <div id="keuanganView" class="view-content" style="display: none;">
+    <div id="keuangan" class="view-content">
       <div class="content-card">
         <div class="card-title">
           <i class="fas fa-money-bill"></i> Data Keuangan
@@ -598,13 +479,12 @@
                 <th>No</th>
                 <th>Tanggal</th>
                 <th>Jenis</th>
-                <th>Kategori</th>
                 <th>Keterangan</th>
                 <th>Nominal</th>
               </tr>
             </thead>
             <tbody id="keuanganTableBody">
-              <tr><td colspan="6" style="text-align: center; color: #999;">Loading...</td></tr>
+              <tr><td colspan="5" style="text-align: center; color: #999;">Loading...</td></tr>
             </tbody>
           </table>
         </div>
@@ -612,7 +492,7 @@
     </div>
 
     <!-- Saran View -->
-    <div id="saranView" class="view-content" style="display: none;">
+    <div id="saran" class="view-content">
       <div class="content-card">
         <div class="card-title">
           <i class="fas fa-comments"></i> Saran & Masukan Siswa
@@ -650,13 +530,25 @@
   <script>
     console.log("🌐 Admin.html loaded");
 
+    // ===== SETUP MENU LISTENERS =====
+    function setupMenuListeners() {
+      console.log("📑 Setting up menu listeners...");
+      
+      document.querySelectorAll('.menu-item').forEach(item => {
+        item.addEventListener('click', function() {
+          const viewName = this.getAttribute('data-view');
+          switchView(viewName);
+        });
+      });
+    }
+
     // ===== SWITCH VIEW =====
     function switchView(viewName) {
-      console.log("📑 Switching to view:", viewName);
+      console.log("🔄 Switching to view:", viewName);
       
       // Hide all views
-      document.querySelectorAll('[id$="View"]').forEach(view => {
-        view.style.display = 'none';
+      document.querySelectorAll('.view-content').forEach(view => {
+        view.classList.remove('active');
       });
       
       // Remove active from menu items
@@ -665,42 +557,57 @@
       });
       
       // Show selected view
-      document.getElementById(viewName + 'View').style.display = 'block';
-      event.target.closest('.menu-item').classList.add('active');
+      const viewElement = document.getElementById(viewName);
+      if (viewElement) {
+        viewElement.classList.add('active');
+      }
+      
+      // Add active to clicked menu item
+      document.querySelector(`[data-view="${viewName}"]`).classList.add('active');
       
       // Update header
       const titles = {
         'dashboard': ['Dashboard', 'Kelola data SSB Wind Soccer'],
-        'siswa': ['Siswa Aktif', 'Daftar semua siswa yang sedang aktif berlatih'],
-        'pendaftar': ['Pendaftar Baru', 'Verifikasi dan terima pendaftar baru'],
-        'absensi': ['Data Absensi', 'Lihat rekap absensi latihan'],
-        'keuangan': ['Manajemen Keuangan', 'Kelola pemasukan dan pengeluaran'],
-        'saran': ['Saran & Masukan', 'Lihat saran dari siswa dan orang tua']
+        'siswa': ['Siswa Aktif', 'Daftar semua siswa yang aktif'],
+        'pendaftar': ['Pendaftar Baru', 'Verifikasi pendaftar baru'],
+        'absensi': ['Data Absensi', 'Rekap absensi latihan'],
+        'keuangan': ['Manajemen Keuangan', 'Kelola keuangan'],
+        'saran': ['Saran & Masukan', 'Lihat saran siswa']
       };
       
-      document.getElementById('pageTitle').textContent = titles[viewName][0];
-      document.getElementById('pageSubtitle').textContent = titles[viewName][1];
+      if (titles[viewName]) {
+        document.getElementById('pageTitle').textContent = titles[viewName][0];
+        document.getElementById('pageSubtitle').textContent = titles[viewName][1];
+      }
       
       // Load data
-      switch(viewName) {
-        case 'siswa': loadSiswaData(); break;
-        case 'pendaftar': loadPendaftarData(); break;
-        case 'absensi': loadAbsensiData(); break;
-        case 'keuangan': loadKeuanganData(); break;
-        case 'saran': loadSaranData(); break;
-        case 'dashboard': loadDashboardData(); break;
-      }
+      loadViewData(viewName);
     }
 
-    // ===== SHOW ALERT =====
-    function showAlert(msg, type = "success") {
-      const container = document.getElementById("alertContainer");
-      const alertDiv = document.createElement("div");
-      alertDiv.className = `alert alert-${type}`;
-      alertDiv.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${msg}`;
-      container.appendChild(alertDiv);
+    // ===== LOAD VIEW DATA =====
+    function loadViewData(viewName) {
+      console.log("📊 Loading data for view:", viewName);
       
-      setTimeout(() => alertDiv.remove(), 4000);
+      switch(viewName) {
+        case 'dashboard':
+          loadDashboardData();
+          break;
+        case 'siswa':
+          loadSiswaData();
+          break;
+        case 'pendaftar':
+          loadPendaftarData();
+          break;
+        case 'absensi':
+          loadAbsensiData();
+          break;
+        case 'keuangan':
+          loadKeuanganData();
+          break;
+        case 'saran':
+          loadSaranData();
+          break;
+      }
     }
 
     // ===== LOAD DASHBOARD DATA =====
@@ -708,24 +615,24 @@
       console.log("📊 Loading dashboard data...");
       
       DBManager.getSiswaAktif(function(siswaList) {
-        document.getElementById('totalSiswa').textContent = siswaList.length;
+        document.getElementById('totalSiswa').textContent = siswaList ? siswaList.length : 0;
       });
       
       DBManager.getPendaftar(function(pendaftarList) {
-        document.getElementById('totalPendaftar').textContent = pendaftarList.length;
+        document.getElementById('totalPendaftar').textContent = pendaftarList ? pendaftarList.length : 0;
       });
       
       DBManager.getAbsensi(function(absensiList) {
-        const today = new Date().toLocaleDateString('id-ID');
-        const hariIni = absensiList.filter(a => a.tanggal === today).length;
-        document.getElementById('totalAbsensiHariIni').textContent = hariIni;
+        document.getElementById('totalAbsensi').textContent = absensiList ? absensiList.length : 0;
       });
       
       DBManager.getKeuangan(function(keuanganList) {
-        const totalMasuk = keuanganList
-          .filter(k => k.jenisMasukKeluar === 'Masuk')
-          .reduce((sum, k) => sum + (k.nominal || 0), 0);
-        document.getElementById('totalPemasukan').textContent = 'Rp ' + formatRupiah(totalMasuk);
+        if (keuanganList) {
+          const totalMasuk = keuanganList
+            .filter(k => k.jenisMasukKeluar === 'Masuk')
+            .reduce((sum, k) => sum + (k.nominal || 0), 0);
+          document.getElementById('totalPemasukan').textContent = 'Rp ' + formatRupiah(totalMasuk);
+        }
       });
       
       document.getElementById('lastAccess').textContent = new Date().toLocaleString('id-ID');
@@ -739,7 +646,7 @@
         const tbody = document.getElementById('siswaTableBody');
         
         if (!siswaList || siswaList.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #999;">Tidak ada data siswa</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Tidak ada data</td></tr>';
           return;
         }
         
@@ -748,16 +655,11 @@
           html += `
             <tr>
               <td>${index + 1}</td>
-              <td><strong>${siswa.nisw || '-'}</strong></td>
+              <td>${siswa.nisw || '-'}</td>
               <td>${siswa.nama || '-'}</td>
               <td>${siswa.kategori || '-'}</td>
-              <td><span class="badge badge-${siswa.tipe?.toLowerCase() || 'reguler'}">${siswa.tipe || 'Reguler'}</span></td>
+              <td><span class="badge badge-${siswa.tipe?.toLowerCase() || 'reguler'}">${siswa.tipe || '-'}</span></td>
               <td><span class="badge badge-aktif">${siswa.status || 'Aktif'}</span></td>
-              <td>
-                <button class="btn-small btn-view" onclick="viewSiswaDetail('${siswa.nisw}')">
-                  <i class="fas fa-eye"></i> Lihat
-                </button>
-              </td>
             </tr>
           `;
         });
@@ -774,7 +676,7 @@
         const tbody = document.getElementById('pendaftarTableBody');
         
         if (!pendaftarList || pendaftarList.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #999;">Tidak ada pendaftar</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Tidak ada data</td></tr>';
           return;
         }
         
@@ -783,21 +685,11 @@
           html += `
             <tr>
               <td>${index + 1}</td>
-              <td><strong>${pendaftar.nisw || '-'}</strong></td>
+              <td>${pendaftar.nisw || '-'}</td>
               <td>${pendaftar.nama || '-'}</td>
-              <td><span class="badge badge-${pendaftar.tipe?.toLowerCase() || 'reguler'}">${pendaftar.tipe || 'Reguler'}</span></td>
-              <td><span class="badge badge-pending">${pendaftar.status || 'Pending'}</span></td>
+              <td><span class="badge badge-${pendaftar.tipe?.toLowerCase() || 'reguler'}">${pendaftar.tipe || '-'}</span></td>
+              <td><span class="badge badge-pending">${pendaftar.status || '-'}</span></td>
               <td>${pendaftar.tglDaftar || '-'}</td>
-              <td>
-                <div class="btn-group">
-                  <button class="btn-small btn-approve" onclick="verifikasiPendaftar('${pendaftar.nisw}', true)">
-                    <i class="fas fa-check"></i> Terima
-                  </button>
-                  <button class="btn-small btn-reject" onclick="verifikasiPendaftar('${pendaftar.nisw}', false)">
-                    <i class="fas fa-times"></i> Tolak
-                  </button>
-                </div>
-              </td>
             </tr>
           `;
         });
@@ -814,26 +706,19 @@
         const tbody = document.getElementById('absensiTableBody');
         
         if (!absensiList || absensiList.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">Tidak ada data absensi</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Tidak ada data</td></tr>';
           return;
         }
         
-        // Sort by tanggal terbaru
-        absensiList.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
-        
         let html = '';
-        absensiList.slice(0, 50).forEach((absensi, index) => {
+        absensiList.slice(0, 30).forEach((absensi, index) => {
           html += `
             <tr>
               <td>${index + 1}</td>
               <td>${absensi.tanggal || '-'}</td>
               <td>${absensi.nisw || '-'}</td>
               <td>${absensi.nama || '-'}</td>
-              <td>
-                <span class="badge ${absensi.status === 'Hadir' ? 'badge-aktif' : 'badge-pending'}">
-                  ${absensi.status || '-'}
-                </span>
-              </td>
+              <td><span class="badge ${absensi.status === 'Hadir' ? 'badge-aktif' : 'badge-pending'}">${absensi.status || '-'}</span></td>
               <td>${absensi.alasan || '-'}</td>
             </tr>
           `;
@@ -851,22 +736,18 @@
         const tbody = document.getElementById('keuanganTableBody');
         
         if (!keuanganList || keuanganList.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">Tidak ada data keuangan</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Tidak ada data</td></tr>';
           return;
         }
         
-        // Sort by tanggal terbaru
-        keuanganList.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
-        
         let html = '';
-        keuanganList.forEach((keuangan, index) => {
+        keuanganList.slice(0, 30).forEach((keuangan, index) => {
           const isIn = keuangan.jenisMasukKeluar === 'Masuk';
           html += `
             <tr>
               <td>${index + 1}</td>
               <td>${keuangan.tanggal || '-'}</td>
               <td>${keuangan.jenis || '-'}</td>
-              <td>${keuangan.kategori || '-'}</td>
               <td>${keuangan.keterangan || '-'}</td>
               <td style="color: ${isIn ? '#27ae60' : '#dc3545'}; font-weight: 700;">
                 ${isIn ? '+' : '-'} Rp ${formatRupiah(keuangan.nominal || 0)}
@@ -887,15 +768,12 @@
         const tbody = document.getElementById('saranTableBody');
         
         if (!saranList || saranList.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">Tidak ada saran</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Tidak ada data</td></tr>';
           return;
         }
         
-        // Sort by tanggal terbaru
-        saranList.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
-        
         let html = '';
-        saranList.forEach((saran, index) => {
+        saranList.slice(0, 30).forEach((saran, index) => {
           html += `
             <tr>
               <td>${index + 1}</td>
@@ -918,27 +796,6 @@
       return new Intl.NumberFormat('id-ID').format(nominal || 0);
     }
 
-    // ===== VERIFIKASI PENDAFTAR =====
-    function verifikasiPendaftar(nisw, isApprove) {
-      const action = isApprove ? 'Terima' : 'Tolak';
-      
-      if (!confirm(`Yakin ingin ${action.toLowerCase()} pendaftar ini?`)) {
-        return;
-      }
-      
-      console.log(`${action} pendaftar:`, nisw);
-      showAlert(`✅ Pendaftar ${action.toLowerCase()}!`);
-      setTimeout(() => {
-        loadPendaftarData();
-      }, 1500);
-    }
-
-    // ===== VIEW SISWA DETAIL =====
-    function viewSiswaDetail(nisw) {
-      console.log("👀 View siswa detail:", nisw);
-      showAlert("Detail siswa: " + nisw);
-    }
-
     // ===== LOGOUT =====
     function logoutAdmin() {
       if (confirm("Yakin ingin logout?")) {
@@ -948,20 +805,32 @@
       }
     }
 
+    // ===== CHECK ADMIN AUTH =====
+    function checkAdminAuth() {
+      console.log("🔐 Checking admin authorization...");
+      
+      const user = DBManager.getLoginUser();
+      if (!user) {
+        console.warn("❌ Not authorized - redirecting to login");
+        window.location.href = "index.html";
+        return false;
+      }
+      
+      return true;
+    }
+
     // ===== INITIALIZE =====
     document.addEventListener("DOMContentLoaded", function() {
       console.log("🎬 DOM Content Loaded");
       
-      // Check if admin
-      const code = sessionStorage.getItem('adminCode');
-      if (!code || code !== '110admin') {
-        console.warn("❌ Not authorized");
-        window.location.href = "index.html";
+      if (!checkAdminAuth()) {
         return;
       }
       
+      setupMenuListeners();
       loadDashboardData();
-      console.log("🚀 Admin.html script initialized");
+      
+      console.log("✅ Admin panel initialized successfully");
     });
   </script>
 </body>
