@@ -1,155 +1,585 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil Siswa - SSB Wind Soccer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root { --primary: #003399; --accent: #ffb400; --dark: #0a1931; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #0a1931 0%, #1e2a5e 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .profile-card { background: white; width: 100%; max-width: 520px; border-radius: 24px; overflow: hidden; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4); }
-        .photo-section { background: linear-gradient(135deg, var(--primary), #002266); padding: 40px 30px; text-align: center; color: white; }
-        .img-siswa { width: 160px; height: 160px; border-radius: 50%; border: 6px solid var(--accent); object-fit: cover; }
-        .nama-siswa { margin-top: 15px; font-size: 24px; font-weight: 700; text-transform: uppercase; }
-        .nisw-text { opacity: 0.9; font-size: 15px; }
-        .info-section { padding: 30px; }
-        .badge { display: inline-block; padding: 8px 20px; background: var(--primary); color: white; border-radius: 30px; font-size: 13px; font-weight: 600; margin-bottom: 20px; }
-        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-        .data-item { background: #f8f9ff; padding: 16px; border-radius: 12px; border-left: 4px solid var(--primary); }
-        .data-label { font-size: 12px; color: #555; font-weight: 500; margin-bottom: 4px; text-transform: uppercase; }
-        .data-value { font-size: 15px; font-weight: 600; color: #003399; }
-        .btn-back { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 25px; }
-        .btn-back:hover { background: #002266; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 51, 153, 0.3); transition: 0.3s; }
-        @media (max-width: 480px) { .data-grid { grid-template-columns: 1fr; } }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil Saya - SSB Wind Soccer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Header Card */
+    .profile-header {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      animation: slideDown 0.6s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .profile-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      margin: 0 auto 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 50px;
+      color: white;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      border: 4px solid white;
+    }
+
+    .profile-name {
+      font-size: 24px;
+      font-weight: 700;
+      color: #003399;
+      margin-bottom: 5px;
+    }
+
+    .profile-nisw {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 15px;
+    }
+
+    .badge-container {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .badge-ku {
+      background: #e3f2fd;
+      color: #003399;
+      border: 1px solid #003399;
+    }
+
+    .badge-tipe {
+      background: #e8f5e9;
+      color: #27ae60;
+      border: 1px solid #27ae60;
+    }
+
+    .badge-status {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #28a745;
+    }
+
+    /* Info Card */
+    .info-card {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      animation: slideUp 0.6s ease-out 0.1s both;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #003399;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 2px solid #f0f0f0;
+      padding-bottom: 12px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #f5f5f5;
+      font-size: 13px;
+    }
+
+    .info-row:last-child {
+      border-bottom: none;
+    }
+
+    .info-label {
+      color: #666;
+      font-weight: 600;
+      min-width: 140px;
+    }
+
+    .info-value {
+      color: #003399;
+      font-weight: 700;
+      text-align: right;
+      flex: 1;
+    }
+
+    /* Stats Container */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .stat-box {
+      background: white;
+      padding: 15px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: #666;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 8px;
+      letter-spacing: 0.3px;
+    }
+
+    .stat-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: #003399;
+    }
+
+    /* Action Buttons */
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 25px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-back {
+      background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
+      color: white;
+    }
+
+    .btn-back:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-download {
+      background: linear-gradient(135deg, #003399 0%, #0066cc 100%);
+      color: white;
+    }
+
+    .btn-download:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0, 51, 153, 0.3);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    /* Loading State */
+    .loading {
+      text-align: center;
+      padding: 40px 20px;
+      color: white;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .container {
+        padding: 0;
+      }
+
+      .profile-header,
+      .info-card {
+        padding: 20px;
+        border-radius: 12px;
+      }
+
+      .profile-name {
+        font-size: 20px;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      .info-row {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px 0;
+      }
+
+      .info-label {
+        margin-bottom: 5px;
+      }
+
+      .info-value {
+        text-align: left;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="profile-card">
-        <div class="photo-section">
-            <img id="imgSiswa" src="default.png" class="img-siswa" alt="Foto Siswa">
-            <div class="nama-siswa" id="namaSiswa">NAMA SISWA</div>
-            <div class="nisw-text" id="niswSiswa">NISW: -</div>
-        </div>
-        <div class="info-section">
-            <div class="badge" id="badgeTipe">REGULER</div>
-            <div class="data-grid">
-                <div class="data-item">
-                    <div class="data-label">📅 Tanggal Lahir</div>
-                    <div class="data-value" id="dTglLahir">Memuat...</div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">📊 Kategori Umur</div>
-                    <div class="data-value" id="dKat">-</div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">⚽ Posisi Favorit</div>
-                    <div class="data-value" id="dPos">-</div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">👨‍👩‍👦 Nama Orang Tua</div>
-                    <div class="data-value" id="dOrtu">-</div>
-                </div>
-                <div class="data-item" style="grid-column: span 2;">
-                    <div class="data-label">📍 Alamat</div>
-                    <div class="data-value" id="dAlm">-</div>
-                </div>
-            </div>
-            <button class="btn-back" onclick="window.location.href='beranda.html'">← KEMBALI KE BERANDA</button>
-        </div>
+  <div class="container">
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <div class="profile-avatar" id="profileAvatar">👤</div>
+      <div class="profile-name" id="profileName">Loading...</div>
+      <div class="profile-nisw" id="profileNisw">-</div>
+      <div class="badge-container">
+        <span class="badge badge-ku" id="badgeKu">KU-14</span>
+        <span class="badge badge-tipe" id="badgeTipe">Reguler</span>
+        <span class="badge badge-status" id="badgeStatus">Aktif</span>
+      </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-    <script src="firebase-config.js"></script>
-    <script src="db-sync.js"></script>
-    <script>
-        // ===== PERBAIKAN: Helper Function untuk Format Tanggal =====
-        function formatTanggal(tgl) {
-            if (!tgl || tgl === "-" || tgl === "") return "-";
-            try {
-                // Jika formatnya sudah DD/MM/YYYY, kembalikan langsung
-                if (tgl.includes("/")) return tgl;
-                
-                // Jika format YYYY-MM-DD (dari date input), ubah ke DD/MM/YYYY
-                if (tgl.includes("-")) {
-                    const parts = tgl.split("-");
-                    if (parts.length === 3) {
-                        return `${parts[2]}/${parts[1]}/${parts[0]}`;
-                    }
-                }
-                
-                // Coba parse sebagai Date object
-                const date = new Date(tgl);
-                if (isNaN(date.getTime())) return tgl;
-                
-                const bulanID = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
-                return `${date.getDate()} ${bulanID[date.getMonth()]} ${date.getFullYear()}`;
-            } catch(e) {
-                console.error("Error formatting date:", e);
-                return tgl;
-            }
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-label">Total Hadir</div>
+        <div class="stat-value" id="statHadir">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Total Izin</div>
+        <div class="stat-value" id="statIzin">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">% Kehadiran</div>
+        <div class="stat-value" id="statPersentase">0%</div>
+      </div>
+    </div>
+
+    <!-- Data Pribadi -->
+    <div class="info-card">
+      <div class="card-title">
+        <i class="fas fa-user-circle"></i> DATA PRIBADI
+      </div>
+      <div class="info-row">
+        <span class="info-label">Nama Lengkap</span>
+        <span class="info-value" id="dataNama">-</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">NISW</span>
+        <span class="info-value" id="dataNisw">-</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Tanggal Lahir</span>
+        <span class="info-value" id="dataTglLahir">-</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Umur</span>
+        <span class="info-value" id="dataUmur">-</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Kategori KU</span>
+        <span class="info-value" id="dataKategori">-</span>
+      </div>
+    </div>
+
+    <!-- Data Orang Tua -->
+    <div class="info-card">
+      <div class="card-title">
+        <i class="fas fa-home"></i> DATA ORANG TUA/WALI
+      </div>
+      <div class="info-row">
+        <span class="info-label">Nama Orang Tua</span>
+        <span class="info-value" id="dataNamaOrtu">-</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">No. HP</span>
+        <span class="info-value" id="dataNoHp">-</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Alamat</span>
+        <span class="info-value" id="dataAlamat">-</span>
+      </div>
+    </div>
+
+    <!-- Data Olahraga -->
+    <div class="info-card">
+      <div class="card-title">
+        <i class="fas fa-futbol"></i> DATA OLAHRAGA
+      </div>
+      <div class="info-row">
+        <span class="info-label">Posisi Main</span>
+        <span class="info-value" id="dataPosisi">-</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Tipe Peserta</span>
+        <span class="info-value" id="dataTipe">-</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Status Aktif</span>
+        <span class="info-value" id="dataStatusAktif">-</span>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="button-group">
+      <button class="btn btn-back" onclick="backToBeranda()">
+        <i class="fas fa-arrow-left"></i> KEMBALI
+      </button>
+      <button class="btn btn-download" onclick="downloadProfil()">
+        <i class="fas fa-download"></i> UNDUH PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== FIREBASE SDK ===== -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
+
+  <!-- ===== CONFIG & DATABASE ===== -->
+  <script src="firebase-config.js"></script>
+  <script src="db-sync.js"></script>
+
+  <!-- ===== MAIN SCRIPT ===== -->
+  <script>
+    console.log("🌐 DataSiswa.html loaded");
+
+    let siswaData = null;
+
+    // ===== LOAD PROFILE DATA =====
+    function loadProfileData() {
+      console.log("👤 Loading profile data...");
+      
+      siswaData = DBManager.getLoginUser();
+      
+      if (!siswaData) {
+        console.warn("❌ No login user found");
+        window.location.href = "index.html";
+        return;
+      }
+
+      console.log("✅ Profile data loaded:", siswaData.nama);
+
+      // Update Profile Header
+      updateProfileHeader();
+
+      // Update Info Cards
+      updateInfoCards();
+
+      // Calculate Stats
+      calculateStats();
+    }
+
+    // ===== UPDATE PROFILE HEADER =====
+    function updateProfileHeader() {
+      console.log("📝 Updating profile header...");
+      
+      // Get first letter untuk avatar
+      const firstLetter = (siswaData.nama || 'S').charAt(0).toUpperCase();
+      
+      document.getElementById("profileAvatar").textContent = firstLetter;
+      document.getElementById("profileName").textContent = siswaData.nama || "-";
+      document.getElementById("profileNisw").textContent = siswaData.nisw || "-";
+      
+      document.getElementById("badgeKu").textContent = siswaData.kategori || "KU-14";
+      document.getElementById("badgeTipe").textContent = siswaData.tipe || "Reguler";
+      document.getElementById("badgeStatus").textContent = siswaData.status || "Aktif";
+    }
+
+    // ===== UPDATE INFO CARDS =====
+    function updateInfoCards() {
+      console.log("📋 Updating info cards...");
+      
+      // Data Pribadi
+      document.getElementById("dataNama").textContent = siswaData.nama || "-";
+      document.getElementById("dataNisw").textContent = siswaData.nisw || "-";
+      document.getElementById("dataTglLahir").textContent = formatDate(siswaData.tglLahir) || "-";
+      
+      const umur = calculateAge(siswaData.tglLahir);
+      document.getElementById("dataUmur").textContent = umur > 0 ? umur + " tahun" : "-";
+      
+      document.getElementById("dataKategori").textContent = siswaData.kategori || "-";
+      
+      // Data Orang Tua
+      document.getElementById("dataNamaOrtu").textContent = siswaData.namaOrtu || "-";
+      document.getElementById("dataNoHp").textContent = siswaData.noHp || "-";
+      document.getElementById("dataAlamat").textContent = siswaData.alamat || "-";
+      
+      // Data Olahraga
+      document.getElementById("dataPosisi").textContent = siswaData.posisi || "-";
+      document.getElementById("dataTipe").textContent = siswaData.tipe || "Reguler";
+      document.getElementById("dataStatusAktif").textContent = siswaData.status || "Aktif";
+    }
+
+    // ===== CALCULATE STATS =====
+    function calculateStats() {
+      console.log("📊 Calculating stats...");
+      
+      DBManager.getAbsensi(function(absensiList) {
+        if (!absensiList || absensiList.length === 0) {
+          document.getElementById("statHadir").textContent = "0";
+          document.getElementById("statIzin").textContent = "0";
+          document.getElementById("statPersentase").textContent = "0%";
+          return;
         }
 
-        // ===== LOAD DATA SISWA =====
-        function loadDataSiswa() {
-            console.log("📂 Loading profil siswa...");
-            
-            const s = DBManager.getLoginUser();
+        // Filter by siswa
+        const siswaAbsensi = absensiList.filter(a => a.nisw === siswaData.nisw);
+        
+        const hadirCount = siswaAbsensi.filter(a => a.status === 'Hadir').length;
+        const izinCount = siswaAbsensi.filter(a => a.status === 'Izin').length;
+        const persentase = siswaAbsensi.length > 0 
+          ? Math.round((hadirCount / siswaAbsensi.length) * 100) 
+          : 0;
 
-            if (!s) {
-                alert("❌ Siswa tidak ditemukan! Silakan login ulang.");
-                window.location.href = "index.html";
-                return;
-            }
+        console.log("📊 Stats:", { hadirCount, izinCount, persentase });
 
-            console.log("✅ Data siswa ditemukan:", s);
+        document.getElementById("statHadir").textContent = hadirCount;
+        document.getElementById("statIzin").textContent = izinCount;
+        document.getElementById("statPersentase").textContent = persentase + "%";
+      });
+    }
 
-            // Display foto
-            document.getElementById("imgSiswa").src = s.foto || "default.png";
-            document.getElementById("imgSiswa").onerror = function() {
-                this.src = "https://via.placeholder.com/160?text=Foto+Siswa";
-            };
-
-            // Display nama
-            document.getElementById("namaSiswa").innerText = (s.nama || "NAMA SISWA").toUpperCase();
-
-            // Display NISW
-            document.getElementById("niswSiswa").innerText = "NISW: " + (s.nisw || "-");
-
-            // Display tipe (Reguler/Beasiswa)
-            const tipe = s.tipe || "Reguler";
-            document.getElementById("badgeTipe").innerText = tipe.toUpperCase();
-            if (tipe === "Beasiswa") {
-                document.getElementById("badgeTipe").style.background = "#28a745";
-            }
-
-            // ===== PERBAIKAN: Cari tglLahir di berbagai kemungkinan field =====
-            const tglRaw = s.tglLahir || s.tanggalLahir || s.tanggal_lahir || s.ttl || "-";
-            const tglFormatted = formatTanggal(tglRaw);
-            document.getElementById("dTglLahir").innerText = tglFormatted;
-
-            // Display kategori
-            document.getElementById("dKat").innerText = s.kategori || "-";
-
-            // Display posisi
-            document.getElementById("dPos").innerText = s.posisi || "-";
-
-            // Display nama orang tua
-            document.getElementById("dOrtu").innerText = s.namaOrtu || "-";
-
-            // Display alamat
-            document.getElementById("dAlm").innerText = s.alamat || "-";
-
-            console.log("✅ Profil siswa berhasil ditampilkan");
+    // ===== FORMAT DATE =====
+    function formatDate(date) {
+      if (!date) return "-";
+      
+      if (typeof date === 'string') {
+        if (date.includes('/')) return date;
+        if (date.includes('-')) {
+          const [tahun, bulan, hari] = date.split('-');
+          return `${hari}/${bulan}/${tahun}`;
         }
+      }
+      
+      return new Date(date).toLocaleDateString('id-ID');
+    }
 
-        // ===== INIT HALAMAN =====
-        window.addEventListener('load', function() {
-            console.log("🌐 Datasiswa page loaded");
-            loadDataSiswa();
-        });
-    </script>
+    // ===== CALCULATE AGE =====
+    function calculateAge(birthDate) {
+      if (!birthDate) return 0;
+      
+      const today = new Date();
+      const birth = new Date(birthDate);
+      
+      if (isNaN(birth.getTime())) return 0;
+      
+      let age = today.getFullYear() - birth.getFullYear();
+      const monthDiff = today.getMonth() - birth.getMonth();
+      
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+        age--;
+      }
+      
+      return age;
+    }
+
+    // ===== BACK TO BERANDA =====
+    function backToBeranda() {
+      console.log("🔙 Back to beranda");
+      window.location.href = "beranda.html";
+    }
+
+    // ===== DOWNLOAD PROFIL (PLACEHOLDER) =====
+    function downloadProfil() {
+      console.log("📥 Download profil clicked");
+      
+      // Placeholder: Bisa di-integrate dengan html2pdf nanti
+      alert("📥 Fitur download PDF akan segera tersedia!");
+    }
+
+    // ===== INITIALIZE =====
+    document.addEventListener("DOMContentLoaded", function() {
+      console.log("🎬 DOM Content Loaded");
+      loadProfileData();
+      console.log("🚀 DataSiswa.html script initialized");
+    });
+  </script>
 </body>
 </html>
