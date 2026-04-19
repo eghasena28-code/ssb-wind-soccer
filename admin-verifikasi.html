@@ -38,9 +38,7 @@
             display: block; margin: 20px auto; padding: 12px 30px;
             background: var(--info); color: white; border: none;
             border-radius: 8px; font-weight: bold; cursor: pointer;
-            transition: 0.3s;
         }
-        .refresh-btn:hover { background: #138496; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th { background: var(--primary); color: white; padding: 15px; text-align: left; }
         td { padding: 12px 15px; border-bottom: 1px solid #ddd; }
@@ -52,7 +50,10 @@
             background: var(--success); color: white; border: none; 
             padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer;
         }
-        .btn-ok:hover { background: #229954; }
+        .btn-reject { 
+            background: var(--danger); color: white; border: none; 
+            padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer;
+        }
         .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; display: none; font-weight: 600; }
         .alert.success { background: #d4edda; color: #155724; display: block; }
         .alert.error { background: #f8d7da; color: #721c24; display: block; }
@@ -68,9 +69,9 @@
 
     <div id="alertBox" class="alert"></div>
 
-    <button class="refresh-btn" id="btnRefresh" onclick="refreshData()">🔄 REFRESH DATA</button>
+    <button class="refresh-btn" onclick="render()">🔄 REFRESH DATA</button>
 
-    <table id="tableVerifikasi">
+    <table>
         <thead>
             <tr>
                 <th>No</th>
@@ -82,26 +83,18 @@
                 <th>Aksi</th>
             </tr>
         </thead>
-        <tbody id="listPendaftar">
-            <tr><td colspan="7" style="text-align:center; padding:40px;">⏳ Memuat data...</td></tr>
-        </tbody>
+        <tbody id="listPendaftar"></tbody>
     </table>
 </div>
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js"></script>
 <script src="db-sync.js"></script>
 
 <script>
-    function showAlert(message, type = 'info') {
+    function showAlert(message, type) {
         const alertBox = document.getElementById('alertBox');
         alertBox.textContent = message;
         alertBox.className = `alert ${type}`;
-        if (type !== 'error') {
-            setTimeout(() => { alertBox.className = 'alert'; }, 3000);
-        }
+        setTimeout(() => { alertBox.className = 'alert'; }, 4000);
     }
 
     function render() {
@@ -111,9 +104,9 @@
         DBManager.getPendaftar(function(data) {
             tbody.innerHTML = "";
 
-            if (!data || data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:40px;">✅ Tidak ada pendaftar yang menunggu verifikasi</td></tr>';
-                countEl.innerText = "0";
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;">✅ Tidak ada pendaftar menunggu</td></tr>`;
+                countEl.textContent = "0";
                 return;
             }
 
@@ -121,58 +114,89 @@
                 const tipeClass = s.tipe === 'Beasiswa' ? 'badge-beasiswa' : 'badge-reguler';
                 tbody.innerHTML += `
                     <tr>
-                        <td>${i + 1}</td>
+                        <td>${i+1}</td>
                         <td><strong>${s.nisw}</strong></td>
-                        <td><strong>${s.nama || '-'}</strong></td>
-                        <td><span class="badge ${tipeClass}">${s.tipe || 'Reguler'}</span></td>
-                        <td>${s.kategori || '-'}</td>
+                        <td><strong>${s.nama}</strong></td>
+                        <td><span class="badge ${tipeClass}">${s.tipe}</span></td>
+                        <td>${s.kategori}</td>
                         <td><span class="badge badge-pending">Menunggu</span></td>
                         <td>
                             <button class="btn-ok" onclick="setujui('${s.nisw}')">✓ SETUJUI</button>
+                            <button class="btn-reject" onclick="tolak('${s.nisw}')">✕ TOLAK</button>
                         </td>
                     </tr>
                 `;
             });
 
-            countEl.innerText = data.length;
+            countEl.textContent = data.length;
         });
     }
 
-    // === SETUJUI PENDAFTARAN (Pakai NISW) ===
+    // ==================== SETUJUI + MODAL BIAYA + WA NOTIF ====================
     function setujui(nisw) {
-        if (!confirm(`Yakin menyetujui pendaftaran dengan NISW ${nisw}?`)) return;
+        const biaya = prompt("Masukkan besar biaya pendaftaran (Rp):", "500000");
+        if (biaya === null) return;
 
-        DBManager.approvePendaftar(nisw, function(berhasil, niswBaru) {
+        const nominal = parseInt(biaya) || 0;
+
+        DBManager.approvePendaftar(nisw, function(berhasil) {
             if (berhasil) {
-                showAlert(`✅ Berhasil disetujui!\nNISW: ${niswBaru}`, 'success');
-                setTimeout(() => render(), 1500);
-            } else {
-                showAlert("❌ Gagal menyetujui pendaftaran", 'error');
+                showAlert(`✅ Disetujui! NISW: ${nisw}`, 'success');
+                
+                // Buka WhatsApp otomatis
+                const pendaftar = DBManager.getPendaftar().find(p => p.nisw === nisw) || {};
+                const noHp = pendaftar.noHp || "628xxxxxxxxxx";
+                const nama = pendaftar.nama || "Orang Tua";
+
+                const pesan = encodeURIComponent(
+                    `Halo Bapak/Ibu ${nama} 👋\n\n` +
+                    `✅ Pendaftaran SSB Wind Soccer diterima!\n` +
+                    `NISW: ${nisw}\n` +
+                    `Biaya Pendaftaran: Rp ${nominal.toLocaleString('id-ID')}\n\n` +
+                    `Silakan lakukan pembayaran dan konfirmasi ke admin.\n` +
+                    `Terima kasih! ⚽`
+                );
+
+                setTimeout(() => {
+                    window.open(`https://wa.me/${noHp}?text=${pesan}`, '_blank');
+                }, 800);
+
+                render();
             }
         });
     }
 
-    function refreshData() {
-        const btn = document.getElementById("btnRefresh");
-        btn.disabled = true;
-        btn.innerHTML = '🔄 MEMUAT...';
-        
-        setTimeout(() => {
-            render();
-            btn.disabled = false;
-            btn.innerHTML = '🔄 REFRESH DATA';
-        }, 600);
+    // ==================== TOLAK + WA NOTIF ====================
+    function tolak(nisw) {
+        if (!confirm(`Tolak pendaftaran ${nisw}?`)) return;
+
+        DBManager.rejectPendaftar(nisw, function(berhasil) {
+            if (berhasil) {
+                showAlert(`❌ Ditolak! NISW: ${nisw}`, 'error');
+                
+                const pendaftar = DBManager.getPendaftar().find(p => p.nisw === nisw) || {};
+                const noHp = pendaftar.noHp || "628xxxxxxxxxx";
+                const nama = pendaftar.nama || "Orang Tua";
+
+                const pesan = encodeURIComponent(
+                    `Halo Bapak/Ibu ${nama} 👋\n\n` +
+                    `❌ Mohon maaf, pendaftaran SSB Wind Soccer ditolak.\n` +
+                    `NISW: ${nisw}\n\n` +
+                    `Silakan coba lagi di kesempatan berikutnya.\n` +
+                    `Terima kasih! ⚽`
+                );
+
+                setTimeout(() => {
+                    window.open(`https://wa.me/${noHp}?text=${pesan}`, '_blank');
+                }, 600);
+
+                render();
+            }
+        });
     }
 
     // INIT
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log("✅ Admin Verifikasi Page Loaded");
-        render();
-        
-        // Auto refresh setiap 5 menit
-        setInterval(render, 300000);
-    });
+    document.addEventListener('DOMContentLoaded', render);
 </script>
-
 </body>
 </html>
