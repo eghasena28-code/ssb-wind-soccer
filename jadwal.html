@@ -4,293 +4,577 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jadwal & Turnamen - SSB Wind Soccer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root {
-      --primary: #003399;
-      --secondary: #ffb400;
-      --accent: #28a745;
-      --danger: #ff4d4d;
-      --white: #ffffff;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
     body {
-      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      margin: 0;
-      background: #003399;
-      color: white;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
-      display: flex; flex-direction: column; align-items: center;
-      position: relative; overflow-x: hidden;
-    }
-
-    /* Background Overlay */
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: url("lapangan.jpeg") no-repeat center center/cover;
-      opacity: 0.2;
-      z-index: -1;
+      padding: 20px;
     }
 
     .container {
-      text-align: center;
-      padding: 30px 15px;
-      max-width: 600px;
-      width: 90%;
-      margin: 20px auto;
-      z-index: 1;
+      max-width: 700px;
+      margin: 0 auto;
     }
 
-    .logo-small {
-      width: 90px;
-      margin-bottom: 15px;
-      filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
-    }
-
-    h1 {
-      font-size: 24px;
-      margin: 0;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--secondary);
-    }
-
-    .tagline {
-      font-size: 13px; opacity: 0.8;
-      margin-bottom: 30px; font-style: italic;
-    }
-
-    .section-box {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 20px;
-      padding: 20px;
-      margin-bottom: 25px;
-      text-align: left;
-    }
-
-    .section-title {
-      font-size: 16px; font-weight: 800;
-      color: var(--secondary);
-      margin-bottom: 15px;
-      display: flex; align-items: center; gap: 10px;
-      text-transform: uppercase;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      padding-bottom: 8px;
-    }
-
-    .schedule-card {
+    /* Header */
+    .header {
       background: white;
-      color: #333;
+      padding: 25px;
+      border-radius: 15px;
+      margin-bottom: 25px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      animation: slideDown 0.6s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .header h1 {
+      color: #003399;
+      font-size: 26px;
+      margin-bottom: 5px;
+      font-weight: 700;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 13px;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 25px;
+      background: white;
       padding: 15px;
       border-radius: 12px;
-      margin-bottom: 12px;
-      display: flex; justify-content: space-between; align-items: center;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-      transition: 0.3s;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      font-family: 'Poppins', sans-serif;
+      color: #666;
+    }
+
+    .tab-btn.active {
+      border-color: #003399;
+      background: linear-gradient(135deg, #003399 0%, #0066cc 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(0, 51, 153, 0.3);
+    }
+
+    .tab-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Tab Content */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Schedule Card */
+    .schedule-card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      border-left: 5px solid #003399;
+      transition: all 0.3s;
     }
 
     .schedule-card:hover {
+      transform: translateX(5px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .schedule-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 12px;
+    }
+
+    .schedule-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    }
+
+    .schedule-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #003399;
+    }
+
+    .schedule-subtitle {
+      font-size: 12px;
+      color: #999;
+      margin-top: 3px;
+    }
+
+    .schedule-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    .info-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .info-icon {
+      color: #666;
+      width: 16px;
+      text-align: center;
+    }
+
+    .info-label {
+      color: #666;
+    }
+
+    .info-value {
+      color: #003399;
+      font-weight: 700;
+    }
+
+    /* Tournament Card */
+    .tournament-card {
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      border-top: 4px solid #ffc107;
+      transition: all 0.3s;
+    }
+
+    .tournament-card:hover {
       transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     }
 
-    .info-left .day { font-weight: 800; font-size: 16px; margin: 0; color: var(--primary); }
-    .info-left .loc { font-size: 12px; color: #666; margin: 3px 0 0 0; }
-
-    .time-badge {
-      background: var(--primary);
-      color: white;
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-weight: bold; font-size: 13px;
+    .tournament-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 15px;
     }
 
-    .tournament-card { border-left: 5px solid var(--danger); }
-    .tournament-name { font-weight: 800; color: var(--danger); font-size: 14px; margin: 0; }
+    .tournament-badge {
+      width: 50px;
+      height: 50px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      background: linear-gradient(135deg, #fff9c4 0%, #ffe082 100%);
+      flex-shrink: 0;
+    }
 
-    .btn-back {
-      background: var(--secondary);
-      color: var(--primary);
-      padding: 14px 30px;
-      border-radius: 50px;
-      font-weight: bold;
-      text-decoration: none;
+    .tournament-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #003399;
+    }
+
+    .tournament-status {
       display: inline-block;
-      margin-top: 10px;
-      box-shadow: 0 5px 15px rgba(255,180,0,0.3);
-      transition: 0.3s;
+      padding: 4px 10px;
+      background: #fff3cd;
+      color: #856404;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-top: 5px;
+      letter-spacing: 0.2px;
+    }
+
+    .tournament-details {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      padding: 12px;
+      background: white;
+      border-radius: 8px;
+      margin-top: 12px;
+    }
+
+    .detail-item {
+      font-size: 12px;
+    }
+
+    .detail-label {
+      color: #666;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .detail-value {
+      color: #003399;
+      font-weight: 700;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #666;
+    }
+
+    .empty-icon {
+      font-size: 50px;
+      margin-bottom: 15px;
+      opacity: 0.5;
+    }
+
+    .empty-message {
+      font-size: 14px;
+    }
+
+    /* Back Button */
+    .btn-back {
+      width: 100%;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
+      color: white;
       border: none;
+      border-radius: 10px;
       cursor: pointer;
+      font-weight: 700;
+      font-size: 13px;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 20px;
     }
 
     .btn-back:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(255,180,0,0.4);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
     }
 
-    footer {
-      margin-top: auto;
-      background: rgba(0, 0, 0, 0.6);
-      width: 100%;
-      padding: 20px 0;
-      text-align: center;
-      font-size: 12px;
-      color: white;
-    }
+    /* Responsive */
+    @media (max-width: 600px) {
+      .container {
+        padding: 0;
+      }
 
-    .empty-state { 
-      text-align: center; 
-      font-size: 13px; 
-      opacity: 0.6; 
-      padding: 10px; 
-    }
+      .header {
+        padding: 20px;
+      }
 
-    .loading-spinner {
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-radius: 50%;
-      border-top: 2px solid white;
-      animation: spin 0.6s linear infinite;
-    }
+      .header h1 {
+        font-size: 22px;
+      }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+      .tabs {
+        padding: 12px;
+        gap: 8px;
+      }
+
+      .tab-btn {
+        padding: 10px 12px;
+        font-size: 12px;
+      }
+
+      .schedule-card,
+      .tournament-card {
+        padding: 16px;
+      }
+
+      .schedule-info,
+      .tournament-details {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
-
   <div class="container">
-    <img src="logossb.png" alt="Logo" class="logo-small">
-    <h1>Jadwal Latihan & Turnamen</h1>
-    <p class="tagline">Disiplin • Kerja Keras • Juara</p>
-
-    <div class="section-box">
-      <div class="section-title">⚽ Jadwal Latihan Rutin</div>
-      <div id="listLatihan"></div>
+    <!-- Header -->
+    <div class="header">
+      <h1>📅 Jadwal & Turnamen</h1>
+      <p>Lihat jadwal latihan dan turnamen yang akan datang</p>
     </div>
 
-    <div class="section-box">
-      <div class="section-title">🏆 Turnamen & Event</div>
-      <div id="listTurnamen"></div>
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('latihan')">
+        <i class="fas fa-dumbbell"></i> Jadwal Latihan
+      </button>
+      <button class="tab-btn" onclick="switchTab('turnamen')">
+        <i class="fas fa-trophy"></i> Turnamen
+      </button>
     </div>
 
-    <a href="beranda.html" class="btn-back">⬅ KEMBALI KE BERANDA</a>
+    <!-- Tab: Jadwal Latihan -->
+    <div id="latihan" class="tab-content active">
+      <div id="latihanContainer">
+        <!-- Will be populated by JavaScript -->
+      </div>
+    </div>
+
+    <!-- Tab: Turnamen -->
+    <div id="turnamen" class="tab-content">
+      <div id="turnamenContainer">
+        <!-- Will be populated by JavaScript -->
+      </div>
+    </div>
+
+    <!-- Back Button -->
+    <button class="btn-back" onclick="backToBeranda()">
+      <i class="fas fa-arrow-left"></i> KEMBALI KE BERANDA
+    </button>
   </div>
 
-  <footer>
-    <p>© 2026 SSB Wind Soccer Official</p>
-    <p style="font-size: 10px; opacity: 0.8;">Hubungi: 📞 0812 9333 8781 | Instagram: @windsoccer.official</p>
-  </footer>
-
-  <!-- Firebase SDK -->
+  <!-- ===== FIREBASE SDK ===== -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
+
+  <!-- ===== CONFIG & DATABASE ===== -->
   <script src="firebase-config.js"></script>
   <script src="db-sync.js"></script>
 
+  <!-- ===== MAIN SCRIPT ===== -->
   <script>
-    console.log("📅 Jadwal page loaded");
+    console.log("🌐 Jadwal.html loaded");
 
-    // ===== PERBAIKAN: Render Jadwal dengan Error Handling =====
-    function renderJadwal() {
-      console.log("📂 Loading jadwal...");
+    // ===== SWITCH TAB =====
+    function switchTab(tabName) {
+      console.log("📑 Switching to tab:", tabName);
       
-      const containerLatihan = document.getElementById('listLatihan');
-      const containerTurnamen = document.getElementById('listTurnamen');
-
-      // ===== DATA DEFAULT (jika tidak ada di Firestore) =====
-      const dataLatihanDefault = [
-        { hari: "SELASA", tempat: "Stadion Mini Legok", waktu: "15.00 WIB" },
-        { hari: "KAMIS", tempat: "Stadion Mini Legok", waktu: "15.00 WIB" },
-        { hari: "MINGGU", tempat: "Lapangan Jaha", waktu: "07.00 WIB" }
-      ];
-
-      try {
-        // Query Jadwal Latihan dari Firestore
-        DBManager.getJadwalLatihan(function(dataLatihan) {
-          console.log("✅ Jadwal Latihan from DB:", dataLatihan);
-
-          containerLatihan.innerHTML = "";
-
-          if (!dataLatihan || dataLatihan.length === 0) {
-            console.warn("⚠️ Tidak ada jadwal di DB, gunakan default");
-            dataLatihan = dataLatihanDefault;
-          }
-
-          dataLatihan.forEach(item => {
-            const hari = item.hari || 'N/A';
-            const tempat = item.tempat || 'N/A';
-            const waktu = item.waktu || 'N/A';
-
-            containerLatihan.innerHTML += `
-              <div class="schedule-card">
-                <div class="info-left">
-                  <p class="day">${hari}</p>
-                  <p class="loc">📍 ${tempat}</p>
-                </div>
-                <div class="time-badge">${waktu}</div>
-              </div>
-            `;
-          });
-
-          console.log("✅ Jadwal Latihan rendered");
-        });
-
-        // Query Jadwal Turnamen dari Firestore
-        DBManager.getJadwalTurnamen(function(dataTurnamen) {
-          console.log("✅ Jadwal Turnamen from DB:", dataTurnamen);
-
-          containerTurnamen.innerHTML = "";
-
-          if (!dataTurnamen || dataTurnamen.length === 0) {
-            console.warn("⚠️ Tidak ada turnamen");
-            containerTurnamen.innerHTML = `<p class="empty-state">Belum ada jadwal turnamen terdekat.</p>`;
-            return;
-          }
-
-          dataTurnamen.forEach(item => {
-            const namaEvent = item.nama_event || item.namaEvent || 'Event';
-            const tanggal = item.tanggal || 'N/A';
-            const lokasi = item.lokasi || 'N/A';
-            const waktu = item.waktu || 'FULL';
-
-            containerTurnamen.innerHTML += `
-              <div class="schedule-card tournament-card">
-                <div class="info-left">
-                  <p class="tournament-name">🔥 ${namaEvent}</p>
-                  <p class="loc">📅 ${tanggal} | 📍 ${lokasi}</p>
-                </div>
-                <div class="time-badge" style="background:var(--danger)">${waktu}</div>
-              </div>
-            `;
-          });
-
-          console.log("✅ Jadwal Turnamen rendered");
-        });
-
-      } catch (error) {
-        console.error("❌ Error loading jadwal:", error);
-        containerLatihan.innerHTML = `<p class="empty-state">⚠️ Error memuat jadwal. Coba refresh.</p>`;
-      }
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // Remove active from all buttons
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // Show selected tab
+      document.getElementById(tabName).classList.add('active');
+      
+      // Add active to clicked button
+      event.target.closest('.tab-btn').classList.add('active');
     }
 
-    // ===== INIT HALAMAN =====
-    document.addEventListener('DOMContentLoaded', function() {
-      console.log("🌐 Jadwal page DOMContentLoaded");
-      renderJadwal();
+    // ===== LOAD JADWAL LATIHAN =====
+    function loadJadwalLatihan() {
+      console.log("📝 Loading jadwal latihan...");
+      
+      DBManager.getJadwalLatihan(function(jadwalList) {
+        const container = document.getElementById('latihanContainer');
+        
+        if (!jadwalList || jadwalList.length === 0) {
+          console.log("ℹ️ No jadwal latihan data");
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">📭</div>
+              <div class="empty-message">Belum ada jadwal latihan tersedia</div>
+            </div>
+          `;
+          return;
+        }
 
-      // Refresh setiap 5 menit
-      setInterval(() => {
-        console.log("🔄 Auto-refresh jadwal");
-        renderJadwal();
-      }, 300000);
+        console.log("✅ Jadwal latihan loaded:", jadwalList.length);
+        
+        let html = '';
+        jadwalList.forEach((jadwal, index) => {
+          html += `
+            <div class="schedule-card">
+              <div class="schedule-header">
+                <div class="schedule-icon">
+                  <i class="fas fa-dumbbell"></i>
+                </div>
+                <div>
+                  <div class="schedule-title">${jadwal.hari || 'Jadwal'}</div>
+                  <div class="schedule-subtitle">Sesi Latihan</div>
+                </div>
+              </div>
+              <div class="schedule-info">
+                <div class="info-item">
+                  <i class="fas fa-clock info-icon"></i>
+                  <span class="info-label">Waktu:</span>
+                  <span class="info-value">${jadwal.waktu || '-'}</span>
+                </div>
+                <div class="info-item">
+                  <i class="fas fa-map-marker-alt info-icon"></i>
+                  <span class="info-label">Tempat:</span>
+                  <span class="info-value">${jadwal.tempat || '-'}</span>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        
+        container.innerHTML = html;
+      });
+    }
+
+    // ===== LOAD JADWAL TURNAMEN =====
+    function loadJadwalTurnamen() {
+      console.log("🏆 Loading jadwal turnamen...");
+      
+      DBManager.getJadwalTurnamen(function(turnamenList) {
+        const container = document.getElementById('turnamenContainer');
+        
+        if (!turnamenList || turnamenList.length === 0) {
+          console.log("ℹ️ No jadwal turnamen data");
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">🏆</div>
+              <div class="empty-message">Belum ada turnamen tersedia</div>
+            </div>
+          `;
+          return;
+        }
+
+        console.log("✅ Jadwal turnamen loaded:", turnamenList.length);
+        
+        let html = '';
+        turnamenList.forEach((turnamen, index) => {
+          html += `
+            <div class="tournament-card">
+              <div class="tournament-header">
+                <div class="tournament-badge">
+                  <i class="fas fa-trophy"></i>
+                </div>
+                <div style="flex: 1;">
+                  <div class="tournament-title">${turnamen.namaEvent || 'Turnamen'}</div>
+                  <div class="tournament-status">${turnamen.status || 'Upcoming'}</div>
+                </div>
+              </div>
+              <div class="tournament-details">
+                <div class="detail-item">
+                  <div class="detail-label">📅 Tanggal</div>
+                  <div class="detail-value">${formatDate(turnamen.tanggal) || '-'}</div>
+                </div>
+                <div class="detail-item">
+                  <div class="detail-label">🕐 Waktu</div>
+                  <div class="detail-value">${turnamen.waktu || '-'}</div>
+                </div>
+                <div class="detail-item">
+                  <div class="detail-label">📍 Lokasi</div>
+                  <div class="detail-value">${turnamen.lokasi || '-'}</div>
+                </div>
+                <div class="detail-item">
+                  <div class="detail-label">🎯 Status</div>
+                  <div class="detail-value">${turnamen.status || '-'}</div>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        
+        container.innerHTML = html;
+      });
+    }
+
+    // ===== FORMAT DATE =====
+    function formatDate(date) {
+      if (!date) return "-";
+      
+      if (typeof date === 'string') {
+        if (date.includes('/')) return date;
+        if (date.includes('-')) {
+          const [tahun, bulan, hari] = date.split('-');
+          return `${hari}/${bulan}/${tahun}`;
+        }
+      }
+      
+      return new Date(date).toLocaleDateString('id-ID');
+    }
+
+    // ===== BACK TO BERANDA =====
+    function backToBeranda() {
+      console.log("🔙 Back to beranda");
+      window.location.href = "beranda.html";
+    }
+
+    // ===== INITIALIZE =====
+    document.addEventListener("DOMContentLoaded", function() {
+      console.log("🎬 DOM Content Loaded");
+      
+      // Check if user logged in
+      const user = DBManager.getLoginUser();
+      if (!user) {
+        console.warn("❌ No login user");
+        window.location.href = "index.html";
+        return;
+      }
+
+      loadJadwalLatihan();
+      loadJadwalTurnamen();
+      
+      console.log("🚀 Jadwal.html script initialized");
     });
   </script>
 </body>
