@@ -46,14 +46,12 @@
         .badge-reguler { background: #e3f2fd; color: var(--primary); }
         .badge-beasiswa { background: #e8f5e9; color: var(--success); }
         .badge-pending { background: #fff3e0; color: #f57c00; }
-        .btn-ok { 
-            background: var(--success); color: white; border: none; 
-            padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer;
+        .btn-ok, .btn-reject { 
+            border: none; padding: 10px 20px; border-radius: 6px; 
+            font-weight: bold; cursor: pointer; margin: 0 4px;
         }
-        .btn-reject { 
-            background: var(--danger); color: white; border: none; 
-            padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer;
-        }
+        .btn-ok { background: var(--success); color: white; }
+        .btn-reject { background: var(--danger); color: white; }
         .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; display: none; font-weight: 600; }
         .alert.success { background: #d4edda; color: #155724; display: block; }
         .alert.error { background: #f8d7da; color: #721c24; display: block; }
@@ -87,16 +85,28 @@
     </table>
 </div>
 
+<!-- MODAL INPUT NOMINAL -->
+<div id="modalNominal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:white; padding:30px; border-radius:15px; width:90%; max-width:420px;">
+        <h3 style="margin-bottom:20px; color:#003399;">Masukkan Biaya Pendaftaran</h3>
+        <input type="number" id="inputNominal" placeholder="500000" style="width:100%; padding:12px; font-size:16px; margin-bottom:20px; border:2px solid #003399; border-radius:8px;">
+        <div style="display:flex; gap:10px;">
+            <button onclick="cancelModal()" style="flex:1; padding:12px; background:#ccc; color:#333; border:none; border-radius:8px; font-weight:bold;">BATAL</button>
+            <button onclick="konfirmasiSetujui()" style="flex:1; padding:12px; background:#27ae60; color:white; border:none; border-radius:8px; font-weight:bold;">KONFIRMASI & KIRIM WA</button>
+        </div>
+    </div>
+</div>
+
 <script src="db-sync.js"></script>
 
 <script>
+    let currentNisw = null;
+
     function showAlert(message, type) {
         const alertBox = document.getElementById('alertBox');
         alertBox.textContent = message;
         alertBox.className = `alert ${type}`;
-        if (type !== 'error') {
-            setTimeout(() => { alertBox.className = 'alert'; }, 4000);
-        }
+        if (type !== 'error') setTimeout(() => alertBox.className = 'alert', 4000);
     }
 
     function render() {
@@ -105,9 +115,8 @@
 
         DBManager.getPendaftar(function(data) {
             tbody.innerHTML = "";
-
             if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;">✅ Tidak ada pendaftar menunggu verifikasi</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;">✅ Tidak ada pendaftar menunggu</td></tr>`;
                 countEl.textContent = "0";
                 return;
             }
@@ -123,7 +132,7 @@
                         <td>${s.kategori}</td>
                         <td><span class="badge badge-pending">Menunggu</span></td>
                         <td>
-                            <button class="btn-ok" onclick="setujui('${s.nisw}')">✓ SETUJUI</button>
+                            <button class="btn-ok" onclick="bukaModalSetujui('${s.nisw}')">✓ SETUJUI</button>
                             <button class="btn-reject" onclick="tolak('${s.nisw}')">✕ TOLAK</button>
                         </td>
                     </tr>
@@ -134,26 +143,35 @@
         });
     }
 
-    // SETUJUI + Input Biaya + WA Notif
-    function setujui(nisw) {
-        const biaya = prompt("Masukkan besar biaya pendaftaran (Rp):", "500000");
-        if (biaya === null) return;
+    // Buka Modal Nominal
+    function bukaModalSetujui(nisw) {
+        currentNisw = nisw;
+        document.getElementById('modalNominal').style.display = 'flex';
+        document.getElementById('inputNominal').focus();
+    }
 
-        const nominal = parseInt(biaya) || 0;
+    function cancelModal() {
+        document.getElementById('modalNominal').style.display = 'none';
+        currentNisw = null;
+    }
 
-        DBManager.approvePendaftar(nisw, function(berhasil) {
+    // Konfirmasi Setujui + Kirim WA
+    function konfirmasiSetujui() {
+        const nominal = parseInt(document.getElementById('inputNominal').value) || 500000;
+        document.getElementById('modalNominal').style.display = 'none';
+
+        DBManager.approvePendaftar(currentNisw, function(berhasil) {
             if (berhasil) {
-                showAlert(`✅ Disetujui! NISW: ${nisw}`, 'success');
+                showAlert(`✅ Disetujui! NISW: ${currentNisw}`, 'success');
                 
-                // Kirim notif WA otomatis
-                const pendaftar = DBManager.getPendaftar().find(p => p.nisw === nisw) || {};
+                const pendaftar = DBManager.getPendaftar().find(p => p.nisw === currentNisw) || {};
                 const noHp = pendaftar.noHp || "628xxxxxxxxxx";
                 const nama = pendaftar.nama || "Orang Tua";
 
                 const pesan = encodeURIComponent(
                     `Halo Bapak/Ibu ${nama} 👋\n\n` +
                     `✅ Pendaftaran SSB Wind Soccer DITERIMA!\n` +
-                    `NISW: ${nisw}\n` +
+                    `NISW: ${currentNisw}\n` +
                     `Biaya Pendaftaran: Rp ${nominal.toLocaleString('id-ID')}\n\n` +
                     `Silakan lakukan pembayaran dan konfirmasi ke admin.\n` +
                     `Terima kasih! ⚽`
@@ -161,14 +179,15 @@
 
                 setTimeout(() => {
                     window.open(`https://wa.me/${noHp}?text=${pesan}`, '_blank');
-                }, 800);
+                }, 600);
 
                 render();
+                currentNisw = null;
             }
         });
     }
 
-    // TOLAK + WA Notif
+    // Tolak
     function tolak(nisw) {
         if (!confirm(`Tolak pendaftaran ${nisw}?`)) return;
 
@@ -198,9 +217,7 @@
     }
 
     // INIT
-    document.addEventListener('DOMContentLoaded', function() {
-        render();
-    });
+    document.addEventListener('DOMContentLoaded', render);
 </script>
 </body>
 </html>
