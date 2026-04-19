@@ -7,7 +7,6 @@
     <style>
         :root {
             --primary: #003399;
-            --secondary: #ffb400;
             --success: #27ae60;
             --danger: #dc3545;
             --info: #17a2b8;
@@ -16,45 +15,38 @@
         body { 
             font-family: 'Segoe UI', sans-serif; 
             background: linear-gradient(135deg, #003399 0%, #001f66 100%);
-            padding: 20px; 
-            min-height: 100vh;
+            padding: 20px; min-height: 100vh;
         }
         .container { 
-            max-width: 1000px; 
-            margin: auto; 
-            background: white; 
-            padding: 30px; 
-            border-radius: 15px;
+            max-width: 1000px; margin: auto; background: white; 
+            padding: 30px; border-radius: 15px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
         }
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { color: var(--primary); font-size: 24px; margin-bottom: 10px; }
-        .badge-count { 
-            background: var(--danger); color: white; 
-            padding: 8px 16px; border-radius: 50px; 
-            font-weight: bold; font-size: 18px; 
-        }
-        .refresh-btn {
-            display: block; margin: 20px auto; padding: 12px 30px;
-            background: var(--info); color: white; border: none;
-            border-radius: 8px; font-weight: bold; cursor: pointer;
-        }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { color: var(--primary); font-size: 24px; }
+        .badge-count { background: var(--danger); color: white; padding: 8px 16px; border-radius: 50px; font-weight: bold; font-size: 18px; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th { background: var(--primary); color: white; padding: 15px; text-align: left; }
         td { padding: 12px 15px; border-bottom: 1px solid #ddd; }
         .badge { padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; }
         .badge-reguler { background: #e3f2fd; color: var(--primary); }
         .badge-beasiswa { background: #e8f5e9; color: var(--success); }
-        .badge-pending { background: #fff3e0; color: #f57c00; }
-        .btn-ok, .btn-reject { 
-            border: none; padding: 10px 20px; border-radius: 6px; 
-            font-weight: bold; cursor: pointer; margin: 0 4px;
-        }
+        .btn-ok, .btn-reject { border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; margin: 0 4px; }
         .btn-ok { background: var(--success); color: white; }
         .btn-reject { background: var(--danger); color: white; }
-        .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; display: none; font-weight: 600; }
-        .alert.success { background: #d4edda; color: #155724; display: block; }
-        .alert.error { background: #f8d7da; color: #721c24; display: block; }
+        .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 600; }
+        .alert.success { background: #d4edda; color: #155724; }
+        .alert.error { background: #f8d7da; color: #721c24; }
+        
+        /* MODAL NOMINAL */
+        #modalNominal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 420px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
     </style>
 </head>
 <body>
@@ -86,13 +78,13 @@
 </div>
 
 <!-- MODAL INPUT NOMINAL -->
-<div id="modalNominal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; justify-content:center; align-items:center;">
-    <div style="background:white; padding:30px; border-radius:15px; width:90%; max-width:420px;">
-        <h3 style="margin-bottom:20px; color:#003399;">Masukkan Biaya Pendaftaran</h3>
-        <input type="number" id="inputNominal" placeholder="500000" style="width:100%; padding:12px; font-size:16px; margin-bottom:20px; border:2px solid #003399; border-radius:8px;">
-        <div style="display:flex; gap:10px;">
-            <button onclick="cancelModal()" style="flex:1; padding:12px; background:#ccc; color:#333; border:none; border-radius:8px; font-weight:bold;">BATAL</button>
-            <button onclick="konfirmasiSetujui()" style="flex:1; padding:12px; background:#27ae60; color:white; border:none; border-radius:8px; font-weight:bold;">KONFIRMASI & KIRIM WA</button>
+<div id="modalNominal">
+    <div class="modal-content">
+        <h3 style="margin-bottom:20px;color:#003399">💰 Masukkan Biaya Pendaftaran</h3>
+        <input type="number" id="inputNominal" placeholder="500000" style="width:100%;padding:15px;font-size:18px;border:2px solid #003399;border-radius:8px;margin-bottom:20px;">
+        <div style="display:flex;gap:10px">
+            <button onclick="cancelModal()" style="flex:1;padding:15px;background:#ccc;color:#333;border:none;border-radius:8px;font-weight:bold">BATAL</button>
+            <button onclick="konfirmasiSetujui()" style="flex:1;padding:15px;background:#27ae60;color:white;border:none;border-radius:8px;font-weight:bold">KONFIRMASI & KIRIM WA</button>
         </div>
     </div>
 </div>
@@ -103,10 +95,10 @@
     let currentNisw = null;
 
     function showAlert(message, type) {
-        const alertBox = document.getElementById('alertBox');
-        alertBox.textContent = message;
-        alertBox.className = `alert ${type}`;
-        if (type !== 'error') setTimeout(() => alertBox.className = 'alert', 4000);
+        const box = document.getElementById('alertBox');
+        box.textContent = message;
+        box.className = `alert ${type}`;
+        if (type !== 'error') setTimeout(() => box.className = 'alert', 4000);
     }
 
     function render() {
@@ -116,7 +108,7 @@
         DBManager.getPendaftar(function(data) {
             tbody.innerHTML = "";
             if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;">✅ Tidak ada pendaftar menunggu</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;">Tidak ada pendaftar menunggu</td></tr>`;
                 countEl.textContent = "0";
                 return;
             }
@@ -143,7 +135,6 @@
         });
     }
 
-    // Buka Modal Nominal
     function bukaModalSetujui(nisw) {
         currentNisw = nisw;
         document.getElementById('modalNominal').style.display = 'flex';
@@ -155,7 +146,6 @@
         currentNisw = null;
     }
 
-    // Konfirmasi Setujui + Kirim WA
     function konfirmasiSetujui() {
         const nominal = parseInt(document.getElementById('inputNominal').value) || 500000;
         document.getElementById('modalNominal').style.display = 'none';
@@ -165,21 +155,19 @@
                 showAlert(`✅ Disetujui! NISW: ${currentNisw}`, 'success');
                 
                 const pendaftar = DBManager.getPendaftar().find(p => p.nisw === currentNisw) || {};
-                const noHp = pendaftar.noHp || "628xxxxxxxxxx";
+                const noHp = (pendaftar.noHp || "").replace(/^0/, "62");
                 const nama = pendaftar.nama || "Orang Tua";
 
-                const pesan = encodeURIComponent(
-                    `Halo Bapak/Ibu ${nama} 👋\n\n` +
-                    `✅ Pendaftaran SSB Wind Soccer DITERIMA!\n` +
-                    `NISW: ${currentNisw}\n` +
-                    `Biaya Pendaftaran: Rp ${nominal.toLocaleString('id-ID')}\n\n` +
-                    `Silakan lakukan pembayaran dan konfirmasi ke admin.\n` +
-                    `Terima kasih! ⚽`
-                );
+                const pesan = `Halo Bapak/Ibu ${nama} 👋%0A%0A` +
+                              `✅ Pendaftaran SSB Wind Soccer DITERIMA!%0A` +
+                              `NISW: ${currentNisw}%0A` +
+                              `Biaya Pendaftaran: Rp ${nominal.toLocaleString('id-ID')}%0A%0A` +
+                              `Silakan lakukan pembayaran dan konfirmasi ke admin.%0A` +
+                              `Terima kasih! ⚽`;
 
                 setTimeout(() => {
                     window.open(`https://wa.me/${noHp}?text=${pesan}`, '_blank');
-                }, 600);
+                }, 700);
 
                 render();
                 currentNisw = null;
@@ -187,7 +175,6 @@
         });
     }
 
-    // Tolak
     function tolak(nisw) {
         if (!confirm(`Tolak pendaftaran ${nisw}?`)) return;
 
@@ -196,16 +183,14 @@
                 showAlert(`❌ Ditolak! NISW: ${nisw}`, 'error');
                 
                 const pendaftar = DBManager.getPendaftar().find(p => p.nisw === nisw) || {};
-                const noHp = pendaftar.noHp || "628xxxxxxxxxx";
+                const noHp = (pendaftar.noHp || "").replace(/^0/, "62");
                 const nama = pendaftar.nama || "Orang Tua";
 
-                const pesan = encodeURIComponent(
-                    `Halo Bapak/Ibu ${nama} 👋\n\n` +
-                    `❌ Mohon maaf, pendaftaran SSB Wind Soccer DITOLAK.\n` +
-                    `NISW: ${nisw}\n\n` +
-                    `Silakan coba lagi di kesempatan berikutnya.\n` +
-                    `Terima kasih! ⚽`
-                );
+                const pesan = `Halo Bapak/Ibu ${nama} 👋%0A%0A` +
+                              `❌ Mohon maaf, pendaftaran SSB Wind Soccer DITOLAK.%0A` +
+                              `NISW: ${nisw}%0A%0A` +
+                              `Silakan coba lagi di kesempatan berikutnya.%0A` +
+                              `Terima kasih! ⚽`;
 
                 setTimeout(() => {
                     window.open(`https://wa.me/${noHp}?text=${pesan}`, '_blank');
@@ -216,8 +201,11 @@
         });
     }
 
-    // INIT
-    document.addEventListener('DOMContentLoaded', render);
+    // AUTO REFRESH SETIAP 4 DETIK
+    document.addEventListener('DOMContentLoaded', function() {
+        render();
+        setInterval(render, 4000);   // Auto refresh
+    });
 </script>
 </body>
 </html>
