@@ -130,14 +130,13 @@
 
   document.getElementById("formPendaftaran").onsubmit = async function(e) {
     e.preventDefault();
-
     const btn = document.getElementById("btnSubmit");
     const origText = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Mengirim...';
 
     try {
-      const dataBaru = {
+      const data = {
         nama: document.getElementById("nama").value.trim(),
         tglLahir: document.getElementById("tglLahir").value,
         kategori: document.getElementById("kategori").value,
@@ -150,14 +149,10 @@
         penjelasanAlasan: ""
       };
 
-      const niswBaru = await DBManager.addPendaftar(dataBaru);
-
+      const niswBaru = await DBManager.addPendaftar(data);
       showAlert(`✅ Berhasil! NISW: ${niswBaru}`, true);
 
-      setTimeout(() => {
-        window.location.href = "index.html";
-      }, 1800);
-
+      setTimeout(() => window.location.href = "index.html", 2000);
     } catch (err) {
       console.error(err);
       showAlert("❌ Gagal mengirim data. Coba lagi.");
@@ -165,8 +160,6 @@
       btn.innerHTML = origText;
     }
   };
-
-  console.log("✅ pendaftaran.html siap (tampilan 100% sama)");
 </script>
 </body>
 </html>
