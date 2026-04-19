@@ -490,20 +490,29 @@
       });
     });
 
-    // ===== LOGIN ADMIN =====
+        // ===== LOGIN ADMIN =====
     document.getElementById("btnAdmin").addEventListener("click", function() {
       console.log("🔐 Admin login clicked");
       
       const pass = document.getElementById("nisw").value.trim();
       
+      console.log("Input value:", pass);
+      console.log("Is match 110admin?", pass.toLowerCase() === "110admin");
+      
       if (pass && pass.toLowerCase() === "110admin") {
-        console.log("✅ Admin code accepted");
+        console.log("✅ Admin code ACCEPTED");
         showAlert("✅ Akses Admin Diterima", "info", 900);
+        
+        // Set admin session
+        sessionStorage.setItem('adminLogged', 'true');
+        localStorage.setItem('adminLogged', 'true');
+        
         setTimeout(() => { 
+          console.log("🔄 Redirecting to admin.html");
           window.location.href = "admin.html"; 
         }, 900);
       } else {
-        console.warn("❌ Invalid admin code");
+        console.warn("❌ Invalid admin code:", pass);
         showAlert("❌ Kode Admin Salah", "error");
         document.getElementById("nisw").value = '';
       }
