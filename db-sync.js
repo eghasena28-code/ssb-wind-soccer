@@ -1,10 +1,10 @@
 /**
  * DATABASE MANAGER - SSB WIND SOCCER
- * Full Updated Version with approvePendaftar
- * Version: 5.1 (FINAL - READY FOR ADMIN VERIFIKASI)
+ * Full Final Version with Approve & Reject + WA Notif Ready
+ * Version: 5.2 (FINAL)
  */
 
-console.log("📦 Loading db-sync.js v5.1 - FULL UPDATED");
+console.log("📦 db-sync.js v5.2 - FULL FINAL LOADED");
 
 window.DBManager = {
 
@@ -78,13 +78,12 @@ window.DBManager = {
         return data;
     },
 
-    // ==================== APPROVE PENDAFTAR (BARU & AMAN) ====================
+    // ==================== APPROVE PENDAFTAR ====================
     approvePendaftar: function(nisw, callback) {
         let pendaftarList = this.getPendaftar();
         const index = pendaftarList.findIndex(p => p.nisw === nisw);
 
         if (index === -1) {
-            console.error("❌ Pendaftar tidak ditemukan:", nisw);
             if (typeof callback === 'function') callback(false);
             return false;
         }
@@ -98,14 +97,13 @@ window.DBManager = {
             createdAt: new Date().toISOString()
         };
 
-        // Simpan ke siswa aktif
         let siswaList = [];
         const storedSiswa = localStorage.getItem('siswaData');
         if (storedSiswa) siswaList = JSON.parse(storedSiswa);
+        
         siswaList.push(siswaBaru);
         localStorage.setItem('siswaData', JSON.stringify(siswaList));
 
-        // Hapus dari pendaftar
         pendaftarList.splice(index, 1);
         localStorage.setItem('pendaftarData', JSON.stringify(pendaftarList));
 
@@ -114,38 +112,46 @@ window.DBManager = {
         return true;
     },
 
-    // ==================== SISWA AKTIF ====================
-    addSiswaAktif: function(data, callback) {
-        let list = [];
-        const stored = localStorage.getItem('siswaData');
-        if (stored) list = JSON.parse(stored);
+    // ==================== REJECT PENDAFTAR (BARU) ====================
+    rejectPendaftar: function(nisw, callback) {
+        let pendaftarList = this.getPendaftar();
+        const index = pendaftarList.findIndex(p => p.nisw === nisw);
 
-        list.push({
-            ...data,
-            status: 'Aktif',
-            createdAt: new Date().toISOString()
-        });
+        if (index === -1) {
+            if (typeof callback === 'function') callback(false);
+            return false;
+        }
 
-        localStorage.setItem('siswaData', JSON.stringify(list));
+        const pendaftar = pendaftarList[index];
+        pendaftarList.splice(index, 1);
+        localStorage.setItem('pendaftarData', JSON.stringify(pendaftarList));
+
+        console.log(`❌ ${pendaftar.nama} (${nisw}) DITOLAK`);
         if (typeof callback === 'function') callback(true);
+        return true;
+    },
+
+    // ==================== SISWA AKTIF ====================
+    getSiswaAktifArray: function() {
+        const stored = localStorage.getItem('siswaData');
+        return stored ? JSON.parse(stored) : [];
     },
 
     getSiswaAktif: function(callback) {
-        const stored = localStorage.getItem('siswaData');
-        const list = stored ? JSON.parse(stored) : [];
+        const list = this.getSiswaAktifArray();
         const aktif = list.filter(s => s.status === 'Aktif');
         if (typeof callback === 'function') callback(aktif);
         return aktif;
     },
 
     findSiswa: function(nisw, callback) {
-        const list = this.getSiswaAktif(() => {});
+        const list = this.getSiswaAktifArray();
         const siswa = list.find(s => s.nisw === nisw);
         if (typeof callback === 'function') callback(siswa || null);
         return siswa || null;
     },
 
-    // ==================== ABSENSI, SARAN, KEUANGAN, JADWAL (dari file lama) ====================
+    // ==================== ABSENSI ====================
     cekDuplicateAbsensi: function(nisw, tanggal, callback) {
         const stored = localStorage.getItem('absensiData');
         if (!stored) return callback ? callback(false) : false;
@@ -178,6 +184,7 @@ window.DBManager = {
         return data;
     },
 
+    // ==================== SARAN ====================
     addSaran: function(data) {
         let list = [];
         const stored = localStorage.getItem('saranData');
@@ -201,11 +208,20 @@ window.DBManager = {
         return data;
     },
 
+    deleteSaran: function(id) {
+        let list = [];
+        const stored = localStorage.getItem('saranData');
+        if (stored) list = JSON.parse(stored);
+
+        list = list.filter(s => s.id !== id);
+        localStorage.setItem('saranData', JSON.stringify(list));
+        return true;
+    },
+
     // ==================== DEMO DATA ====================
     initializeDemoData: function() {
         console.log("🎬 Initializing demo data...");
 
-        // Demo Siswa
         if (!localStorage.getItem('siswaData')) {
             localStorage.setItem('siswaData', JSON.stringify([
                 { nisw: "R2026001", nama: "Ahmad Rizky", kategori: "KU-14", tipe: "Reguler", status: "Aktif" },
@@ -213,12 +229,20 @@ window.DBManager = {
             ]));
         }
 
-        // Demo Pendaftar (kosong dulu)
         if (!localStorage.getItem('pendaftarData')) {
             localStorage.setItem('pendaftarData', JSON.stringify([]));
         }
 
-        console.log("✅ Demo data siap");
+        console.log("✅ Demo data ready");
+    },
+
+    setLoginUser: function(siswa) {
+        sessionStorage.setItem('loginUser', JSON.stringify(siswa));
+    },
+
+    getLoginUser: function() {
+        const user = sessionStorage.getItem('loginUser');
+        return user ? JSON.parse(user) : null;
     }
 };
 
@@ -229,4 +253,4 @@ if (document.readyState === 'loading') {
     DBManager.initializeDemoData();
 }
 
-console.log("✅ db-sync.js v5.1 FULL LOADED & READY!");
+console.log("✅ db-sync.js v5.2 FULL LOADED & READY!");
