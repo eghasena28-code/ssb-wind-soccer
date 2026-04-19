@@ -882,9 +882,20 @@
       }
     }
 
-    // ===== INITIALIZE =====
+        // ===== INITIALIZE =====
     document.addEventListener("DOMContentLoaded", function() {
       console.log("🎬 DOM Content Loaded - Admin Panel");
+      
+      // Check admin session
+      const adminLogged = sessionStorage.getItem('adminLogged') || localStorage.getItem('adminLogged');
+      console.log("Admin logged?", adminLogged);
+      
+      if (!adminLogged) {
+        console.warn("❌ No admin session - redirecting to login");
+        alert("⚠️ Akses admin diperlukan. Silakan login kembali.");
+        window.location.href = "index.html";
+        return;
+      }
       
       try {
         // Setup menu listeners
