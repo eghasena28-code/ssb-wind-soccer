@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pendaftaran Reguler - SSB Wind Soccer</title>
+  <title>Pendaftaran Siswa - SSB Wind Soccer</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Segoe UI', sans-serif; background: #003399; margin: 0; display: flex; justify-content: center; padding: 20px; min-height: 100vh; }
@@ -14,7 +14,6 @@
     .subtitle { color: #666; font-size: 12px; margin-bottom: 20px; }
     section { background: #f9f9f9; border: 1px solid #eee; padding: 18px; border-radius: 12px; margin-bottom: 18px; }
     .info-box { background: #e7f3ff; border-left: 4px solid #003399; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 12px; color: #003399; line-height: 1.6; }
-    .info-box strong { color: #003399; }
     label { display: block; font-size: 13.5px; font-weight: bold; margin-bottom: 6px; color: #003399; }
     .required { color: #dc3545; }
     input, select, textarea { width: 100%; padding: 11px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14.5px; font-family: inherit; margin-bottom: 12px; }
@@ -30,7 +29,6 @@
     .alert { padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; display: none; border-left: 4px solid; }
     .alert-error { background: #f8d7da; color: #721c24; border-left-color: #dc3545; display: block; }
     .alert-success { background: #d4edda; color: #155724; border-left-color: #28a745; display: block; }
-    .auto-fill-info { background: #e8f5e9; padding: 8px; border-radius: 6px; font-size: 12px; color: #27ae60; margin-top: 4px; }
   </style>
 </head>
 <body>
@@ -44,7 +42,7 @@
   <div id="alertError" class="alert alert-error"></div>
 
   <div class="info-box">
-    ✓ <strong>Uang Pendaftaran: Rp 400.000</strong><br>
+    ✓ <strong>Uang Pendaftaran: Rp 500.000</strong><br>
     ✓ Kategori otomatis sesuai usia<br>
     ✓ Tunggu verifikasi admin
   </div>
@@ -97,7 +95,7 @@
     <section>
       <label>Upload Foto <span class="required">*</span></label>
       <input type="file" id="foto" accept="image/*" required>
-      <div class="auto-fill-info">JPG/PNG | Maks 5MB</div>
+      <div style="background: #e8f5e9; padding: 8px; border-radius: 6px; font-size: 12px; color: #27ae60;">JPG/PNG | Maks 5MB</div>
     </section>
 
     <section style="background: #f0f4ff; border: 2px solid #003399;">
@@ -117,17 +115,6 @@
 <script src="db-sync.js"></script>
 
 <script>
-  function waitForDBManager(callback, attempt = 0) {
-    if (typeof DBManager !== 'undefined') {
-      callback();
-    } else if (attempt < 20) {
-      setTimeout(() => waitForDBManager(callback, attempt + 1), 100);
-    } else {
-      console.error("❌ DBManager tidak dapat dimuat!");
-      showAlert("❌ Error: Sistem gagal dimuat. Refresh halaman.");
-    }
-  }
-
   function getKategoriUmur(usia) {
     if (usia >= 17) return "KU-17";
     if (usia >= 15) return "KU-16";
@@ -164,6 +151,7 @@
   function showAlert(msg) {
     const el = document.getElementById("alertError");
     el.textContent = msg;
+    el.className = msg.includes('✅') ? 'alert alert-success' : 'alert alert-error';
     el.style.display = "block";
   }
 
@@ -205,7 +193,19 @@
     btn.innerHTML = '<span class="spinner"></span> Mengirim...';
 
     try {
-      await new Promise(resolve => waitForDBManager(resolve));
+      // Tunggu DBManager siap
+      let dbReady = false;
+      for (let i = 0; i < 20; i++) {
+        if (typeof DBManager !== 'undefined') {
+          dbReady = true;
+          break;
+        }
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
+      if (!dbReady) {
+        throw new Error("DBManager tidak siap");
+      }
 
       const tglLahir = document.getElementById("tglLahir").value;
       const tahunLahir = new Date(tglLahir).getFullYear();
@@ -234,7 +234,7 @@
 
       setTimeout(() => {
         window.location.href = "index.html";
-      }, 3000);
+      }, 2000);
 
     } catch (err) {
       console.error("Error:", err);
@@ -244,10 +244,9 @@
     }
   };
 
+  // Initialize when page loads
   window.addEventListener('load', function() {
-    waitForDBManager(function() {
-      console.log("✅ DBManager siap!");
-    });
+    console.log("✅ Form pendaftaran siap!");
   });
 </script>
 </body>
