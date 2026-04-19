@@ -502,7 +502,7 @@
     <script src="db-sync.js"></script>
 
     <script>
-        console.log("🚀 Admin Panel - FUNGSI LENGKAP");
+        console.log("🚀 Admin Panel - LENGKAP DENGAN FUNGSI DATABASE SISWA");
 
         // ===== GLOBAL DATA =====
         let allSiswaData = [];
@@ -581,144 +581,210 @@
                         <td title="${siswa.alamat || '-'}" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis;">${siswa.alamat || '-'}</td>
                         <td><span style="background: ${getStatusBayarColor(siswa.statusPembayaran)}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${siswa.statusPembayaran || 'Belum Bayar'}</span></td>
                         <td style="text-align: right; color: #dc3545; font-weight: bold;">Rp ${formatRupiah(siswa.tagihan || 0)}</td>
-                        <td>
-                            <div class="row-action">
-                                <button class="btn btn-warning btn-sm" onclick="inputTagihanSiswa('${siswa.nisw}')" title="Input/Edit Tagihan">
-                                    <i class="fas fa-money-bill"></i> Tagihan
-                                </button>
-                                <button class="btn btn-info btn-sm" title="Edit"><i class="fas fa-edit"></i></button>
-                                <button class="btn btn-danger btn-sm" title="Hapus"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </td>
+                        <td><div class="row-action">
+                            <button class="btn btn-warning btn-sm" onclick="inputTagihanSiswa('${siswa.nisw}')" title="Tagihan"><i class="fas fa-money-bill"></i> Tagihan</button>
+                            <button class="btn btn-info btn-sm" onclick="editSiswa('${siswa.nisw}')" title="Edit"><i class="fas fa-edit"></i> Edit</button>
+                            <button class="btn btn-danger btn-sm" onclick="hapusSiswa('${siswa.nisw}')" title="Hapus"><i class="fas fa-trash"></i> Hapus</button>
+                        </div></td>
                     </tr>
                 `).join('');
             });
         }
 
-        // ===== FUNGSI TAGIHAN - LOGIKA BENAR =====
+        // ===== FUNGSI TAGIHAN =====
         function inputTagihanSiswa(nisw) {
-            const siswa = DBManager.findSiswa(nisw);
+            const siswa = allSiswaData.find(s => s.nisw === nisw);
             if (!siswa) {
-                alert("❌ Siswa tidak ditemukan!");
+                showAlert("❌ Siswa tidak ditemukan!", "error");
                 return;
             }
 
-            const allTagihan = JSON.parse(localStorage.getItem("dataTagihan")) || {};
-            const tagihanSiswa = allTagihan[nisw] || {
-                bulan: "April 2026",
+            const allTagihan = JSON.parse(localStorage.getItem('dataTagihan')) || {};
+            const tagihanExist = allTagihan[nisw] || {
+                bulan: new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }),
                 iuran: 150000,
                 dendaAbsen: 0,
                 dendaTurnamen: 0,
-                status: "Belum Lunas",
-                keteranganDenda: ""
+                keterangan: '',
+                status: 'Belum Lunas'
             };
 
-            const totalTagihan = tagihanSiswa.iuran + tagihanSiswa.dendaAbsen + tagihanSiswa.dendaTurnamen;
+            const totalTagihan = tagihanExist.iuran + tagihanExist.dendaAbsen + tagihanExist.dendaTurnamen;
 
-            const modalHTML = `
-                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000;" id="tagihanModal">
-                    <div style="background: white; padding: 30px; border-radius: 15px; max-width: 550px; width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
-                        <div style="font-size: 18px; font-weight: bold; color: var(--primary); margin-bottom: 20px;">💰 TAGIHAN - ${siswa.nama} (${nisw})</div>
-                        
-                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                            <h4 style="color: var(--primary); margin-top: 0; margin-bottom: 15px;">Detail Tagihan Bulan</h4>
-                            
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-                                <div>
-                                    <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px; font-weight: 600;">Bulan Iuran</label>
-                                    <input type="text" id="editBulan" value="${tagihanSiswa.bulan}" style="font-weight: bold; width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 0px; font-size: 13px;">
-                                </div>
-                                <div>
-                                    <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px; font-weight: 600;">Status Pembayaran</label>
-                                    <select id="editStatusTagihan" style="font-weight: bold; border: 2px solid var(--primary); width: 100%; padding: 10px; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 0px; font-size: 13px;">
-                                        <option value="Belum Lunas" ${tagihanSiswa.status === "Belum Lunas" ? "selected" : ""}>⏳ Belum Lunas</option>
-                                        <option value="Cicilan" ${tagihanSiswa.status === "Cicilan" ? "selected" : ""}>🔄 Cicilan</option>
-                                        <option value="Lunas" ${tagihanSiswa.status === "Lunas" ? "selected" : ""}>✅ Lunas</option>
-                                    </select>
-                                </div>
-                            </div>
+            const overlay = document.createElement('div');
+            overlay.id = 'tagihanOverlay';
+            overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;';
+            overlay.innerHTML = `
+                <div style="background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                    <div style="font-size: 18px; font-weight: bold; color: var(--primary); margin-bottom: 20px; border-bottom: 2px solid var(--secondary); padding-bottom: 15px;">💰 TAGIHAN - ${siswa.nama} (${nisw})</div>
+                    
+                    <div style="background: #f0f4ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid var(--primary);">
+                        <strong style="color: var(--primary);">TOTAL TAGIHAN</strong><br>
+                        <div id="tagihanTotalDisplay" style="font-size: 24px; font-weight: bold; color: var(--primary); margin-top: 8px;">Rp ${formatRupiah(totalTagihan)}</div>
+                    </div>
 
-                            <div style="background: white; padding: 12px; border-radius: 6px; border-left: 4px solid #28a745; margin-bottom: 15px;">
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #eee;">
-                                    <span style="font-weight: 600; color: #333;">Iuran Bulanan</span>
-                                    <span style="font-weight: bold; color: #28a745;">Rp ${tagihanSiswa.iuran.toLocaleString('id-ID')}</span>
-                                </div>
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #ddd;">
-                                    <span style="font-weight: 600; color: #333;">Denda Absensi</span>
-                                    <span style="font-weight: bold; color: #ff9800;">Rp ${tagihanSiswa.dendaAbsen.toLocaleString('id-ID')}</span>
-                                </div>
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px dashed #ddd;">
-                                    <span style="font-weight: 600; color: #333;">Denda Turnamen</span>
-                                    <span style="font-weight: bold; color: #ff9800;">Rp ${tagihanSiswa.dendaTurnamen.toLocaleString('id-ID')}</span>
-                                </div>
-                                <div style="display: flex; justify-content: space-between; background: #e3f2fd; padding: 10px; border-radius: 4px;">
-                                    <span style="font-weight: 700; color: var(--primary);">TOTAL TAGIHAN</span>
-                                    <span style="font-weight: 700; color: var(--primary); font-size: 16px;">Rp ${totalTagihan.toLocaleString('id-ID')}</span>
-                                </div>
-                            </div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 13px;">Bulan Iuran</label>
+                    <input type="text" id="tagihanBulan" value="${tagihanExist.bulan}" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 10px; font-size: 13px;">
 
-                            <h4 style="color: var(--primary); margin: 15px 0 10px 0;">Edit Komponen Tagihan</h4>
-                            
-                            <label style="font-weight: 600; display: block; margin-bottom: 5px; color: #555; font-size: 13px;">Iuran Bulanan Rp</label>
-                            <input type="number" id="editIuran" value="${tagihanSiswa.iuran}" min="0" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 10px; font-size: 13px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 13px;">Iuran Bulanan Rp</label>
+                    <input type="number" id="tagihanIuran" value="${tagihanExist.iuran}" onchange="updateTagihanDisplay()" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 10px; font-size: 13px;">
 
-                            <label style="font-weight: 600; display: block; margin-bottom: 5px; color: #555; font-size: 13px;">Denda Absensi Rp</label>
-                            <input type="number" id="editDendaAbsen" value="${tagihanSiswa.dendaAbsen}" min="0" placeholder="0" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 10px; font-size: 13px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 13px;">Denda Absensi Rp</label>
+                    <input type="number" id="tagihanDendaAbsen" value="${tagihanExist.dendaAbsen}" onchange="updateTagihanDisplay()" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 10px; font-size: 13px;">
 
-                            <label style="font-weight: 600; display: block; margin-bottom: 5px; color: #555; font-size: 13px;">Denda Turnamen Rp</label>
-                            <input type="number" id="editDendaTurnamen" value="${tagihanSiswa.dendaTurnamen}" min="0" placeholder="0" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 10px; font-size: 13px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 13px;">Denda Turnamen Rp</label>
+                    <input type="number" id="tagihanDendaTurnamen" value="${tagihanExist.dendaTurnamen}" onchange="updateTagihanDisplay()" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 10px; font-size: 13px;">
 
-                            <label style="font-weight: 600; display: block; margin-bottom: 5px; color: #555; font-size: 13px;">Keterangan Denda</label>
-                            <textarea id="editKeteranganDenda" rows="2" placeholder="Contoh: Absen 2x latihan, Tidak ikut turnamen" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 10px; font-size: 13px; resize: vertical; min-height: 60px;">${tagihanSiswa.keteranganDenda}</textarea>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 13px;">Keterangan Denda</label>
+                    <input type="text" id="tagihanKeterangan" value="${tagihanExist.keterangan}" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 10px; font-size: 13px;">
 
-                            <div style="background: #fff3cd; border-left: 4px solid var(--secondary); padding: 10px; border-radius: 4px; margin-top: 15px; margin-bottom: 15px; font-size: 12px; color: #856404; line-height: 1.6;">
-                                <strong>💡 Catatan:</strong> Data tagihan ini akan ditampilkan di halaman Informasi Siswa saat mereka login.
-                            </div>
-                        </div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 13px;">Status Pembayaran</label>
+                    <select id="tagihanStatus" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 20px; font-size: 13px;">
+                        <option value="Belum Lunas" ${tagihanExist.status === 'Belum Lunas' ? 'selected' : ''}>⏳ Belum Lunas</option>
+                        <option value="Lunas" ${tagihanExist.status === 'Lunas' ? 'selected' : ''}>✅ Lunas</option>
+                        <option value="Cicilan" ${tagihanExist.status === 'Cicilan' ? 'selected' : ''}>🔄 Cicilan</option>
+                    </select>
 
-                        <div style="display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
-                            <button class="btn btn-success" onclick="saveTagihanModal('${nisw}')" style="padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin: 0;">
-                                <i class="fas fa-save"></i> Simpan
-                            </button>
-                            <button class="btn btn-danger" onclick="closeTagihanModal()" style="padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin: 0;">
-                                <i class="fas fa-times"></i> Batal
-                            </button>
-                        </div>
+                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                        <button class="btn btn-success" onclick="saveTagihan('${nisw}')" style="padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin: 0; background: var(--success); color: white;">
+                            <i class="fas fa-save"></i> Simpan
+                        </button>
+                        <button class="btn btn-danger" onclick="closeTagihan()" style="padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin: 0; background: var(--danger); color: white;">
+                            <i class="fas fa-times"></i> Batal
+                        </button>
                     </div>
                 </div>
             `;
-
-            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            overlay.onclick = function(e) { if (e.target === this) closeTagihan(); };
+            document.body.appendChild(overlay);
         }
 
-        function saveTagihanModal(nisw) {
-            const tagihanBaru = {
-                bulan: document.getElementById("editBulan").value.trim() || "April 2026",
-                iuran: parseInt(document.getElementById("editIuran").value) || 150000,
-                dendaAbsen: parseInt(document.getElementById("editDendaAbsen").value) || 0,
-                dendaTurnamen: parseInt(document.getElementById("editDendaTurnamen").value) || 0,
-                keteranganDenda: document.getElementById("editKeteranganDenda").value.trim(),
-                status: document.getElementById("editStatusTagihan").value,
-                tglUpdate: new Date().toLocaleDateString('id-ID')
-            };
-
-            let allTagihan = JSON.parse(localStorage.getItem("dataTagihan")) || {};
-            allTagihan[nisw] = tagihanBaru;
-            localStorage.setItem("dataTagihan", JSON.stringify(allTagihan));
-
-            console.log(`✅ Tagihan ${nisw} disimpan ke localStorage:`, tagihanBaru);
-
-            showAlert(`✅ TAGIHAN SISWA BERHASIL DISIMPAN!\n\n📝 NISW: ${nisw}\n💰 Total: Rp ${(tagihanBaru.iuran + tagihanBaru.dendaAbsen + tagihanBaru.dendaTurnamen).toLocaleString('id-ID')}\n📌 Status: ${tagihanBaru.status}\n\n✈️ Data sudah dikirim ke halaman Informasi Siswa`, "success", 3000);
-
-            closeTagihanModal();
+        function updateTagihanDisplay() {
+            const iuran = parseInt(document.getElementById('tagihanIuran')?.value) || 0;
+            const dendaAbsen = parseInt(document.getElementById('tagihanDendaAbsen')?.value) || 0;
+            const dendaTurnamen = parseInt(document.getElementById('tagihanDendaTurnamen')?.value) || 0;
+            const total = iuran + dendaAbsen + dendaTurnamen;
+            const display = document.getElementById('tagihanTotalDisplay');
+            if (display) display.textContent = 'Rp ' + formatRupiah(total);
         }
 
-        function closeTagihanModal() {
-            const modal = document.getElementById('tagihanModal');
-            if (modal) {
-                modal.style.opacity = "0";
-                modal.style.transition = "0.3s ease";
-                setTimeout(() => modal.remove(), 300);
+        function saveTagihan(nisw) {
+            const bulan = document.getElementById('tagihanBulan')?.value?.trim();
+            const iuran = parseInt(document.getElementById('tagihanIuran')?.value) || 0;
+            const dendaAbsen = parseInt(document.getElementById('tagihanDendaAbsen')?.value) || 0;
+            const dendaTurnamen = parseInt(document.getElementById('tagihanDendaTurnamen')?.value) || 0;
+            const keterangan = document.getElementById('tagihanKeterangan')?.value?.trim() || '';
+            const status = document.getElementById('tagihanStatus')?.value;
+
+            if (!bulan) { showAlert("⚠️ Bulan iuran wajib diisi!", "warn"); return; }
+
+            const allTagihan = JSON.parse(localStorage.getItem('dataTagihan')) || {};
+            allTagihan[nisw] = { bulan, iuran, dendaAbsen, dendaTurnamen, keterangan, status, totalTagihan: iuran + dendaAbsen + dendaTurnamen, tglUpdate: new Date().toISOString() };
+            localStorage.setItem('dataTagihan', JSON.stringify(allTagihan));
+
+            showAlert(`✅ Tagihan ${nisw} disimpan!\nRp ${formatRupiah(iuran + dendaAbsen + dendaTurnamen)}`, "success");
+            closeTagihan();
+        }
+
+        function closeTagihan() {
+            const overlay = document.getElementById('tagihanOverlay');
+            if (overlay) {
+                overlay.style.opacity = '0';
+                overlay.style.transition = '0.3s ease';
+                setTimeout(() => overlay.remove(), 300);
+            }
+        }
+
+        // ===== FUNGSI EDIT SISWA =====
+        function editSiswa(nisw) {
+            const siswa = allSiswaData.find(s => s.nisw === nisw);
+            if (!siswa) {
+                showAlert("❌ Siswa tidak ditemukan!", "error");
+                return;
+            }
+
+            const overlay = document.createElement('div');
+            overlay.id = 'editSiswaOverlay';
+            overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;';
+            overlay.innerHTML = `
+                <div style="background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                    <div style="font-size: 18px; font-weight: bold; color: var(--primary); margin-bottom: 20px; border-bottom: 2px solid var(--secondary); padding-bottom: 15px;">✏️ EDIT SISWA - ${siswa.nama}</div>
+                    
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 13px;">Nama Lengkap</label>
+                    <input type="text" id="editNama" value="${siswa.nama}" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 10px; font-size: 13px;">
+
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 13px;">Posisi</label>
+                    <input type="text" id="editPosisi" value="${siswa.posisi || ''}" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 10px; font-size: 13px;">
+
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 13px;">Nama Orang Tua</label>
+                    <input type="text" id="editOrtu" value="${siswa.namaOrtu || ''}" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 10px; font-size: 13px;">
+
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 13px;">No HP</label>
+                    <input type="text" id="editNoHp" value="${siswa.noHp || ''}" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 10px; font-size: 13px;">
+
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 13px;">Alamat</label>
+                    <textarea id="editAlamat" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 20px; font-size: 13px; resize: vertical; min-height: 60px;">${siswa.alamat || ''}</textarea>
+
+                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                        <button class="btn btn-success" onclick="saveSiswaEdit('${nisw}')" style="padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin: 0; background: var(--success); color: white;">
+                            <i class="fas fa-save"></i> Simpan
+                        </button>
+                        <button class="btn btn-danger" onclick="closeEditSiswa()" style="padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin: 0; background: var(--danger); color: white;">
+                            <i class="fas fa-times"></i> Batal
+                        </button>
+                    </div>
+                </div>
+            `;
+            overlay.onclick = function(e) { if (e.target === this) closeEditSiswa(); };
+            document.body.appendChild(overlay);
+        }
+
+        function saveSiswaEdit(nisw) {
+            const nama = document.getElementById('editNama')?.value?.trim();
+            const posisi = document.getElementById('editPosisi')?.value?.trim();
+            const ortu = document.getElementById('editOrtu')?.value?.trim();
+            const noHp = document.getElementById('editNoHp')?.value?.trim();
+            const alamat = document.getElementById('editAlamat')?.value?.trim();
+
+            if (!nama) { showAlert("⚠️ Nama wajib diisi!", "warn"); return; }
+
+            const siswaIdx = allSiswaData.findIndex(s => s.nisw === nisw);
+            if (siswaIdx !== -1) {
+                allSiswaData[siswaIdx].nama = nama;
+                allSiswaData[siswaIdx].posisi = posisi;
+                allSiswaData[siswaIdx].namaOrtu = ortu;
+                allSiswaData[siswaIdx].noHp = noHp;
+                allSiswaData[siswaIdx].alamat = alamat;
+                
+                DBManager.updateSiswaAktif(nisw, allSiswaData[siswaIdx]);
+                showAlert("✅ Data siswa " + nama + " berhasil diperbarui!", "success");
+                closeEditSiswa();
+                renderAllSiswa();
+            }
+        }
+
+        function closeEditSiswa() {
+            const overlay = document.getElementById('editSiswaOverlay');
+            if (overlay) {
+                overlay.style.opacity = '0';
+                overlay.style.transition = '0.3s ease';
+                setTimeout(() => overlay.remove(), 300);
+            }
+        }
+
+        // ===== FUNGSI HAPUS SISWA =====
+        function hapusSiswa(nisw) {
+            const siswa = allSiswaData.find(s => s.nisw === nisw);
+            if (!siswa) {
+                showAlert("❌ Siswa tidak ditemukan!", "error");
+                return;
+            }
+
+            if (confirm(`⚠️ Yakin hapus siswa ${siswa.nama} (${nisw})?\n\nAksi ini tidak bisa dibatalkan!`)) {
+                allSiswaData = allSiswaData.filter(s => s.nisw !== nisw);
+                DBManager.deleteSiswaAktif(nisw);
+                showAlert(`✅ Siswa ${siswa.nama} berhasil dihapus!`, "success");
+                renderAllSiswa();
             }
         }
 
