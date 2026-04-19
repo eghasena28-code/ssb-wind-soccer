@@ -134,8 +134,8 @@
                     <div><label>Cari NISW/Nama</label><input type="text" id="searchNiswNama" placeholder="NISW atau Nama..." onkeyup="renderAllSiswa()"></div>
                 </div>
                 <div class="btn-group">
-                    <button class="btn btn-info" onclick="renderAllSiswa()"><i class="fas fa-sync-alt"></i> Refresh Data</button>
-                    <button class="btn btn-print" onclick="printDataSiswa()"><i class="fas fa-print"></i> Print/Export</button>
+                    <button class="btn btn-info" onclick="refreshDataSiswa()"><i class="fas fa-sync-alt"></i> Refresh Data</button>
+                    <button class="btn btn-print" onclick="exportDataSiswa()"><i class="fas fa-download"></i> Export</button>
                     <button class="btn btn-danger" onclick="resetFilterSiswa()"><i class="fas fa-redo"></i> Reset Filter</button>
                 </div>
                 <div class="table-wrapper">
@@ -474,7 +474,7 @@
             <!-- ===== RINGKASAN UNTUK INFORMASI SISWA ===== -->
             <div class="card">
                 <h4 style="color: #17a2b8; border-bottom: 2px solid #17a2b8; padding-bottom: 10px;">🔗 PREVIEW - Jadwal yang ditampilkan di Halaman Informasi Siswa</h4>
-                <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Berikut adalah jadwal yang akan divisualisasikan untuk siswa:</p>
+                <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Berikut adalah jadwal yang akan divisualizasikan untuk siswa:</p>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                     <div style="background: #e8f5e9; padding: 15px; border-radius: 10px; border-left: 5px solid #28a745;">
@@ -581,10 +581,51 @@
                         <td title="${siswa.alamat || '-'}" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis;">${siswa.alamat || '-'}</td>
                         <td><span style="background: ${getStatusBayarColor(siswa.statusPembayaran)}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${siswa.statusPembayaran || 'Belum Bayar'}</span></td>
                         <td style="text-align: right; color: #dc3545; font-weight: bold;">Rp ${formatRupiah(siswa.tagihan || 0)}</td>
-                        <td><div class="row-action"><button class="btn btn-info btn-sm" title="Edit"><i class="fas fa-edit"></i></button><button class="btn btn-danger btn-sm" title="Hapus"><i class="fas fa-trash"></i></button></div></td>
+                        <td><div class="row-action"><button class="btn btn-info btn-sm"><i class="fas fa-edit"></i></button><button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></td>
                     </tr>
                 `).join('');
             });
+        }
+
+        // ===== FUNGSI BUTTON DATABASE SISWA =====
+        function refreshDataSiswa() {
+            console.log("🔄 Refresh data siswa");
+            renderAllSiswa();
+            showAlert("✅ Data berhasil diperbarui!", "success", 1500);
+        }
+
+        function exportDataSiswa() {
+            console.log("📥 Export data siswa");
+            if (allSiswaData.length === 0) {
+                showAlert("⚠️ Tidak ada data untuk di-export!", "warn");
+                return;
+            }
+
+            let csv = 'DAFTAR SISWA AKTIF SSB WIND SOCCER\n';
+            csv += 'Tanggal Export: ' + new Date().toLocaleString('id-ID') + '\n\n';
+            csv += 'NISW,Nama,Kategori,Tipe,Posisi,Tanggal Lahir,No HP,Orang Tua,Status Bayar,Tagihan,Alamat\n';
+
+            allSiswaData.forEach(siswa => {
+                csv += `"${siswa.nisw}","${siswa.nama}","${siswa.kategori}","${siswa.tipe}","${siswa.posisi}","${siswa.tglLahir}","${siswa.noHp}","${siswa.namaOrtu}","${siswa.statusPembayaran}",${siswa.tagihan},"${siswa.alamat}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Siswa_Aktif_${new Date().toLocaleDateString('id-ID')}.csv`;
+            link.click();
+
+            showAlert("✅ File berhasil di-download!", "success");
+        }
+
+        function resetFilterSiswa() {
+            console.log("🔃 Reset filter siswa");
+            document.getElementById('filterKategori').value = '';
+            document.getElementById('filterTipe').value = '';
+            document.getElementById('filterStatusBayar').value = '';
+            document.getElementById('searchNiswNama').value = '';
+            renderAllSiswa();
+            showAlert("✅ Filter direset!", "success", 1500);
         }
 
         // ===== RENDER VERIFIKASI =====
@@ -632,7 +673,6 @@
                 if (idx !== -1) {
                     pendaftarData[idx].status = 'DISETUJUI';
                     
-                    // Catat ke keuangan
                     const transaksi = {
                         id: Date.now().toString(),
                         tanggal: new Date().toLocaleDateString('id-ID'),
@@ -951,7 +991,6 @@
                 </div>
             `).join('');
 
-            // Simpan ke DB
             localStorage.setItem('jadwalLatihan', JSON.stringify(jadwalLatihan));
         }
 
@@ -1127,7 +1166,6 @@
             if (!nisw) { showAlert("⚠️ Masukkan NISW!", "warn"); return; }
             showAlert("✅ Nilai " + nisw + " disimpan!", "success");
             
-            // Reset form
             document.getElementById('niswNilai').value = '';
             document.getElementById('siswaRaportInfo').style.display = 'none';
             document.querySelectorAll('.input-nilai').forEach(el => el.value = '');
@@ -1173,15 +1211,6 @@
         function getStatusBayarColor(status) {
             const colors = { 'Lunas': '#28a745', 'Cicilan': '#ffc107', 'Belum Bayar': '#dc3545' };
             return colors[status] || '#6c757d';
-        }
-
-        function printDataSiswa() { showAlert("🖨️ Print Feature - Coming Soon", "info"); }
-        function resetFilterSiswa() {
-            document.getElementById('filterKategori').value = '';
-            document.getElementById('filterTipe').value = '';
-            document.getElementById('filterStatusBayar').value = '';
-            document.getElementById('searchNiswNama').value = '';
-            renderAllSiswa();
         }
 
         function logoutAdmin() {
