@@ -52,11 +52,6 @@
         .stat-box { padding: 15px; border-radius: 12px; color: white; text-align: center; }
         .stat-box span { font-size: 12px; opacity: 0.9; }
         .stat-box h3 { color: white !important; border: none; padding: 0; margin: 8px 0 0 0; font-size: 24px; }
-        .avg-bar-container { background: #eee; border-radius: 10px; height: 30px; margin-top: 10px; overflow: hidden; position: relative; }
-        .avg-bar-fill { background: var(--success); height: 100%; width: 0%; transition: 0.5s; }
-        .avg-text { position: absolute; width: 100%; text-align: center; top: 0; font-weight: bold; font-size: 14px; line-height: 30px; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
-        .antropometri-box { background: #f8f9fa; padding: 18px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #ffb400; }
-        .antropometri-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
         .filter-section { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
         .btn-group { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         .btn-group .btn { flex: 1; min-width: 120px; }
@@ -84,10 +79,6 @@
         .modal-body strong { color: var(--primary); }
         .modal-footer { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
         .modal-footer .btn { margin: 0; }
-        .summary-box { background: #f0f0f0; padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px solid #ddd; }
-        .summary-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #ddd; }
-        .summary-row:last-child { border-bottom: none; }
-        .summary-row strong { color: var(--primary); }
         .photo-placeholder { display: inline-block; width: 40px; height: 40px; background: #e0e0e0; border-radius: 50%; text-align: center; line-height: 40px; font-size: 20px; }
     </style>
 </head>
@@ -125,7 +116,7 @@
                     <div style="display: flex; justify-content: space-around; align-items: center; gap: 20px;">
                         <div style="text-align: center; flex: 1;"><div style="font-size: 13px; opacity: 0.85; margin-bottom: 4px;">REGULER</div><div id="totalReguler" style="font-size: 28px; font-weight: bold; line-height: 1;">0</div></div>
                         <div style="text-align: center; flex: 1;"><div style="font-size: 13px; opacity: 0.85; margin-bottom: 4px;">BEASISWA</div><div id="totalBeasiswa" style="font-size: 28px; font-weight: bold; line-height: 1;">0</div></div>
-                        <div style="text-align: center; flex: 1; border-left: 2px solid rgba(255,255,255,0.4); padding-left: 20px;"><div style="font-size: 13px; opacity: 0.85; margin-bottom: 4px;">TOTAL KESELURUHAN</div><div id="totalSiswaAktif" style="font-size: 32px; font-weight: bold; line-height: 1;">0</div></div>
+                        <div style="text-align: center; flex: 1; border-left: 2px solid rgba(255,255,255,0.4); padding-left: 20px;"><div style="font-size: 13px; opacity: 0.85; margin-bottom: 4px;">TOTAL</div><div id="totalSiswaAktif" style="font-size: 32px; font-weight: bold; line-height: 1;">0</div></div>
                     </div>
                 </div>
                 <div class="filter-section">
@@ -274,21 +265,6 @@
                     <button class="btn btn-danger" onclick="resetKeuangan()"><i class="fas fa-trash"></i> Hapus Semua</button>
                 </div>
 
-                <div class="summary-box">
-                    <div class="summary-row">
-                        <strong>📊 Total Transaksi:</strong>
-                        <span id="totalTransaksiCount">0</span>
-                    </div>
-                    <div class="summary-row">
-                        <strong>💵 Total Pemasukan (Count):</strong>
-                        <span id="totalMasukCount">0</span>
-                    </div>
-                    <div class="summary-row">
-                        <strong>💸 Total Pengeluaran (Count):</strong>
-                        <span id="totalKeluarCount">0</span>
-                    </div>
-                </div>
-
                 <div class="table-wrapper" style="margin-top: 20px;">
                     <table>
                         <thead>
@@ -318,13 +294,15 @@
                 <div id="siswaRaportInfo" style="background: #f0f4ff; padding: 15px; border-radius: 8px; margin-bottom: 15px; display: none;">
                     <strong>Nama:</strong> <span id="namaRaport">-</span> | <strong>KU:</strong> <span id="kuRaport">-</span>
                 </div>
-                <div class="antropometri-box">
-                    <h4>DATA ANTROPOMETRI SISWA</h4>
-                    <div class="antropometri-grid">
-                        <div><label>TB (cm)</label><input type="number" id="tb" placeholder="165" oninput="hitungBMI()"></div>
-                        <div><label>BB (kg)</label><input type="number" id="bb" placeholder="55" oninput="hitungBMI()"></div>
-                        <div><label>Lingkar Perut (cm)</label><input type="number" id="lingkarPerut" placeholder="68"></div>
-                        <div><label>MES Index (BMI)</label><input type="text" id="bmi" readonly style="background:#e9f0ff; font-weight:bold; text-align:center;"></div>
+                <div class="info-box" style="margin-bottom: 15px;">
+                    <strong>📝 Data Antropometri:</strong>
+                    <div style="margin-top: 10px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div><label>TB (cm)</label><input type="number" id="tb" placeholder="165" oninput="hitungBMI()"></div>
+                            <div><label>BB (kg)</label><input type="number" id="bb" placeholder="55" oninput="hitungBMI()"></div>
+                            <div><label>Lingkar Perut (cm)</label><input type="number" id="lingkarPerut" placeholder="68"></div>
+                            <div><label>BMI</label><input type="text" id="bmi" readonly style="background:#e9f0ff; font-weight:bold; text-align:center;"></div>
+                        </div>
                     </div>
                 </div>
                 <h4>I. TEKNIK (TECHNICAL SKILLS)</h4>
@@ -341,9 +319,9 @@
                 </div>
                 <div style="margin-top:20px; padding:15px; background:#f8f9fa; border-radius:10px;">
                     <label>Rata-Rata Nilai:</label>
-                    <div class="avg-bar-container">
-                        <div id="avgFill" class="avg-bar-fill"></div>
-                        <div id="avgText" class="avg-text">0</div>
+                    <div style="background: #eee; border-radius: 10px; height: 30px; margin-top: 10px; overflow: hidden; position: relative;">
+                        <div id="avgFill" style="background: var(--success); height: 100%; width: 0%; transition: 0.5s;"></div>
+                        <div id="avgText" style="position: absolute; width: 100%; text-align: center; top: 0; font-weight: bold; font-size: 14px; line-height: 30px; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">0</div>
                     </div>
                 </div>
                 <label style="margin-top: 15px;">Catatan Evaluasi:</label><textarea id="catatanPelatih" rows="3" placeholder="Saran perkembangan..."></textarea>
@@ -525,9 +503,12 @@
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
     <script src="firebase-config.js"></script>
     <script src="db-sync.js"></script>
+    
+    <!-- ADMIN HELPERS (LOAD FIRST!) -->
+    <script src="admin-helpers.js"></script>
 
     <script>
-        console.log("🚀 Admin Panel - VERSI LENGKAP DIPERBAIKI");
+        console.log("🚀 Admin Panel - VERSI 3.0 LENGKAP");
 
         // ===== GLOBAL DATA =====
         let allSiswaData = [];
@@ -535,8 +516,6 @@
         let jadwalTurnamen = [];
         let keuanganData = [];
         let pendaftarData = [];
-        let currentEditTagihan = null;
-        let currentEditSiswaData = null;
         
         const NOMINAL_DAFTAR = {
             'Reguler': 500000,
@@ -562,210 +541,10 @@
             }, time);
         }
 
-        // ===== TAGIHAN FUNCTIONS =====
-        function openTagihanModal(nisw) {
-            const siswa = allSiswaData.find(s => s.nisw === nisw);
-            if (!siswa) {
-                showAlert("❌ Siswa tidak ditemukan!", "error");
-                return;
-            }
-
-            let allTagihan = JSON.parse(localStorage.getItem('dataTagihan')) || {};
-            const tagihan = allTagihan[nisw] || {
-                bulan: new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }),
-                iuran: 150000,
-                dendaAbsen: 0,
-                dendaTurnamen: 0,
-                keteranganDenda: '',
-                status: 'Belum Lunas'
-            };
-
-            currentEditTagihan = nisw;
-
-            const modal = document.getElementById('modalTagihan');
-            const modalHeader = modal.querySelector('.modal-header');
-            const modalBody = modal.querySelector('.modal-body');
-
-            modalHeader.innerHTML = `💰 Kelola Tagihan - ${siswa.nama} (${nisw})`;
-
-            const totalTag = (tagihan.iuran || 0) + (tagihan.dendaAbsen || 0) + (tagihan.dendaTurnamen || 0);
-
-            modalBody.innerHTML = `
-                <label>Bulan Iuran:</label>
-                <input type="text" id="editBulan" value="${tagihan.bulan}" placeholder="Misal: April 2026">
-
-                <label>Iuran Bulanan (Rp):</label>
-                <input type="number" id="editIuran" value="${tagihan.iuran}" placeholder="150000">
-
-                <label>Denda Absensi (Rp):</label>
-                <input type="number" id="editDendaAbsen" value="${tagihan.dendaAbsen}" placeholder="0">
-
-                <label>Denda Turnamen (Rp):</label>
-                <input type="number" id="editDendaTurnamen" value="${tagihan.dendaTurnamen}" placeholder="0">
-
-                <label>Keterangan Denda:</label>
-                <input type="text" id="editKeteranganDenda" value="${tagihan.keteranganDenda}" placeholder="Misal: Absen 3x latihan">
-
-                <label>Status Pembayaran:</label>
-                <select id="editStatusTagihan">
-                    <option value="Belum Lunas" ${tagihan.status === 'Belum Lunas' ? 'selected' : ''}>Belum Lunas</option>
-                    <option value="Lunas" ${tagihan.status === 'Lunas' ? 'selected' : ''}>Lunas</option>
-                    <option value="Cicil" ${tagihan.status === 'Cicil' ? 'selected' : ''}>Cicil</option>
-                </select>
-
-                <div style="background: #e8f5e9; padding: 12px; border-radius: 6px; margin-top: 15px;">
-                    <strong style="color: #28a745; display: block; margin-bottom: 8px;">📊 Total Tagihan:</strong>
-                    <div style="font-size: 16px; font-weight: bold; color: #28a745;">
-                        Rp ${formatRupiah(totalTag)}
-                    </div>
-                </div>
-            `;
-
-            modal.classList.add('active');
-        }
-
-        function saveTagihan() {
-            if (!currentEditTagihan) return;
-
-            const bulan = document.getElementById('editBulan').value.trim();
-            const iuran = parseInt(document.getElementById('editIuran').value) || 0;
-            const dendaAbsen = parseInt(document.getElementById('editDendaAbsen').value) || 0;
-            const dendaTurnamen = parseInt(document.getElementById('editDendaTurnamen').value) || 0;
-            const keteranganDenda = document.getElementById('editKeteranganDenda').value.trim();
-            const status = document.getElementById('editStatusTagihan').value;
-
-            if (!bulan) {
-                showAlert("⚠️ Bulan iuran wajib diisi!", "warn");
-                return;
-            }
-
-            let allTagihan = JSON.parse(localStorage.getItem('dataTagihan')) || {};
-            allTagihan[currentEditTagihan] = {
-                bulan,
-                iuran,
-                dendaAbsen,
-                dendaTurnamen,
-                keteranganDenda,
-                status
-            };
-            localStorage.setItem('dataTagihan', JSON.stringify(allTagihan));
-
-            showAlert(`✅ Tagihan ${currentEditTagihan} berhasil disimpan!`, "success");
-            closeTagihanModal();
-            renderAllSiswa();
-        }
-
-        function closeTagihanModal() {
-            const modal = document.getElementById('modalTagihan');
-            if (modal) {
-                modal.classList.remove('active');
-                currentEditTagihan = null;
-            }
-        }
-
-        // ===== EDIT SISWA FUNCTIONS =====
-        function editSiswa(nisw) {
-            const siswa = allSiswaData.find(s => s.nisw === nisw);
-            if (!siswa) return;
-
-            currentEditSiswaData = nisw;
-
-            const modal = document.getElementById('modalEditSiswa');
-            const modalHeader = modal.querySelector('.modal-header');
-            const modalBody = modal.querySelector('.modal-body');
-
-            modalHeader.innerHTML = `✏️ Edit Data Siswa - ${siswa.nama}`;
-
-            modalBody.innerHTML = `
-                <label>Nama Lengkap:</label>
-                <input type="text" id="editNamaSiswa" value="${siswa.nama}">
-
-                <label>Posisi:</label>
-                <input type="text" id="editPosisiSiswa" value="${siswa.posisi || ''}">
-
-                <label>Nama Orang Tua:</label>
-                <input type="text" id="editOrangtua" value="${siswa.namaOrtu || ''}">
-
-                <label>No HP:</label>
-                <input type="text" id="editHpSiswa" value="${siswa.noHp || ''}">
-
-                <label>Alamat:</label>
-                <textarea id="editAlamatSiswa" rows="3">${siswa.alamat || ''}</textarea>
-            `;
-
-            modal.classList.add('active');
-        }
-
-        function saveSiswaEditFinal() {
-            if (!currentEditSiswaData) return;
-
-            const nama = document.getElementById('editNamaSiswa').value.trim();
-            const posisi = document.getElementById('editPosisiSiswa').value.trim();
-            const namaOrtu = document.getElementById('editOrangtua').value.trim();
-            const noHp = document.getElementById('editHpSiswa').value.trim();
-            const alamat = document.getElementById('editAlamatSiswa').value.trim();
-
-            if (!nama) {
-                showAlert("⚠️ Nama wajib diisi!", "warn");
-                return;
-            }
-
-            const idx = allSiswaData.findIndex(s => s.nisw === currentEditSiswaData);
-            if (idx !== -1) {
-                allSiswaData[idx].nama = nama;
-                allSiswaData[idx].posisi = posisi;
-                allSiswaData[idx].namaOrtu = namaOrtu;
-                allSiswaData[idx].noHp = noHp;
-                allSiswaData[idx].alamat = alamat;
-                
-                localStorage.setItem('siswaAktif', JSON.stringify(allSiswaData));
-                showAlert(`✅ Data ${currentEditSiswaData} berhasil diperbarui!`, "success");
-                closeEditSiswaModal();
-                renderAllSiswa();
-            }
-        }
-
-        function closeEditSiswaModal() {
-            const modal = document.getElementById('modalEditSiswa');
-            if (modal) {
-                modal.classList.remove('active');
-                currentEditSiswaData = null;
-            }
-        }
-
-        // ===== HAPUS SISWA =====
-        function hapusSiswa(nisw) {
-            const siswa = allSiswaData.find(s => s.nisw === nisw);
-            if (!siswa) return;
-
-            if (confirm(`⚠️ Hapus siswa ${siswa.nama} (${nisw}) dari database?\n\nTindakan ini tidak bisa dibatalkan!`)) {
-                allSiswaData = allSiswaData.filter(s => s.nisw !== nisw);
-                localStorage.setItem('siswaAktif', JSON.stringify(allSiswaData));
-                
-                let allTagihan = JSON.parse(localStorage.getItem('dataTagihan')) || {};
-                delete allTagihan[nisw];
-                localStorage.setItem('dataTagihan', JSON.stringify(allTagihan));
-
-                showAlert(`✅ Siswa ${nisw} berhasil dihapus!`, "success");
-                renderAllSiswa();
-            }
-        }
-
-        // ===== GET TOTAL TAGIHAN =====
-        function getTotalTagihan(nisw) {
-            let allTagihan = JSON.parse(localStorage.getItem('dataTagihan')) || {};
-            const tagihan = allTagihan[nisw];
-            if (!tagihan) return 0;
-            return (tagihan.iuran || 0) + (tagihan.dendaAbsen || 0) + (tagihan.dendaTurnamen || 0);
-        }
-
-        function getStatusTagihan(nisw) {
-            let allTagihan = JSON.parse(localStorage.getItem('dataTagihan')) || {};
-            return allTagihan[nisw]?.status || 'Belum Bayar';
-        }
-
-        // ===== RENDER SISWA =====
+        // ===== RENDER SISWA (MAIN FUNCTION) =====
         function renderAllSiswa() {
+            console.log("👥 [RENDER] Rendering semua siswa...");
+            
             const filterKategori = document.getElementById('filterKategori')?.value || '';
             const filterTipe = document.getElementById('filterTipe')?.value || '';
             const filterStatusBayar = document.getElementById('filterStatusBayar')?.value || '';
@@ -773,7 +552,9 @@
 
             DBManager.getSiswaAktif(function(siswaList) {
                 if (!siswaList) siswaList = [];
-                allSiswaData = siswaList;
+                
+                // Update global state
+                updateAdminState(siswaList);
                 
                 let filteredData = siswaList.filter(siswa => {
                     const matchKategori = !filterKategori || siswa.kategori === filterKategori;
@@ -783,15 +564,18 @@
                     return matchKategori && matchTipe && matchStatusBayar && matchSearch;
                 });
 
+                // Count
                 const totalReguler = siswaList.filter(s => s.tipe === 'Reguler').length;
                 const totalBeasiswa = siswaList.filter(s => s.tipe === 'Beasiswa').length;
                 document.getElementById('totalReguler').textContent = totalReguler;
                 document.getElementById('totalBeasiswa').textContent = totalBeasiswa;
                 document.getElementById('totalSiswaAktif').textContent = siswaList.length;
 
+                // Render table
                 const tbody = document.getElementById('listSiswaAktif');
                 if (filteredData.length === 0) {
                     tbody.innerHTML = `<tr><td colspan="14" style="text-align: center; padding: 30px;">📭 Tidak ada data</td></tr>`;
+                    console.log("ℹ️ No data to display");
                     return;
                 }
 
@@ -809,26 +593,30 @@
                             <td><span style="background: ${siswa.tipe === 'Beasiswa' ? '#e8f5e9' : '#fff3cd'}; color: ${siswa.tipe === 'Beasiswa' ? '#27ae60' : '#f57c00'}; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${siswa.tipe || 'Reguler'}</span></td>
                             <td>${siswa.posisi || '-'}</td>
                             <td>${formatTanggal(siswa.tglLahir) || '-'}</td>
-                            <td><a href="https://wa.me/${siswa.noHp?.replace(/\D/g, '')}" target="_blank" style="color: #28a745; text-decoration: none; font-weight: bold;">${siswa.noHp || '-'}</a></td>
+                            <td><a href="https://wa.me/${siswa.noHp?.replace(/\D/g, '')}" target="_blank" style="color: #28a745; text-decoration: none; font-weight: bold; font-size: 12px;">${siswa.noHp || '-'}</a></td>
                             <td>${siswa.namaOrtu || '-'}</td>
-                            <td title="${siswa.alamat || '-'}" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis;">${siswa.alamat || '-'}</td>
-                            <td><span style="background: ${getStatusBayarColor(statusTagihan)}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${statusTagihan}</span></td>
-                            <td style="text-align: right; color: #dc3545; font-weight: bold;">Rp ${formatRupiah(totalTagihan)}</td>
+                            <td title="${siswa.alamat || '-'}" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px;">${siswa.alamat || '-'}</td>
+                            <td><span style="background: ${getStatusBayarColor(statusTagihan)}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold;">${statusTagihan}</span></td>
+                            <td style="text-align: right; color: #dc3545; font-weight: bold; font-size: 12px;">Rp ${formatRupiah(totalTagihan)}</td>
                             <td>
-                                <div class="row-action">
-                                    <button class="btn btn-warning btn-sm" onclick="openTagihanModal('${siswa.nisw}')" title="Kelola Tagihan"><i class="fas fa-receipt"></i> Tagihan</button>
-                                    <button class="btn btn-info btn-sm" onclick="editSiswa('${siswa.nisw}')" title="Edit Data"><i class="fas fa-edit"></i> Edit</button>
-                                    <button class="btn btn-danger btn-sm" onclick="hapusSiswa('${siswa.nisw}')" title="Hapus"><i class="fas fa-trash"></i> Hapus</button>
+                                <div class="row-action" style="gap: 3px;">
+                                    <button class="btn btn-warning btn-sm" onclick="openTagihanModal('${siswa.nisw}')" title="Kelola Tagihan" style="padding: 6px 8px; font-size: 10px;"><i class="fas fa-receipt"></i></button>
+                                    <button class="btn btn-info btn-sm" onclick="editSiswa('${siswa.nisw}')" title="Edit Data" style="padding: 6px 8px; font-size: 10px;"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-danger btn-sm" onclick="hapusSiswa('${siswa.nisw}')" title="Hapus" style="padding: 6px 8px; font-size: 10px;"><i class="fas fa-trash"></i></button>
                                 </div>
                             </td>
                         </tr>
                     `;
                 }).join('');
+                
+                console.log("✅ Table rendered:", filteredData.length);
             });
         }
 
         // ===== RENDER VERIFIKASI =====
         function renderVerifikasi() {
+            console.log("✅ [VERIFIKASI] Loading pendaftar...");
+            
             DBManager.getPendaftar(function(data) {
                 pendaftarData = data || [];
                 const belumDisetujui = pendaftarData.filter(p => p.status !== 'DISETUJUI');
@@ -867,6 +655,8 @@
         }
 
         function approveVerifikasi(nisw, nama, nominal) {
+            console.log("✅ [VERIFIKASI] Approve:", nisw);
+            
             if (confirm(`Setujui ${nama}?\n\nNominal: Rp ${formatRupiah(nominal)}`)) {
                 const idx = pendaftarData.findIndex(p => p.nisw === nisw);
                 if (idx !== -1) {
@@ -897,6 +687,8 @@
 
         // ===== RENDER ABSENSI =====
         function renderAbsensi() {
+            console.log("📝 [ABSENSI] Loading absensi...");
+            
             const tgl = document.getElementById('searchTglAbsen')?.value || '';
             const nisw = document.getElementById('filterNiswAbsen')?.value?.toLowerCase() || '';
 
@@ -956,10 +748,6 @@
             document.getElementById('totalMasuk').textContent = 'Rp ' + formatRupiah(totalMasuk);
             document.getElementById('totalKeluar').textContent = 'Rp ' + formatRupiah(totalKeluar);
             document.getElementById('saldoAkhir').textContent = 'Rp ' + formatRupiah(saldo);
-            
-            document.getElementById('totalTransaksiCount').textContent = keuanganData.length;
-            document.getElementById('totalMasukCount').textContent = keuanganData.filter(k => k.jenisMasukKeluar === 'Masuk').length;
-            document.getElementById('totalKeluarCount').textContent = keuanganData.filter(k => k.jenisMasukKeluar === 'Keluar').length;
         }
 
         function renderKeuangan() {
@@ -972,7 +760,7 @@
 
             const sorted = [...keuanganData].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
             
-            tbody.innerHTML = sorted.map((k, idx) => {
+            tbody.innerHTML = sorted.map((k) => {
                 const jenisBg = k.jenisMasukKeluar === 'Masuk' ? '#d4edda' : '#f8d7da';
                 const jenisText = k.jenisMasukKeluar === 'Masuk' ? '#155724' : '#721c24';
                 const jenisColor = k.jenisMasukKeluar === 'Masuk' ? '#28a745' : '#dc3545';
@@ -1408,11 +1196,6 @@
             return new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0 }).format(nominal || 0);
         }
 
-        function getStatusBayarColor(status) {
-            const colors = { 'Lunas': '#28a745', 'Cicilan': '#ffc107', 'Cicil': '#ffc107', 'Belum Bayar': '#dc3545' };
-            return colors[status] || '#6c757d';
-        }
-
         function printDataSiswa() { showAlert("🖨️ Print Feature - Coming Soon", "info"); }
         function resetFilterSiswa() {
             document.getElementById('filterKategori').value = '';
@@ -1434,7 +1217,7 @@
 
         // ===== INITIALIZE =====
         window.addEventListener('load', function() {
-            console.log("✅ Admin Panel - Fungsi Lengkap SIAP!");
+            console.log("✅ Admin Panel - VERSI 3.0 SIAP!");
             
             // Cek DBManager
             if (typeof DBManager === 'undefined') {
@@ -1443,6 +1226,7 @@
                 return;
             }
             
+            console.log("✅ DBManager tersedia");
             renderAllSiswa();
             loadJadwalLatihan();
             loadJadwalTurnamen();
